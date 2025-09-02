@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClipboardItemProps {
   item: {
@@ -42,6 +43,7 @@ interface ClipboardItemProps {
 const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
+  const { toast } = useToast();
 
   const getTypeIcon = () => {
     switch (item.type) {
@@ -72,9 +74,16 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(item.content);
-      // Show toast notification here
+      toast({
+        title: "Copied to clipboard",
+        description: "Content has been copied to your clipboard.",
+      });
     } catch (error) {
-      console.error('Failed to copy:', error);
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy content to clipboard.",
+        variant: "destructive",
+      });
     }
   };
 

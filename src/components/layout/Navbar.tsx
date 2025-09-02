@@ -65,16 +65,18 @@ const Navbar = () => {
             <span>Extension</span>
           </Button>
 
-          <Button variant="ghost" className="flex items-center space-x-2">
-            <User className="w-4 h-4" />
-            <span className="hidden sm:inline">Sign In</span>
+          <Button variant="ghost" className="flex items-center space-x-2" asChild>
+            <Link to="/auth">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign In</span>
+            </Link>
           </Button>
 
           <Button 
             className="bg-gradient-hero hover:opacity-90 text-white"
-            onClick={() => navigate('/dashboard')}
+            asChild
           >
-            Get Started
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
       </div>

@@ -25,9 +25,9 @@ const Landing = () => {
                 Never lose important content again.
               </p>
               <div className="flex space-x-4">
-                <button className="bg-gradient-hero text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
+                <a href="/auth" className="bg-gradient-hero text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
                   Get Started
-                </button>
+                </a>
                 <button className="border border-border px-6 py-2 rounded-lg hover:bg-surface transition-colors">
                   Download Extension
                 </button>

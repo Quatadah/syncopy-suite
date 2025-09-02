@@ -7,7 +7,8 @@ import {
   List, 
   User,
   Bell,
-  Settings
+  Settings,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,81 +21,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import ClipboardItem from "@/components/dashboard/ClipboardItem";
+import AddItemDialog from "@/components/dashboard/AddItemDialog";
 import { cn } from "@/lib/utils";
+import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const { user, signOut } = useAuth();
+  const { items, loading, copyToClipboard } = useClipboardItems();
 
-  // Mock data - in real app this would come from Supabase
-  const clipboardItems = [
-    {
-      id: '1',
-      title: 'Meeting Notes - Q4 Planning',
-      content: 'Key takeaways from the Q4 planning meeting: 1. Focus on user retention 2. New feature rollout in December 3. Team expansion in January...',
-      type: 'text' as const,
-      tags: ['meeting', 'planning', 'q4'],
-      isPinned: true,
-      isFavorite: false,
-      createdAt: '2024-01-20T10:30:00Z',
-    },
-    {
-      id: '2',
-      title: 'API Documentation Link',
-      content: 'https://docs.supabase.com/reference/javascript/auth-signup',
-      type: 'link' as const,
-      tags: ['dev', 'supabase', 'auth'],
-      isPinned: false,
-      isFavorite: true,
-      createdAt: '2024-01-20T09:15:00Z',
-    },
-    {
-      id: '3',
-      title: 'React Component Code',
-      content: 'const ClipboardItem = ({ item }) => {\n  return (\n    <div className="p-4 border rounded">\n      {item.content}\n    </div>\n  );\n};',
-      type: 'code' as const,
-      tags: ['react', 'component', 'frontend'],
-      isPinned: false,
-      isFavorite: false,
-      createdAt: '2024-01-20T08:45:00Z',
-    },
-    {
-      id: '4',
-      title: 'Design Inspiration Screenshot',
-      content: 'Screenshot of beautiful dashboard design from Linear.app',
-      type: 'image' as const,
-      tags: ['design', 'inspiration', 'ui'],
-      isPinned: false,
-      isFavorite: true,
-      createdAt: '2024-01-19T16:20:00Z',
-    },
-    {
-      id: '5',
-      title: 'Email Draft - Client Follow-up',
-      content: 'Hi Sarah, Thank you for the productive meeting yesterday. I wanted to follow up on the key points we discussed...',
-      type: 'text' as const,
-      tags: ['email', 'client', 'followup'],
-      isPinned: false,
-      isFavorite: false,
-      createdAt: '2024-01-19T14:10:00Z',
-    },
-    {
-      id: '6',
-      title: 'Terminal Command',
-      content: 'npm install @supabase/supabase-js && npm install @tanstack/react-query',
-      type: 'code' as const,
-      tags: ['terminal', 'npm', 'install'],
-      isPinned: false,
-      isFavorite: false,
-      createdAt: '2024-01-19T11:30:00Z',
-    },
-  ];
-
-  const filteredItems = clipboardItems.filter(item =>
+  const filteredItems = items.filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading your clips...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex bg-background">
@@ -148,10 +101,7 @@ const Dashboard = () => {
             </Button>
             
             {/* Add New */}
-            <Button size="sm" className="bg-gradient-hero text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              New Clip
-            </Button>
+            <AddItemDialog />
             
             {/* Notifications */}
             <Button size="sm" variant="ghost">
@@ -175,7 +125,7 @@ const Dashboard = () => {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut}>
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -197,10 +147,14 @@ const Dashboard = () => {
                   "You don't have any clipboard items yet. Start by adding your first clip!"
                 }
               </p>
-              <Button className="bg-gradient-hero text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Clip
-              </Button>
+              <AddItemDialog 
+                trigger={
+                  <Button className="bg-gradient-hero text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Your First Clip
+                  </Button>
+                }
+              />
             </div>
           ) : (
             <div className={cn(
@@ -209,7 +163,16 @@ const Dashboard = () => {
                 : "space-y-3"
             )}>
               {filteredItems.map((item) => (
-                <ClipboardItem key={item.id} item={item} view={view} />
+                <ClipboardItem 
+                  key={item.id} 
+                  item={{
+                    ...item,
+                    isPinned: item.is_pinned,
+                    isFavorite: item.is_favorite,
+                    createdAt: item.created_at,
+                  }} 
+                  view={view}
+                />
               ))}
             </div>
           )}
