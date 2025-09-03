@@ -32,9 +32,10 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
   const [content, setContent] = useState("");
   const [type, setType] = useState<'text' | 'link' | 'image' | 'code'>('text');
   const [tags, setTags] = useState("");
+  const [boardId, setBoardId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  const { createItem } = useClipboardItems();
+  const { createItem, boards } = useClipboardItems();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +49,7 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
         type,
         is_pinned: false,
         is_favorite: false,
+        board_id: boardId || undefined,
         tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       });
       
@@ -56,6 +58,7 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
       setContent("");
       setType('text');
       setTags("");
+      setBoardId("");
       setOpen(false);
     } catch (error) {
       console.error('Error creating item:', error);
@@ -120,6 +123,29 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
               className="min-h-[120px]"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="board">Board (optional)</Label>
+            <Select value={boardId} onValueChange={setBoardId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a board" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Default Board</SelectItem>
+                {boards.filter(board => !board.is_default).map((board) => (
+                  <SelectItem key={board.id} value={board.id}>
+                    <div className="flex items-center space-x-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: board.color }}
+                      />
+                      <span>{board.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

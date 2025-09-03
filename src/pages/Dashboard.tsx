@@ -29,14 +29,46 @@ import { useAuth } from "@/hooks/useAuth";
 const Dashboard = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeBoard, setActiveBoard] = useState('all');
   const { user, signOut } = useAuth();
-  const { items, loading, copyToClipboard } = useClipboardItems();
+  const { items, boards, loading, copyToClipboard } = useClipboardItems();
 
-  const filteredItems = items.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const getFilteredItems = () => {
+    let filtered = items;
+
+    // Filter by board
+    if (activeBoard === 'favorites') {
+      filtered = filtered.filter(item => item.is_favorite);
+    } else if (activeBoard === 'recent') {
+      const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      filtered = filtered.filter(item => new Date(item.created_at) > dayAgo);
+    } else if (activeBoard !== 'all') {
+      filtered = filtered.filter(item => item.board_id === activeBoard);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredItems = getFilteredItems();
+
+  const getBoardName = () => {
+    if (activeBoard === 'all') return 'All Clips';
+    if (activeBoard === 'favorites') return 'Favorites';
+    if (activeBoard === 'recent') return 'Recent';
+    
+    // Find custom board name from boards state
+    const board = boards.find(b => b.id === activeBoard);
+    return board?.name || 'All Clips';
+  };
 
   if (loading) {
     return (
@@ -52,14 +84,17 @@ const Dashboard = () => {
   return (
     <div className="h-screen flex bg-background">
       {/* Sidebar */}
-      <DashboardSidebar />
+      <DashboardSidebar 
+        activeBoard={activeBoard}
+        setActiveBoard={setActiveBoard}
+      />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
         <header className="h-16 border-b border-border flex items-center justify-between px-6">
           <div className="flex items-center space-x-4 flex-1">
-            <h1 className="text-xl font-semibold">All Clips</h1>
+            <h1 className="text-xl font-semibold">{getBoardName()}</h1>
             
             {/* Search */}
             <div className="relative flex-1 max-w-md">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Home, 
   Star, 
@@ -15,31 +15,72 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useClipboardItems } from "@/hooks/useClipboardItems";
+import AddBoardDialog from "./AddBoardDialog";
+import EditBoardDialog from "./EditBoardDialog";
 
-const DashboardSidebar = () => {
-  const [activeBoard, setActiveBoard] = useState("all");
+interface DashboardSidebarProps {
+  activeBoard: string;
+  setActiveBoard: (board: string) => void;
+}
+
+const DashboardSidebar = ({ activeBoard, setActiveBoard }: DashboardSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
+  const { items, boards, fetchTags } = useClipboardItems();
 
-  const boards = [
-    { id: "all", name: "All Clips", count: 247, icon: Home },
-    { id: "favorites", name: "Favorites", count: 23, icon: Star },
-    { id: "recent", name: "Recent", count: 50, icon: Clock },
+  useEffect(() => {
+    const loadTags = async () => {
+      const tagsData = await fetchTags();
+      // Count items for each tag
+      const tagCounts = tagsData.reduce((acc: Record<string, number>, tag) => {
+        const count = items.filter(item => item.tags.includes(tag.name)).length;
+        if (count > 0) {
+          acc[tag.name] = count;
+        }
+        return acc;
+      }, {});
+      
+      const tagsWithCounts = Object.entries(tagCounts).map(([name, count]) => ({
+        name,
+        count
+      }));
+      
+      setTags(tagsWithCounts);
+    };
+    
+    if (items.length > 0) {
+      loadTags();
+    }
+  }, [items, fetchTags]);
+
+  const defaultBoards = [
+    { 
+      id: "all", 
+      name: "All Clips", 
+      count: items.length, 
+      icon: Home 
+    },
+    { 
+      id: "favorites", 
+      name: "Favorites", 
+      count: items.filter(item => item.is_favorite).length, 
+      icon: Star 
+    },
+    { 
+      id: "recent", 
+      name: "Recent", 
+      count: items.filter(item => {
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        return new Date(item.created_at) > dayAgo;
+      }).length, 
+      icon: Clock 
+    },
   ];
 
-  const customBoards = [
-    { id: "work", name: "Work", count: 89 },
-    { id: "personal", name: "Personal", count: 45 },
-    { id: "projects", name: "Projects", count: 32 },
-    { id: "code", name: "Code Snippets", count: 67 },
-  ];
-
-  const tags = [
-    { name: "meeting", count: 12 },
-    { name: "design", count: 8 },
-    { name: "code", count: 24 },
-    { name: "links", count: 15 },
-    { name: "ideas", count: 6 },
-  ];
+  const getItemCountForBoard = (boardId: string) => {
+    return items.filter(item => item.board_id === boardId).length;
+  };
 
   return (
     <div className="w-72 bg-sidebar border-r border-sidebar-border flex flex-col h-full">
@@ -71,7 +112,7 @@ const DashboardSidebar = () => {
         <div className="mb-8">
           <h3 className="text-sm font-medium text-sidebar-foreground mb-3">Overview</h3>
           <div className="space-y-1">
-            {boards.map((board) => {
+            {defaultBoards.map((board) => {
               const Icon = board.icon;
               return (
                 <button
@@ -101,12 +142,10 @@ const DashboardSidebar = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-sidebar-foreground">Boards</h3>
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-              <Plus className="w-3 h-3" />
-            </Button>
+            <AddBoardDialog />
           </div>
           <div className="space-y-1">
-            {customBoards.map((board) => (
+            {boards.filter(board => !board.is_default).map((board) => (
               <button
                 key={board.id}
                 onClick={() => setActiveBoard(board.id)}
@@ -118,20 +157,29 @@ const DashboardSidebar = () => {
                 )}
               >
                 <div className="flex items-center space-x-3">
-                  <Folder className="w-4 h-4" />
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: board.color }}
+                  />
                   <span>{board.name}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Badge variant="secondary" className="text-xs">
-                    {board.count}
+                    {getItemCountForBoard(board.id)}
                   </Badge>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreHorizontal className="w-3 h-3" />
-                  </Button>
+                  <EditBoardDialog 
+                    board={board}
+                    trigger={
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontal className="w-3 h-3" />
+                      </Button>
+                    }
+                  />
                 </div>
               </button>
             ))}

@@ -104,6 +104,115 @@ export const useClipboardItems = () => {
     }
   };
 
+  const createBoard = async (boardData: Omit<Board, 'id' | 'created_at'>) => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('boards')
+        .insert({
+          ...boardData,
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await fetchBoards();
+      
+      toast({
+        title: 'Board created',
+        description: 'Your new board has been created successfully.',
+      });
+
+      return data;
+    } catch (error: any) {
+      toast({
+        title: 'Error creating board',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const updateBoard = async (id: string, updates: Partial<Board>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      await fetchBoards();
+      
+      toast({
+        title: 'Board updated',
+        description: 'Your board has been updated successfully.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error updating board',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const deleteBoard = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      await fetchBoards();
+      
+      toast({
+        title: 'Board deleted',
+        description: 'Your board has been deleted successfully.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error deleting board',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const fetchTags = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('name');
+
+      if (error) throw error;
+      
+      return data || [];
+    } catch (error: any) {
+      toast({
+        title: 'Error fetching tags',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return [];
+    }
+  };
+
   const createItem = async (itemData: Omit<ClipboardItem, 'id' | 'created_at' | 'updated_at' | 'tags'> & { tags?: string[] }) => {
     if (!user) return;
 
@@ -252,9 +361,13 @@ export const useClipboardItems = () => {
     loading,
     fetchItems,
     fetchBoards,
+    fetchTags,
     createItem,
+    createBoard,
     updateItem,
+    updateBoard,
     deleteItem,
+    deleteBoard,
     togglePin,
     toggleFavorite,
     copyToClipboard,
