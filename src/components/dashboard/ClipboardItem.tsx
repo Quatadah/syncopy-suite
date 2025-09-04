@@ -21,9 +21,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useClipboardItems } from "@/hooks/useClipboardItems";
 
 interface ClipboardItemProps {
   item: {
@@ -43,7 +54,10 @@ interface ClipboardItemProps {
 const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { deleteItem, toggleFavorite, togglePin, copyToClipboard } = useClipboardItems();
 
   const getTypeIcon = () => {
     switch (item.type) {
@@ -72,18 +86,42 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   };
 
   const handleCopy = async () => {
+    await copyToClipboard(item.content);
+  };
+
+  const handleToggleFavorite = async () => {
+    setIsLoading(true);
     try {
-      await navigator.clipboard.writeText(item.content);
-      toast({
-        title: "Copied to clipboard",
-        description: "Content has been copied to your clipboard.",
-      });
+      await toggleFavorite(item.id, isStarred);
+      setIsStarred(!isStarred);
     } catch (error) {
-      toast({
-        title: "Copy failed",
-        description: "Unable to copy content to clipboard.",
-        variant: "destructive",
-      });
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTogglePin = async () => {
+    setIsLoading(true);
+    try {
+      await togglePin(item.id, isPinned);
+      setIsPinned(!isPinned);
+    } catch (error) {
+      console.error('Error toggling pin:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      await deleteItem(item.id);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -224,16 +262,32 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
                   <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsStarred(!isStarred)}>
+                <DropdownMenuItem onClick={handleToggleFavorite} disabled={isLoading}>
                   <Star className={cn("w-4 h-4 mr-2", isStarred && "fill-warning text-warning")} />
                   {isStarred ? 'Unstar' : 'Star'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTogglePin} disabled={isLoading}>
+                  <Star className={cn("w-4 h-4 mr-2", isPinned && "fill-primary text-primary")} />
+                  {isPinned ? 'Unpin' : 'Pin'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTogglePin} disabled={isLoading}>
+                  <Star className={cn("w-4 h-4 mr-2", isPinned && "fill-primary text-primary")} />
+                  {isPinned ? 'Unpin' : 'Pin'}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Tag className="w-4 h-4 mr-2" />
                   Add Tags
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem 
+                  className="text-destructive" 
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isLoading}
+                >
+                  className="text-destructive" 
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isLoading}
+                >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
@@ -273,6 +327,48 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
           </div>
         )}
       </CardContent>
+      
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Clipboard Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{item.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              disabled={isLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isLoading ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Clipboard Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{item.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              disabled={isLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isLoading ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
