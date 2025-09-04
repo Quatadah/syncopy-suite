@@ -41,7 +41,7 @@ export const useClipboardItems = () => {
         .from('clipboard_items')
         .select(`
           *,
-          clipboard_item_tags (
+          clipboard_item_tags!fk_clipboard_item_tags_clipboard_item (
             tags (
               name
             )

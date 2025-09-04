@@ -68,21 +68,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "clipboard_item_tags_clipboard_item_id_fkey"
-            columns: ["clipboard_item_id"]
-            isOneToOne: false
-            referencedRelation: "clipboard_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clipboard_item_tags_tag_id_fkey"
-            columns: ["tag_id"]
-            isOneToOne: false
-            referencedRelation: "tags"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_clipboard_item_tags_item"
+            foreignKeyName: "fk_clipboard_item_tags_clipboard_item"
             columns: ["clipboard_item_id"]
             isOneToOne: false
             referencedRelation: "clipboard_items"
