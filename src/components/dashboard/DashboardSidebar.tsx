@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
 import AddBoardDialog from "./AddBoardDialog";
 import EditBoardDialog from "./EditBoardDialog";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardSidebarProps {
   activeBoard: string;
@@ -29,6 +30,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
   const [searchQuery, setSearchQuery] = useState("");
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
   const { items, boards, fetchTags } = useClipboardItems();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadTags = async () => {
@@ -219,6 +221,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
         <Button 
           variant="ghost" 
           className="w-full justify-start text-sidebar-foreground"
+          onClick={() => navigate('/settings')}
         >
           <Settings className="w-4 h-4 mr-3" />
           Settings
