@@ -22,9 +22,10 @@ import EditBoardDialog from "./EditBoardDialog";
 interface DashboardSidebarProps {
   activeBoard: string;
   setActiveBoard: (board: string) => void;
+  createBoard: (boardData: any) => Promise<any>;
 }
 
-const DashboardSidebar = ({ activeBoard, setActiveBoard }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: DashboardSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
   const { items, boards, fetchTags } = useClipboardItems();
@@ -142,7 +143,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard }: DashboardSidebarProps
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-sidebar-foreground">Boards</h3>
-            <AddBoardDialog />
+            <AddBoardDialog createBoard={createBoard} />
           </div>
           <div className="space-y-1">
             {boards.filter(board => !board.is_default).map((board) => (

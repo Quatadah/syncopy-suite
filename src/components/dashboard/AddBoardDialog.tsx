@@ -13,20 +13,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { Board } from "@/hooks/useClipboardItems";
 
 interface AddBoardDialogProps {
   trigger?: React.ReactNode;
+  createBoard: (boardData: Omit<Board, 'id' | 'created_at'>) => Promise<any>;
 }
 
-const AddBoardDialog = ({ trigger }: AddBoardDialogProps) => {
+const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("#6366f1");
   const [isLoading, setIsLoading] = useState(false);
   
-  const { createBoard } = useClipboardItems();
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

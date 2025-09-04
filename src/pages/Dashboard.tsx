@@ -31,7 +31,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeBoard, setActiveBoard] = useState('all');
   const { user, signOut } = useAuth();
-  const { items, boards, loading, copyToClipboard } = useClipboardItems(
+  const { items, boards, loading, copyToClipboard, createBoard } = useClipboardItems(
     activeBoard === 'all' || activeBoard === 'favorites' || activeBoard === 'recent' 
       ? undefined 
       : activeBoard
@@ -88,10 +88,11 @@ const Dashboard = () => {
   return (
     <div className="h-screen flex bg-background">
       {/* Sidebar */}
-      <DashboardSidebar 
-        activeBoard={activeBoard}
-        setActiveBoard={setActiveBoard}
-      />
+        <DashboardSidebar
+          activeBoard={activeBoard}
+          setActiveBoard={setActiveBoard}
+          createBoard={createBoard}
+        />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
