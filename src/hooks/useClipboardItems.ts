@@ -217,10 +217,11 @@ export const useClipboardItems = () => {
     if (!user) return;
 
     try {
+      const { tags, ...itemDataWithoutTags } = itemData;
       const { data, error } = await supabase
         .from('clipboard_items')
         .insert({
-          ...itemData,
+          ...itemDataWithoutTags,
           user_id: user.id,
         })
         .select()
@@ -229,8 +230,8 @@ export const useClipboardItems = () => {
       if (error) throw error;
 
       // Handle tags if provided
-      if (itemData.tags && itemData.tags.length > 0) {
-        for (const tagName of itemData.tags) {
+      if (tags && tags.length > 0) {
+        for (const tagName of tags) {
           // Create or get tag
           const { data: tagData, error: tagError } = await supabase
             .from('tags')
