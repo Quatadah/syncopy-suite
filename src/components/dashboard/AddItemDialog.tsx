@@ -132,7 +132,6 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
                 <SelectValue placeholder="Select a board" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Default Board</SelectItem>
                 {boards.filter(board => !board.is_default).map((board) => (
                   <SelectItem key={board.id} value={board.id}>
                     <div className="flex items-center space-x-2">
