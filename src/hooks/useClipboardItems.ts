@@ -25,7 +25,7 @@ export interface Board {
   created_at: string;
 }
 
-export const useClipboardItems = () => {
+export const useClipboardItems = (currentBoardId?: string) => {
   const [items, setItems] = useState<ClipboardItem[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
@@ -254,7 +254,7 @@ export const useClipboardItems = () => {
         }
       }
 
-      await fetchItems();
+      await fetchItems(currentBoardId);
       
       toast({
         title: 'Item created',
@@ -283,7 +283,7 @@ export const useClipboardItems = () => {
 
       if (error) throw error;
 
-      await fetchItems();
+      await fetchItems(currentBoardId);
       
       toast({
         title: 'Item updated',
@@ -310,7 +310,7 @@ export const useClipboardItems = () => {
 
       if (error) throw error;
 
-      await fetchItems();
+      await fetchItems(currentBoardId);
       
       toast({
         title: 'Item deleted',
@@ -351,10 +351,10 @@ export const useClipboardItems = () => {
 
   useEffect(() => {
     if (user) {
-      fetchItems();
+      fetchItems(currentBoardId);
       fetchBoards();
     }
-  }, [user]);
+  }, [user, currentBoardId]);
 
   return {
     items,

@@ -31,7 +31,11 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeBoard, setActiveBoard] = useState('all');
   const { user, signOut } = useAuth();
-  const { items, boards, loading, copyToClipboard } = useClipboardItems();
+  const { items, boards, loading, copyToClipboard } = useClipboardItems(
+    activeBoard === 'all' || activeBoard === 'favorites' || activeBoard === 'recent' 
+      ? undefined 
+      : activeBoard
+  );
 
   const getFilteredItems = () => {
     let filtered = items;
