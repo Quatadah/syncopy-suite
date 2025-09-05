@@ -1,33 +1,14 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea, useDisclosure } from "@heroui/react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 interface AddItemDialogProps {
   trigger?: React.ReactNode;
 }
 
 const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
-  const [open, setOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [type, setType] = useState<'text' | 'link' | 'image' | 'code'>('text');
@@ -59,7 +40,7 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
       setType('text');
       setTags("");
       setBoardId("");
-      setOpen(false);
+      onClose();
     } catch (error) {
       console.error('Error creating item:', error);
     } finally {
@@ -68,29 +49,33 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
   };
 
   const defaultTrigger = (
-    <Button size="sm" className="bg-gradient-hero text-white">
+    <Button size="sm" className="bg-gradient-hero text-white" onPress={onOpen}>
       <Plus className="w-4 h-4 mr-2" />
       New Clip
     </Button>
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>Add New Clip</DialogTitle>
-          <DialogDescription>
-            Create a new clipboard item to save and organize your content.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      {trigger ? (
+        <div onClick={onOpen}>{trigger}</div>
+      ) : (
+        defaultTrigger
+      )}
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h2 className="text-xl font-semibold">Add New Clip</h2>
+            <p className="text-sm text-default-500">
+              Create a new clipboard item to save and organize your content.
+            </p>
+          </ModalHeader>
+          <ModalBody>
+            <form id="add-item-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
             <Input
               id="title"
+              label="Title"
               placeholder="Enter a title for your clip"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -99,22 +84,21 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={(value: any) => setType(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select content type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="text">Text</SelectItem>
-                <SelectItem value="link">Link</SelectItem>
-                <SelectItem value="code">Code</SelectItem>
-                <SelectItem value="image">Image</SelectItem>
-              </SelectContent>
+            <Select
+              label="Type"
+              placeholder="Select content type"
+              selectedKeys={[type]}
+              onSelectionChange={(keys) => setType(Array.from(keys)[0] as any)}
+            >
+              <SelectItem key="text">Text</SelectItem>
+              <SelectItem key="link">Link</SelectItem>
+              <SelectItem key="code">Code</SelectItem>
+              <SelectItem key="image">Image</SelectItem>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
+            <label htmlFor="content" className="text-sm font-medium">Content</label>
             <Textarea
               id="content"
               placeholder="Paste or type your content here"
@@ -126,55 +110,56 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="board">Board (optional)</Label>
-            <Select value={boardId} onValueChange={setBoardId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a board" />
-              </SelectTrigger>
-              <SelectContent>
-                {boards.filter(board => !board.is_default).map((board) => (
-                  <SelectItem key={board.id} value={board.id}>
-                    <div className="flex items-center space-x-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: board.color }}
-                      />
-                      <span>{board.name}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <Select
+              label="Board (optional)"
+              placeholder="Select a board"
+              selectedKeys={boardId ? [boardId] : []}
+              onSelectionChange={(keys) => setBoardId(Array.from(keys)[0] as string || "")}
+            >
+              {boards.filter(board => !board.is_default).map((board) => (
+                <SelectItem key={board.id}>
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: board.color }}
+                    />
+                    <span>{board.name}</span>
+                  </div>
+                </SelectItem>
+              ))}
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags (optional)</Label>
             <Input
               id="tags"
+              label="Tags (optional)"
               placeholder="Enter tags separated by commas"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
+              description="Example: work, important, meeting"
             />
-            <p className="text-xs text-muted-foreground">
-              Example: work, important, meeting
-            </p>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            </form>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onClose}>
               Cancel
             </Button>
             <Button 
-              type="submit" 
-              disabled={isLoading || !title.trim() || !content.trim()}
+              color="primary"
+              type="submit"
+              form="add-item-form"
+              isDisabled={isLoading || !title.trim() || !content.trim()}
               className="bg-gradient-hero text-white"
             >
               {isLoading ? "Creating..." : "Create Clip"}
             </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

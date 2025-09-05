@@ -1,18 +1,18 @@
-import { 
-  Zap, 
-  Shield, 
-  Search, 
-  Smartphone, 
-  Tag, 
-  Star,
-  Code,
-  Image,
-  Link,
-  Folder,
-  Clock,
-  Keyboard
+import { Card, CardBody } from "@heroui/react";
+import {
+    Clock,
+    Code,
+    Folder,
+    Image,
+    Keyboard,
+    Link,
+    Search,
+    Shield,
+    Smartphone,
+    Star,
+    Tag,
+    Zap
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 
 const Features = () => {
   const features = [
@@ -101,7 +101,7 @@ const Features = () => {
               className="hover-lift cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardContent className="p-6">
+              <CardBody className="p-6">
                 <div className="mb-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                     <feature.icon className="w-6 h-6 text-primary" />
@@ -111,7 +111,7 @@ const Features = () => {
                     {feature.description}
                   </p>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           ))}
         </div>

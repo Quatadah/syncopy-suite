@@ -1,19 +1,7 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Board } from "@/hooks/useClipboardItems";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, useDisclosure } from "@heroui/react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 interface AddBoardDialogProps {
   trigger?: React.ReactNode;
@@ -21,7 +9,7 @@ interface AddBoardDialogProps {
 }
 
 const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
-  const [open, setOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("#6366f1");
@@ -46,7 +34,7 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
       setName("");
       setDescription("");
       setColor("#6366f1");
-      setOpen(false);
+      onClose();
     } catch (error) {
       console.error('Error creating board:', error);
     } finally {
@@ -55,7 +43,7 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
   };
 
   const defaultTrigger = (
-    <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onPress={onOpen}>
       <Plus className="w-3 h-3" />
     </Button>
   );
@@ -66,22 +54,26 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
   ];
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Board</DialogTitle>
-          <DialogDescription>
-            Create a new board to organize your clipboard items.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      {trigger ? (
+        <div onClick={onOpen}>{trigger}</div>
+      ) : (
+        defaultTrigger
+      )}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h2 className="text-xl font-semibold">Create New Board</h2>
+            <p className="text-sm text-default-500">
+              Create a new board to organize your clipboard items.
+            </p>
+          </ModalHeader>
+          <ModalBody>
+            <form id="create-board-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Board Name</Label>
             <Input
               id="name"
+              label="Board Name"
               placeholder="Enter board name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -90,18 +82,18 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (optional)</Label>
             <Textarea
               id="description"
+              label="Description (optional)"
               placeholder="Enter board description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              minRows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Color</Label>
+            <label className="text-sm font-medium">Color</label>
             <div className="flex flex-wrap gap-2">
               {colorOptions.map((colorOption) => (
                 <button
@@ -117,21 +109,25 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            </form>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onClose}>
               Cancel
             </Button>
             <Button 
-              type="submit" 
-              disabled={isLoading || !name.trim()}
+              color="primary"
+              type="submit"
+              form="create-board-form"
+              isDisabled={isLoading || !name.trim()}
               className="bg-gradient-hero text-white"
             >
               {isLoading ? "Creating..." : "Create Board"}
             </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

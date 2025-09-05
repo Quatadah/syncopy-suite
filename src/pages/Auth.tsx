@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Github, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Button, Card, CardBody, CardHeader, Divider, Input, Tab, Tabs } from "@heroui/react";
+import { Eye, EyeOff, Github, Loader2, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -175,34 +170,29 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome to Clipboard</CardTitle>
-          <CardDescription>
+          <h2 className="text-2xl font-bold">Welcome to Clipboard</h2>
+          <p className="text-sm text-muted-foreground">
             Sign in to access your clipboard across all devices
-          </CardDescription>
+          </p>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin" className="space-y-4">
+        <CardBody>
+          <Tabs defaultSelectedKey="signin" className="w-full">
+            <Tab key="signin" title="Sign In" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
+                  label="Email"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
+                    label="Password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
@@ -231,13 +221,12 @@ const Auth = () => {
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign In
               </Button>
-            </TabsContent>
-
-            <TabsContent value="signup" className="space-y-4">
+            </Tab>
+            <Tab key="signup" title="Sign Up" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name (Optional)</Label>
                 <Input
                   id="fullName"
+                  label="Full Name (Optional)"
                   type="text"
                   placeholder="Enter your full name"
                   value={fullName}
@@ -245,9 +234,9 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  label="Email"
                   type="email"
                   placeholder="Enter your email"
                   value={email}
@@ -255,10 +244,10 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
+                    label="Password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
                     value={password}
@@ -287,13 +276,13 @@ const Auth = () => {
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign Up
               </Button>
-            </TabsContent>
+            </Tab>
           </Tabs>
 
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator />
+                <Divider />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
@@ -304,7 +293,7 @@ const Auth = () => {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={handleGoogleAuth}
                 disabled={isLoading}
               >
@@ -312,7 +301,7 @@ const Auth = () => {
                 Google
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={handleGithubAuth}
                 disabled={isLoading}
               >
@@ -333,7 +322,7 @@ const Auth = () => {
               </Button>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   );

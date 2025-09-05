@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { 
-  ArrowRight, 
-  Clipboard, 
-  Zap, 
-  Shield, 
-  Smartphone,
-  Monitor,
-  Chrome
+import { Button } from "@heroui/react";
+import {
+    ArrowRight,
+    Chrome,
+    Clipboard,
+    Monitor,
+    Shield,
+    Smartphone,
+    Zap
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const navigate = useNavigate();

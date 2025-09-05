@@ -1,30 +1,22 @@
-import { useState } from "react";
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Grid3X3, 
-  List, 
-  User,
-  Bell,
-  Settings,
-  Loader2
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import ClipboardItem from "@/components/dashboard/ClipboardItem";
 import AddItemDialog from "@/components/dashboard/AddItemDialog";
-import { cn } from "@/lib/utils";
-import { useClipboardItems } from "@/hooks/useClipboardItems";
+import ClipboardItem from "@/components/dashboard/ClipboardItem";
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { cn } from "@/lib/utils";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from "@heroui/react";
+import {
+    Bell,
+    Filter,
+    Grid3X3,
+    List,
+    Loader2,
+    Plus,
+    Search,
+    Settings,
+    User
+} from "lucide-react";
+import { useState } from "react";
 
 const Dashboard = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -118,7 +110,7 @@ const Dashboard = () => {
             <div className="flex items-center bg-muted rounded-lg p-1">
               <Button
                 size="sm"
-                variant={view === 'grid' ? 'default' : 'ghost'}
+                variant={view === 'grid' ? 'solid' : 'ghost'}
                 onClick={() => setView('grid')}
                 className="h-7 px-3"
               >
@@ -126,7 +118,7 @@ const Dashboard = () => {
               </Button>
               <Button
                 size="sm"
-                variant={view === 'list' ? 'default' : 'ghost'}
+                variant={view === 'list' ? 'solid' : 'ghost'}
                 onClick={() => setView('list')}
                 className="h-7 px-3"
               >
@@ -135,7 +127,7 @@ const Dashboard = () => {
             </div>
             
             {/* Filter */}
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="ghost">
               <Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
@@ -149,27 +141,24 @@ const Dashboard = () => {
             </Button>
             
             {/* Profile Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline">
+            <Dropdown>
+              <DropdownTrigger>
+                <Button size="sm" variant="bordered">
                   <User className="w-4 h-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <User className="w-4 h-4 mr-2" />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile actions">
+                <DropdownItem key="profile" startContent={<User className="w-4 h-4" />}>
                   Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
+                </DropdownItem>
+                <DropdownItem key="settings" startContent={<Settings className="w-4 h-4" />}>
                   Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>
+                </DropdownItem>
+                <DropdownItem key="logout" color="danger" onPress={signOut}>
                   Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </header>
         

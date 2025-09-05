@@ -1,15 +1,14 @@
+import { Button } from "@heroui/react";
+import {
+    Clipboard,
+    Download,
+    Github,
+    Moon,
+    Sun,
+    User
+} from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { 
-  Clipboard, 
-  User, 
-  Moon, 
-  Sun, 
-  Github, 
-  Download 
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const [isDark, setIsDark] = useState(false);

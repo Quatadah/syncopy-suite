@@ -1,24 +1,22 @@
-import { useState, useEffect } from "react";
-import { 
-  Home, 
-  Star, 
-  Folder, 
-  Tag, 
-  Clock, 
-  Settings, 
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { cn } from "@/lib/utils";
+import { Button, Input } from "@heroui/react";
+import {
+    Clock,
+    Filter,
+    Home,
+    MoreHorizontal,
+    Plus,
+    Search,
+    Settings,
+    Star,
+    Tag
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AddBoardDialog from "./AddBoardDialog";
 import EditBoardDialog from "./EditBoardDialog";
-import { useNavigate } from "react-router-dom";
 
 interface DashboardSidebarProps {
   activeBoard: string;
