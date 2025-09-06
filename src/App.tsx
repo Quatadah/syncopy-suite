@@ -7,6 +7,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/search" 
+              element={
+                <ProtectedRoute>
+                  <Search />
                 </ProtectedRoute>
               } 
             />

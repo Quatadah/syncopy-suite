@@ -1,17 +1,15 @@
+import { HomeIcon, SettingsIcon } from "@/assets";
 import { Badge } from "@/components/ui/badge";
-import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { cn } from "@/lib/utils";
 import { Button, Input } from "@heroui/react";
 import {
-    Clock,
-    Filter,
-    Home,
-    MoreHorizontal,
-    Plus,
-    Search,
-    Settings,
-    Star,
-    Tag
+  Clock,
+  Filter,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Star,
+  Tag
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -22,12 +20,14 @@ interface DashboardSidebarProps {
   activeBoard: string;
   setActiveBoard: (board: string) => void;
   createBoard: (boardData: any) => Promise<any>;
+  items: any[];
+  boards: any[];
+  fetchTags: () => Promise<any[]>;
 }
 
-const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boards, fetchTags }: DashboardSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
-  const { items, boards, fetchTags } = useClipboardItems();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
       
       const tagsWithCounts = Object.entries(tagCounts).map(([name, count]) => ({
         name,
-        count
+        count: count as number
       }));
       
       setTags(tagsWithCounts);
@@ -53,14 +53,14 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
     if (items.length > 0) {
       loadTags();
     }
-  }, [items, fetchTags]);
+  }, [items]);
 
   const defaultBoards = [
     { 
       id: "all", 
       name: "All Clips", 
       count: items.length, 
-      icon: Home 
+      icon: HomeIcon 
     },
     { 
       id: "favorites", 
@@ -127,7 +127,11 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
                   )}
                 >
                   <div className="flex items-center space-x-3">
-                    <Icon className="w-4 h-4" />
+                    {board.id === 'all' ? (
+                      <HomeIcon className="w-4 h-4" />
+                    ) : (
+                      <Icon className="w-4 h-4" />
+                    )}
                     <span>{board.name}</span>
                   </div>
                   <Badge variant="secondary" className="text-xs">
@@ -221,7 +225,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard }: Dashboar
           className="w-full justify-start text-sidebar-foreground"
           onClick={() => navigate('/settings')}
         >
-          <Settings className="w-4 h-4 mr-3" />
+          <SettingsIcon className="w-4 h-4 mr-3" />
           Settings
         </Button>
       </div>

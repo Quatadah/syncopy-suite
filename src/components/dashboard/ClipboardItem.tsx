@@ -9,11 +9,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { cn } from "@/lib/utils";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import {
   Check,
+  CheckSquare,
   Clock,
   Code,
   Copy,
@@ -43,9 +43,26 @@ interface ClipboardItemProps {
     preview?: string;
   };
   view?: 'grid' | 'list';
+  deleteItem: (id: string) => Promise<void>;
+  toggleFavorite: (id: string, isFavorite: boolean) => Promise<void>;
+  togglePin: (id: string, isPinned: boolean) => Promise<void>;
+  copyToClipboard: (content: string) => Promise<void>;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (id: string) => void;
 }
 
-const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
+const ClipboardItem = ({ 
+  item, 
+  view = 'grid', 
+  deleteItem, 
+  toggleFavorite, 
+  togglePin, 
+  copyToClipboard,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection
+}: ClipboardItemProps) => {
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -53,7 +70,6 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   const [justCopied, setJustCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
-  const { deleteItem, toggleFavorite, togglePin, copyToClipboard } = useClipboardItems();
 
   // Reset copy feedback after 2 seconds
   useEffect(() => {
@@ -80,31 +96,35 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
     switch (item.type) {
       case 'link':
         return {
-          gradient: 'from-blue-500/10 to-blue-600/5',
-          border: 'border-blue-200/20',
-          iconColor: 'text-blue-600',
-          accentColor: 'bg-blue-50 text-blue-700'
+          gradient: 'from-primary/10 to-primary/5',
+          border: 'border-primary/20',
+          iconColor: 'text-primary',
+          accentColor: 'bg-primary/10 text-primary',
+          hoverColor: 'hover:bg-primary/5'
         };
       case 'image':
         return {
-          gradient: 'from-purple-500/10 to-purple-600/5',
-          border: 'border-purple-200/20',
-          iconColor: 'text-purple-600',
-          accentColor: 'bg-purple-50 text-purple-700'
+          gradient: 'from-accent/10 to-accent/5',
+          border: 'border-accent/20',
+          iconColor: 'text-accent',
+          accentColor: 'bg-accent/10 text-accent',
+          hoverColor: 'hover:bg-accent/5'
         };
       case 'code':
         return {
-          gradient: 'from-green-500/10 to-green-600/5',
-          border: 'border-green-200/20',
-          iconColor: 'text-green-600',
-          accentColor: 'bg-green-50 text-green-700'
+          gradient: 'from-success/10 to-success/5',
+          border: 'border-success/20',
+          iconColor: 'text-success',
+          accentColor: 'bg-success/10 text-success',
+          hoverColor: 'hover:bg-success/5'
         };
       default:
         return {
-          gradient: 'from-gray-500/10 to-gray-600/5',
-          border: 'border-gray-200/20',
-          iconColor: 'text-gray-600',
-          accentColor: 'bg-gray-50 text-gray-700'
+          gradient: 'from-muted-foreground/10 to-muted-foreground/5',
+          border: 'border-muted-foreground/20',
+          iconColor: 'text-muted-foreground',
+          accentColor: 'bg-muted text-muted-foreground',
+          hoverColor: 'hover:bg-muted/80'
         };
     }
   };
@@ -150,6 +170,12 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
     }
   };
 
+  const handleSelectionToggle = () => {
+    if (onToggleSelection) {
+      onToggleSelection(item.id);
+    }
+  };
+
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -167,17 +193,30 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
     return (
       <div
         className={cn(
-          "group relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg",
-          "bg-gradient-to-r", typeConfig.gradient, typeConfig.border,
-          isPinned && "ring-2 ring-blue-500/20 shadow-md",
-          isHovered && "shadow-xl scale-[1.02]"
+          "group relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-medium",
+          "bg-gradient-to-r bg-card", typeConfig.gradient, typeConfig.border,
+          isPinned && "ring-2 ring-primary/20 shadow-soft",
+          isHovered && "shadow-large scale-[1.02]",
+          isSelected && "ring-2 ring-primary shadow-soft",
+          typeConfig.hoverColor
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center p-4">
+          {/* Selection Checkbox */}
+          {isSelectionMode && (
+            <button
+              onClick={handleSelectionToggle}
+              className="mr-3 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors"
+            >
+              {isSelected && (
+                <CheckSquare className="w-4 h-4 text-primary fill-primary" />
+              )}
+            </button>
+          )}
           {/* Type indicator and icon */}
-          <div className={cn("flex items-center justify-center w-10 h-10 rounded-lg mr-4", typeConfig.accentColor)}>
+          <div className={cn("flex items-center justify-center w-10 h-10 rounded-lg mr-4 transition-colors", typeConfig.accentColor)}>
             <div className={typeConfig.iconColor}>
               {getTypeIcon()}
             </div>
@@ -186,17 +225,17 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
           {/* Content area */}
           <div className="flex-1 min-w-0 mr-4">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-gray-900 truncate text-sm">{item.title}</h3>
-              {isPinned && <Pin className="w-4 h-4 text-blue-600 fill-blue-100" />}
-              {isStarred && <Heart className="w-4 h-4 text-red-500 fill-red-100" />}
+              <h3 className="font-semibold text-foreground truncate text-sm">{item.title}</h3>
+              {isPinned && <Pin className="w-4 h-4 text-primary fill-primary/20" />}
+              {isStarred && <Heart className="w-4 h-4 text-destructive fill-destructive/20" />}
             </div>
             
-            <p className="text-sm text-gray-600 truncate mb-2 max-w-lg">
+            <p className="text-sm text-muted-foreground truncate mb-2 max-w-lg">
               {item.content}
             </p>
             
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 <span>{formatTimeAgo(item.createdAt)}</span>
               </div>
@@ -204,12 +243,12 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
               {item.tags.length > 0 && (
                 <div className="flex items-center gap-1">
                   {item.tags.slice(0, 2).map((tag) => (
-                    <span key={tag} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                    <span key={tag} className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
                       {tag}
                     </span>
                   ))}
                   {item.tags.length > 2 && (
-                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+                    <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
                       +{item.tags.length - 2}
                     </span>
                   )}
@@ -225,8 +264,8 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
             className={cn(
               "mr-2 min-w-[100px] h-10 font-medium transition-all duration-200",
               justCopied
-                ? "bg-green-500 hover:bg-green-600 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105"
+                ? "bg-success hover:bg-success/90 text-white"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105"
             )}
           >
             {justCopied ? (
@@ -242,7 +281,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
               <Button 
                 size="sm" 
                 variant="light"
-                className="opacity-60 hover:opacity-100 transition-opacity"
+                className="opacity-60 hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
@@ -253,7 +292,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
               </DropdownItem>
               <DropdownItem 
                 key="favorite" 
-                startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-red-500 text-red-500")} />} 
+                startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-destructive text-destructive")} />} 
                 onPress={handleToggleFavorite} 
                 isDisabled={isLoading}
               >
@@ -261,7 +300,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
               </DropdownItem>
               <DropdownItem 
                 key="pin" 
-                startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-blue-500 text-blue-500")} />} 
+                startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-primary text-primary")} />} 
                 onPress={handleTogglePin} 
                 isDisabled={isLoading}
               >
@@ -296,34 +335,47 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-xl",
-        "bg-gradient-to-br", typeConfig.gradient, typeConfig.border,
-        isPinned && "ring-2 ring-blue-500/20 shadow-lg",
-        isHovered && "shadow-2xl scale-[1.03] -translate-y-1"
+        "group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-large",
+        "bg-gradient-to-br bg-card", typeConfig.gradient, typeConfig.border,
+        isPinned && "ring-2 ring-primary/20 shadow-medium",
+        isHovered && "shadow-glow scale-[1.03] -translate-y-1",
+        isSelected && "ring-2 ring-primary shadow-medium",
+        typeConfig.hoverColor
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Selection Checkbox */}
+      {isSelectionMode && (
+        <button
+          onClick={handleSelectionToggle}
+          className="absolute top-3 left-3 z-10 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors bg-background/80 backdrop-blur-sm"
+        >
+          {isSelected && (
+            <CheckSquare className="w-4 h-4 text-primary fill-primary" />
+          )}
+        </button>
+      )}
       {/* Header with type indicator */}
       <div className="flex items-center justify-between p-4 pb-2">
         <div className="flex items-center gap-3">
-          <div className={cn("flex items-center justify-center w-8 h-8 rounded-lg", typeConfig.accentColor)}>
+          <div className={cn("flex items-center justify-center w-8 h-8 rounded-lg transition-colors", typeConfig.accentColor)}>
             <div className={typeConfig.iconColor}>
               {getTypeIcon()}
             </div>
           </div>
-          <h3 className="font-semibold text-gray-900 truncate text-sm">{item.title}</h3>
+          <h3 className="font-semibold text-foreground truncate text-sm">{item.title}</h3>
         </div>
         
         <div className="flex items-center gap-1">
-          {isPinned && <Pin className="w-4 h-4 text-blue-600" />}
-          {isStarred && <Heart className="w-4 h-4 text-red-500 fill-red-100" />}
+          {isPinned && <Pin className="w-4 h-4 text-primary fill-primary/20" />}
+          {isStarred && <Heart className="w-4 h-4 text-destructive fill-destructive/20" />}
         </div>
       </div>
 
       {/* Content preview */}
       <div className="px-4 pb-4">
-        <p className="text-sm text-gray-600 line-clamp-4 mb-4 min-h-[4rem] leading-relaxed">
+        <p className="text-sm text-muted-foreground line-clamp-4 mb-4 min-h-[4rem] leading-relaxed">
           {item.content}
         </p>
 
@@ -331,12 +383,12 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
         {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
             {item.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="px-2 py-1 text-xs bg-white/60 text-gray-700 rounded-full border border-gray-200/50">
+              <span key={tag} className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
                 {tag}
               </span>
             ))}
             {item.tags.length > 3 && (
-              <span className="px-2 py-1 text-xs bg-white/60 text-gray-700 rounded-full border border-gray-200/50">
+              <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
                 +{item.tags.length - 3}
               </span>
             )}
@@ -344,22 +396,22 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
         )}
 
         {/* Timestamp */}
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-4">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
           <Clock className="w-3 h-3" />
           <span>{formatTimeAgo(item.createdAt)}</span>
         </div>
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center justify-between p-4 pt-2 border-t border-gray-100/50 bg-white/30">
+      <div className="flex items-center justify-between p-4 pt-2 border-t border-border/50 bg-surface/30">
         <Button
           size="sm"
           onClick={handleCopy}
           className={cn(
             "flex-1 mr-2 h-9 font-medium transition-all duration-200",
             justCopied
-              ? "bg-green-500 hover:bg-green-600 text-white"
-              : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105"
+              ? "bg-success hover:bg-success/90 text-white"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105"
           )}
         >
           {justCopied ? (
@@ -374,7 +426,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
             <Button 
               size="sm" 
               variant="light"
-              className="opacity-60 hover:opacity-100 transition-opacity"
+              className="opacity-60 hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
             >
               <MoreHorizontal className="w-4 h-4" />
             </Button>
@@ -385,7 +437,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
             </DropdownItem>
             <DropdownItem 
               key="favorite" 
-              startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-red-500 text-red-500")} />} 
+              startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-destructive text-destructive")} />} 
               onPress={handleToggleFavorite} 
               isDisabled={isLoading}
             >
@@ -393,7 +445,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
             </DropdownItem>
             <DropdownItem 
               key="pin" 
-              startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-blue-500 text-blue-500")} />} 
+              startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-primary text-primary")} />} 
               onPress={handleTogglePin} 
               isDisabled={isLoading}
             >
@@ -418,7 +470,7 @@ const ClipboardItem = ({ item, view = 'grid' }: ClipboardItemProps) => {
       {/* Subtle animated border on hover */}
       <div className={cn(
         "absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 pointer-events-none",
-        "bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20",
+        "bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20",
         isHovered && "opacity-100"
       )} />
       
