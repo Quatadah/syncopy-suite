@@ -211,342 +211,375 @@ const Dashboard = memo(() => {
   return (
     <div className="h-screen flex bg-background">
       {/* Sidebar */}
-        <DashboardSidebar
-          activeBoard={activeBoard}
-          setActiveBoard={setActiveBoard}
-          createBoard={createBoard}
-          items={allItems}
-          boards={boards}
-          fetchTags={fetchTags}
-        />
+      <DashboardSidebar
+        activeBoard={activeBoard}
+        setActiveBoard={setActiveBoard}
+        createBoard={createBoard}
+        items={allItems}
+        boards={boards}
+        fetchTags={fetchTags}
+      />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="h-16 border-b border-border flex items-center justify-between px-6">
-          <div className="flex items-center space-x-4 flex-1">
-            <h1 className="text-xl font-semibold">{getBoardName()}</h1>
-            
-            {/* Enhanced Search */}
-            <div className="flex-1 max-w-md">
-              <EnhancedSearchBar
-                placeholder="Search clips... (Press / to focus)"
-                onSearch={setSearchQuery}
-                onSuggestionSelect={(suggestion) => {
-                  setSearchQuery(suggestion.text);
-                  if (suggestion.type === 'item') {
-                    // Navigate to search page for item search
-                    navigate(`/search?q=${encodeURIComponent(suggestion.text)}`);
-                  }
-                }}
-                recentSearches={[]} // You can implement this with localStorage
-                popularTags={[]} // You can get this from your tags data
-                recentItems={filteredItems.slice(0, 5).map(item => ({
-                  id: item.id,
-                  title: item.title,
-                  type: item.type
-                }))}
-                className="w-full"
-                showSuggestions={true}
-                maxSuggestions={8}
-                debounceMs={300}
-              />
+        {/* Header */}
+        <header className="border-b border-border bg-card">
+          {/* Main Header */}
+          <div className="h-16 flex items-center justify-between px-6">
+            {/* Left Section - Title & Search */}
+            <div className="flex items-center space-x-6 flex-1">
+              <h1 className="text-xl font-semibold text-foreground whitespace-nowrap">
+                {getBoardName()}
+              </h1>
+              
+              {/* Search Bar - Prominent */}
+              <div className="flex-1 max-w-2xl">
+                <EnhancedSearchBar
+                  placeholder="Search clips... (Press / to focus)"
+                  onSearch={setSearchQuery}
+                  onSuggestionSelect={(suggestion) => {
+                    setSearchQuery(suggestion.text);
+                    if (suggestion.type === 'item') {
+                      navigate(`/search?q=${encodeURIComponent(suggestion.text)}`);
+                    }
+                  }}
+                  recentSearches={[]}
+                  popularTags={[]}
+                  recentItems={filteredItems.slice(0, 5).map(item => ({
+                    id: item.id,
+                    title: item.title,
+                    type: item.type
+                  }))}
+                  className="w-full"
+                  showSuggestions={true}
+                  maxSuggestions={8}
+                  debounceMs={300}
+                />
+              </div>
             </div>
-            
-            {/* Advanced Search Button */}
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => navigate('/search')}
-              className="text-sm"
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Advanced Search
-            </Button>
+
+            {/* Right Section - User Actions */}
+            <div className="flex items-center space-x-3">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => navigate('/search')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Advanced
+              </Button>
+              
+              <Button 
+                size="sm" 
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Bell className="w-4 h-4" />
+              </Button>
+              
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground">
+                    <User className="w-4 h-4" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Profile actions">
+                  <DropdownItem key="profile" startContent={<User className="w-4 h-4" />}>
+                    Profile
+                  </DropdownItem>
+                  <DropdownItem key="settings" startContent={<Settings className="w-4 h-4" />}>
+                    Settings
+                  </DropdownItem>
+                  <DropdownItem key="logout" color="danger" onPress={signOut}>
+                    Sign Out
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
           </div>
 
-          {/* Mass Actions Toolbar */}
-          {isSelectionMode && (
-            <div className="flex items-center space-x-3 mr-4">
-              <div className="flex items-center space-x-2">
+          {/* Toolbar */}
+          <div className="h-12 flex items-center justify-between px-6 border-t border-border bg-surface/50">
+            {/* Left - View & Filter Controls */}
+            <div className="flex items-center space-x-4">
+              {/* View Toggle */}
+              <div className="flex items-center bg-muted/60 rounded-lg p-1">
                 <Button
                   size="sm"
-                  variant="ghost"
-                  onClick={selectAll}
-                  className="text-sm"
+                  variant={view === 'grid' ? 'solid' : 'ghost'}
+                  onClick={() => setView('grid')}
+                  className="h-7 px-3 text-xs"
                 >
-                  <CheckSquare className="w-4 h-4 mr-1" />
-                  Select All
+                  <Grid3X3 className="w-3.5 h-3.5 mr-1" />
+                  Grid
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
-                  onClick={clearSelection}
-                  className="text-sm"
+                  variant={view === 'list' ? 'solid' : 'ghost'}
+                  onClick={() => setView('list')}
+                  className="h-7 px-3 text-xs"
                 >
-                  <Square className="w-4 h-4 mr-1" />
-                  Clear
+                  <List className="w-3.5 h-3.5 mr-1" />
+                  List
                 </Button>
               </div>
               
-              <div className="text-sm text-muted-foreground">
-                {selectedItems.size} selected
-              </div>
-              
-              <Button
-                size="sm"
-                color="danger"
-                onClick={handleBulkDeleteClick}
-                disabled={selectedItems.size === 0}
-                className="text-sm"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete ({selectedItems.size})
-              </Button>
-              
-              <Button
-                size="sm"
+              <Button 
+                size="sm" 
                 variant="ghost"
-                onClick={toggleSelectionMode}
-                className="text-sm"
+                className="text-xs text-muted-foreground hover:text-foreground"
               >
-                <X className="w-4 h-4 mr-1" />
-                Cancel
+                <Filter className="w-3.5 h-3.5 mr-1" />
+                Filter
               </Button>
             </div>
-          )}
-          
-          <div className="flex items-center space-x-3">
-            {/* Selection Mode Toggle */}
-            {!isSelectionMode && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={toggleSelectionMode}
-                className="text-sm"
-              >
-                <CheckSquare className="w-4 h-4 mr-1" />
-                Select
-              </Button>
-            )}
-            
-            {/* View Toggle */}
-            <div className="flex items-center bg-muted rounded-lg p-1">
-              <Button
-                size="sm"
-                variant={view === 'grid' ? 'solid' : 'ghost'}
-                onClick={() => setView('grid')}
-                className="h-7 px-3"
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant={view === 'list' ? 'solid' : 'ghost'}
-                onClick={() => setView('list')}
-                className="h-7 px-3"
-              >
-                <List className="w-4 h-4" />
-              </Button>
+
+            {/* Right - Actions */}
+            <div className="flex items-center space-x-3">
+              {!isSelectionMode ? (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={toggleSelectionMode}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <CheckSquare className="w-3.5 h-3.5 mr-1" />
+                    Select
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowQuickAddDialog(true)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1" />
+                    Quick Add
+                  </Button>
+                  
+                  <AddItemDialog />
+                </>
+              ) : (
+                <div className="flex items-center space-x-3 bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20">
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={selectAll}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={clearSelection}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-primary font-medium">
+                    {selectedItems.size} selected
+                  </div>
+                  
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleBulkDeleteClick}
+                      disabled={selectedItems.size === 0}
+                      className="h-6 px-2 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1" />
+                      Delete
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={toggleSelectionMode}
+                      className="h-6 px-2 text-xs"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-            
-            {/* Filter */}
-            <Button size="sm" variant="ghost">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            
-            {/* Add New */}
-            <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowQuickAddDialog(true)}
-                className="text-sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Quick Add
-              </Button>
-              <AddItemDialog />
-            </div>
-            
-            {/* Notifications */}
-            <Button size="sm" variant="ghost">
-              <Bell className="w-4 h-4" />
-            </Button>
-            
-            {/* Profile Menu */}
-            <Dropdown>
-              <DropdownTrigger>
-                <Button size="sm" variant="bordered">
-                  <User className="w-4 h-4" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Profile actions">
-                <DropdownItem key="profile" startContent={<User className="w-4 h-4" />}>
-                  Profile
-                </DropdownItem>
-                <DropdownItem key="settings" startContent={<Settings className="w-4 h-4" />}>
-                  Settings
-                </DropdownItem>
-                <DropdownItem key="logout" color="danger" onPress={signOut}>
-                  Sign Out
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
           </div>
         </header>
         
         {/* Content Area */}
-        <main className="flex-1 overflow-auto p-6">
-          {filteredItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
-                <Search className="w-10 h-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium mb-2">No clips found</h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                {searchQuery ? 
-                  `No clips match "${searchQuery}". Try adjusting your search terms.` :
-                  "You don't have any clipboard items yet. Start by adding your first clip!"
-                }
-              </p>
-              <AddItemDialog 
-                trigger={
-                  <Button className="bg-gradient-hero text-white">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Your First Clip
-                  </Button>
-                }
-              />
-            </div>
-          ) : (
-            <div className={cn(
-              view === 'grid' 
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" 
-                : "space-y-3"
-            )}>
-              {filteredItems.map((item) => (
-                <ClipboardItem 
-                  key={item.id} 
-                  item={{
-                    id: item.id,
-                    title: item.title,
-                    content: item.content,
-                    type: item.type,
-                    tags: item.tags,
-                    isPinned: item.is_pinned,
-                    isFavorite: item.is_favorite,
-                    createdAt: item.created_at,
-                  }} 
-                  view={view}
-                  deleteItem={deleteItem}
-                  toggleFavorite={toggleFavorite}
-                  togglePin={togglePin}
-                  copyToClipboard={copyToClipboard}
-                  isSelectionMode={isSelectionMode}
-                  isSelected={selectedItems.has(item.id)}
-                  onToggleSelection={toggleSelection}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {filteredItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[500px] text-center">
+                <div className="w-16 h-16 bg-muted/60 rounded-2xl flex items-center justify-center mb-6">
+                  <Search className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-foreground">No clips found</h3>
+                <p className="text-muted-foreground mb-8 max-w-md leading-relaxed">
+                  {searchQuery ? 
+                    `No clips match "${searchQuery}". Try adjusting your search terms or browse all clips.` :
+                    "Your clipboard is empty. Create your first clip to get started!"
+                  }
+                </p>
+                <AddItemDialog 
+                  trigger={
+                    <Button className="bg-gradient-hero text-white hover:opacity-90 transition-opacity shadow-soft">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Clip
+                    </Button>
+                  }
                 />
-              ))}
-            </div>
-          )}
-          
-          {/* Pagination Controls */}
-          {filteredItems.length > 0 && totalCount > pageSize && (
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-              <div className="flex items-center space-x-4">
-                <div className="text-sm text-muted-foreground">
-                  Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
-                </div>
-                
-                {/* Page Size Selector */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">Show:</span>
-                  <Select
-                    size="sm"
-                    selectedKeys={[pageSize.toString()]}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string;
-                      handlePageSizeChange(Number(selectedKey));
-                    }}
-                    className="w-20"
-                    aria-label="Items per page"
-                  >
-                    <SelectItem key="6">6</SelectItem>
-                    <SelectItem key="12">12</SelectItem>
-                    <SelectItem key="24">24</SelectItem>
-                    <SelectItem key="48">48</SelectItem>
-                  </Select>
-                </div>
               </div>
-              
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) {
-                          handlePageChange(currentPage - 1);
-                        }
-                      }}
-                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            ) : (
+              <>
+                {/* Items Grid/List */}
+                <div className={cn(
+                  "animate-fade-in",
+                  view === 'grid' 
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" 
+                    : "space-y-3"
+                )}>
+                  {filteredItems.map((item) => (
+                    <ClipboardItem 
+                      key={item.id} 
+                      item={{
+                        id: item.id,
+                        title: item.title,
+                        content: item.content,
+                        type: item.type,
+                        tags: item.tags,
+                        isPinned: item.is_pinned,
+                        isFavorite: item.is_favorite,
+                        createdAt: item.created_at,
+                      }} 
+                      view={view}
+                      deleteItem={deleteItem}
+                      toggleFavorite={toggleFavorite}
+                      togglePin={togglePin}
+                      copyToClipboard={copyToClipboard}
+                      isSelectionMode={isSelectionMode}
+                      isSelected={selectedItems.has(item.id)}
+                      onToggleSelection={toggleSelection}
                     />
-                  </PaginationItem>
-                  
-                  {/* Page numbers */}
-                  {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1)
-                    .filter(page => {
-                      // Show first page, last page, current page, and pages around current page
-                      return page === 1 || 
-                             page === Math.ceil(totalCount / pageSize) || 
-                             Math.abs(page - currentPage) <= 2;
-                    })
-                    .map((page, index, array) => {
-                      // Add ellipsis if there's a gap
-                      const showEllipsis = index > 0 && page - array[index - 1] > 1;
-                      return (
-                        <React.Fragment key={page}>
-                          {showEllipsis && (
-                            <PaginationItem>
-                              <span className="flex h-9 w-9 items-center justify-center">...</span>
-                            </PaginationItem>
-                          )}
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalCount > pageSize && (
+                  <div className="mt-12 pt-8 border-t border-border">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      {/* Results Info */}
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <span>
+                          Showing {((currentPage - 1) * pageSize) + 1}–{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                        </span>
+                        
+                        {/* Page Size Selector */}
+                        <div className="flex items-center space-x-2">
+                          <span>per page:</span>
+                          <Select
+                            size="sm"
+                            selectedKeys={[pageSize.toString()]}
+                            onSelectionChange={(keys) => {
+                              const selectedKey = Array.from(keys)[0] as string;
+                              handlePageSizeChange(Number(selectedKey));
+                            }}
+                            className="w-16"
+                            aria-label="Items per page"
+                          >
+                            <SelectItem key="6">6</SelectItem>
+                            <SelectItem key="12">12</SelectItem>
+                            <SelectItem key="24">24</SelectItem>
+                            <SelectItem key="48">48</SelectItem>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      {/* Pagination Controls */}
+                      <Pagination>
+                        <PaginationContent>
                           <PaginationItem>
-                            <PaginationLink
+                            <PaginationPrevious 
                               href="#"
                               onClick={(e) => {
                                 e.preventDefault();
-                                handlePageChange(page);
+                                if (currentPage > 1) {
+                                  handlePageChange(currentPage - 1);
+                                }
                               }}
-                              isActive={page === currentPage}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
+                              className={cn(
+                                "cursor-pointer",
+                                currentPage <= 1 && "pointer-events-none opacity-50"
+                              )}
+                            />
                           </PaginationItem>
-                        </React.Fragment>
-                      );
-                    })}
-                  
-                  <PaginationItem>
-                    <PaginationNext 
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < Math.ceil(totalCount / pageSize)) {
-                          handlePageChange(currentPage + 1);
-                        }
-                      }}
-                      className={currentPage >= Math.ceil(totalCount / pageSize) ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+                          
+                          {/* Simplified Page Numbers */}
+                          {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1)
+                            .filter(page => {
+                              const totalPages = Math.ceil(totalCount / pageSize);
+                              if (totalPages <= 7) return true;
+                              
+                              return page === 1 || 
+                                     page === totalPages || 
+                                     Math.abs(page - currentPage) <= 1;
+                            })
+                            .map((page, index, array) => {
+                              const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                              return (
+                                <React.Fragment key={page}>
+                                  {showEllipsis && (
+                                    <PaginationItem>
+                                      <span className="flex h-9 w-9 items-center justify-center text-muted-foreground">…</span>
+                                    </PaginationItem>
+                                  )}
+                                  <PaginationItem>
+                                    <PaginationLink
+                                      href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePageChange(page);
+                                      }}
+                                      isActive={page === currentPage}
+                                      className="cursor-pointer"
+                                    >
+                                      {page}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                </React.Fragment>
+                              );
+                            })}
+                          
+                          <PaginationItem>
+                            <PaginationNext 
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < Math.ceil(totalCount / pageSize)) {
+                                  handlePageChange(currentPage + 1);
+                                }
+                              }}
+                              className={cn(
+                                "cursor-pointer",
+                                currentPage >= Math.ceil(totalCount / pageSize) && "pointer-events-none opacity-50"
+                              )}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </main>
       </div>
 
