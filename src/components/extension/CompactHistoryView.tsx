@@ -98,7 +98,7 @@ const CompactHistoryView: React.FC<CompactHistoryViewProps> = ({
       if (!a.isPinned && b.isPinned) return 1;
       
       // Then by creation date (newest first)
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   };
 

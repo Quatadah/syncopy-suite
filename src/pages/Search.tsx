@@ -16,7 +16,7 @@ import {
     Image as ImageIcon,
     List,
     Pin,
-    Search,
+    Search as SearchIcon,
     Tag,
     X
 } from "lucide-react";
@@ -70,7 +70,7 @@ const Search = memo(() => {
     
     const tagsWithCounts = Object.entries(tagCounts).map(([name, count]) => ({
       name,
-      count
+      count: count as number
     }));
     
     setAvailableTags(tagsWithCounts);
@@ -260,7 +260,7 @@ const Search = memo(() => {
               <div className="flex items-center bg-muted rounded-lg p-1">
                 <Button
                   size="sm"
-                  variant={view === 'grid' ? 'solid' : 'ghost'}
+                  variant={view === 'grid' ? 'default' : 'ghost'}
                   onClick={() => setView('grid')}
                   className="h-8 px-3"
                 >
@@ -268,7 +268,7 @@ const Search = memo(() => {
                 </Button>
                 <Button
                   size="sm"
-                  variant={view === 'list' ? 'solid' : 'ghost'}
+                  variant={view === 'list' ? 'default' : 'ghost'}
                   onClick={() => setView('list')}
                   className="h-8 px-3"
                 >
@@ -280,7 +280,7 @@ const Search = memo(() => {
 
           {/* Search Bar */}
           <div className="relative max-w-2xl">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               placeholder="Search your clipboard items..."
               className="pl-10 h-12 text-lg"
@@ -447,7 +447,7 @@ const Search = memo(() => {
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Search className="w-10 h-10 text-muted-foreground" />
+              <SearchIcon className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-medium mb-2">No results found</h3>
             <p className="text-muted-foreground mb-6 max-w-md">

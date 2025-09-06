@@ -47,9 +47,9 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={toggleTheme}
-            className="rounded-full"
+            className="rounded-full w-9 h-9 p-0"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
@@ -64,19 +64,18 @@ const Navbar = () => {
             <span>Extension</span>
           </Button>
 
-          <Button variant="ghost" className="flex items-center space-x-2" asChild>
-            <Link to="/auth">
+          <Link to="/auth">
+            <Button variant="ghost" className="flex items-center space-x-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Sign In</span>
-            </Link>
-          </Button>
+            </Button>
+          </Link>
 
-          <Button 
-            className="bg-gradient-hero hover:opacity-90 text-white"
-            asChild
-          >
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          <Link to="/auth">
+            <Button className="bg-gradient-hero hover:opacity-90 text-white">
+              Get Started
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>
