@@ -1,20 +1,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
-    Code,
-    ExternalLink,
-    FileText,
-    Image as ImageIcon,
+    Clipboard,
     Plus,
-    Tag,
-    X,
     Zap
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface QuickAddDialogProps {
   open: boolean;
@@ -26,112 +20,96 @@ interface QuickAddDialogProps {
     tags: string[];
   }) => Promise<void>;
   initialContent?: string;
-  initialType?: 'text' | 'link' | 'image' | 'code';
 }
 
 const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
   open,
   onOpenChange,
   onAdd,
-  initialContent = '',
-  initialType = 'text'
+  initialContent = ''
 }) => {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState(initialContent);
-  const [type, setType] = useState<'text' | 'link' | 'image' | 'code'>(initialType);
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
 
-  // Reset form when dialog opens/closes
+  // Reset and focus when dialog opens
   useEffect(() => {
     if (open) {
-      setTitle('');
       setContent(initialContent);
-      setType(initialType);
-      setTags([]);
-      setNewTag('');
+      // Focus textarea after dialog animation
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
     }
-  }, [open, initialContent, initialType]);
+  }, [open, initialContent]);
 
-  // Auto-detect type from content
-  useEffect(() => {
-    if (content && !title) {
-      // Auto-detect URL
-      const urlRegex = /^https?:\/\/.+/;
-      if (urlRegex.test(content.trim())) {
-        setType('link');
-        setTitle(content.trim());
-      }
-      // Auto-detect code (basic heuristics)
-      else if (content.includes('function') || content.includes('const') || content.includes('import')) {
-        setType('code');
-        setTitle('Code snippet');
-      }
-      // Auto-detect image URL
-      else if (content.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
-        setType('image');
-        setTitle('Image');
-      }
-      else {
-        setType('text');
-        setTitle(content.substring(0, 50) + (content.length > 50 ? '...' : ''));
-      }
-    }
-  }, [content, title]);
-
-  const getTypeIcon = (itemType: string) => {
-    switch (itemType) {
-      case 'link':
-        return <ExternalLink className="w-4 h-4" />;
-      case 'image':
-        return <ImageIcon className="w-4 h-4" />;
-      case 'code':
-        return <Code className="w-4 h-4" />;
-      default:
-        return <FileText className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeColor = (itemType: string) => {
-    switch (itemType) {
-      case 'link':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'image':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'code':
-        return 'text-purple-600 bg-purple-50 border-purple-200';
-      default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleAddTag();
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-detect content type
+  const detectType = (text: string): 'text' | 'link' | 'image' | 'code' => {
+    const trimmed = text.trim();
     
+    // URL detection
+    if (/^https?:\/\/.+/i.test(trimmed)) {
+      return 'link';
+    }
+    
+    // Image URL detection
+    if (/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(trimmed)) {
+      return 'image';
+    }
+    
+    // Code detection (basic heuristics)
+    if (
+      trimmed.includes('function ') ||
+      trimmed.includes('const ') ||
+      trimmed.includes('import ') ||
+      trimmed.includes('export ') ||
+      trimmed.includes('<script') ||
+      trimmed.includes('<?php') ||
+      /^\s*[\{\[\(]/.test(trimmed) ||
+      trimmed.includes('SELECT ') ||
+      trimmed.includes('FROM ')
+    ) {
+      return 'code';
+    }
+    
+    return 'text';
+  };
+
+  // Generate smart title
+  const generateTitle = (text: string, type: string): string => {
+    const trimmed = text.trim();
+    
+    if (type === 'link') {
+      try {
+        const url = new URL(trimmed);
+        return url.hostname.replace('www.', '') + url.pathname;
+      } catch {
+        return trimmed.substring(0, 50);
+      }
+    }
+    
+    if (type === 'code') {
+      // Try to extract function name or first meaningful line
+      const lines = trimmed.split('\n');
+      const meaningfulLine = lines.find(line => 
+        line.trim() && 
+        !line.trim().startsWith('//') && 
+        !line.trim().startsWith('/*')
+      );
+      return meaningfulLine ? meaningfulLine.trim().substring(0, 50) : 'Code snippet';
+    }
+    
+    // For text, use first line or first 50 chars
+    const firstLine = trimmed.split('\n')[0];
+    return firstLine.length > 50 ? firstLine.substring(0, 47) + '...' : firstLine;
+  };
+
+  const handleQuickSave = async () => {
     if (!content.trim()) {
       toast({
-        title: 'Content Required',
-        description: 'Please enter some content for your clipboard item.',
+        title: 'Nothing to save',
+        description: 'Please paste or type some content first.',
         variant: 'destructive'
       });
       return;
@@ -139,23 +117,26 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
 
     setIsLoading(true);
     try {
+      const type = detectType(content);
+      const title = generateTitle(content, type);
+      
       await onAdd({
-        title: title.trim() || content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+        title,
         content: content.trim(),
         type,
-        tags
+        tags: [] // No tags for quick save
       });
       
       toast({
-        title: 'Item Added',
-        description: 'Your clipboard item has been saved successfully.',
+        title: 'Saved!',
+        description: 'Content saved to your clipboard.',
       });
       
       onOpenChange(false);
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to add clipboard item. Please try again.',
+        description: 'Failed to save content. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -163,178 +144,119 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
     }
   };
 
-  const handleQuickAdd = async () => {
-    if (!content.trim()) return;
-    
-    setIsLoading(true);
+  const handlePasteFromClipboard = async () => {
     try {
-      await onAdd({
-        title: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
-        content: content.trim(),
-        type,
-        tags: []
-      });
-      
-      toast({
-        title: 'Quick Added!',
-        description: 'Item added with default settings.',
-      });
-      
-      onOpenChange(false);
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setContent(text);
+        textareaRef.current?.focus();
+      }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to add clipboard item.',
+        title: 'Cannot access clipboard',
+        description: 'Please paste manually using Ctrl+V.',
         variant: 'destructive'
       });
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Save with Ctrl+Enter or Cmd+Enter
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handleQuickSave();
+    }
+    // Close with Escape
+    if (e.key === 'Escape') {
+      onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Plus className="w-5 h-5" />
-            <span>Add Clipboard Item</span>
+            <Zap className="w-5 h-5 text-primary" />
+            <span>Quick Save</span>
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Type Selector */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Type</label>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { value: 'text', label: 'Text', icon: <FileText className="w-4 h-4" /> },
-                { value: 'link', label: 'Link', icon: <ExternalLink className="w-4 h-4" /> },
-                { value: 'image', label: 'Image', icon: <ImageIcon className="w-4 h-4" /> },
-                { value: 'code', label: 'Code', icon: <Code className="w-4 h-4" /> }
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setType(option.value as any)}
-                  className={`p-3 border rounded-lg text-center transition-colors ${
-                    type === option.value
-                      ? getTypeColor(option.value)
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex flex-col items-center space-y-1">
-                    {option.icon}
-                    <span className="text-xs font-medium">{option.label}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Title */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Title</label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a title for your item..."
-              className="w-full"
-            />
-          </div>
-
-          {/* Content */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Content</label>
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste or type your content here..."
-              className="w-full min-h-[120px] resize-none"
-              autoFocus
-            />
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
-            <div className="space-y-2">
-              <div className="flex space-x-2">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Add a tag..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  onClick={handleAddTag}
-                  size="sm"
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="flex items-center space-x-1"
-                    >
-                      <Tag className="w-3 h-3" />
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 hover:text-red-600"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-4">
+        <div className="space-y-4">
+          {/* Quick paste button */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Paste content and save instantly
+            </p>
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
+              size="sm"
+              onClick={handlePasteFromClipboard}
+              className="flex items-center space-x-1"
             >
-              Cancel
+              <Clipboard className="w-3.5 h-3.5" />
+              <span>Paste</span>
             </Button>
+          </div>
+
+          {/* Content textarea */}
+          <Textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Paste or type anything here... (Ctrl+Enter to save)"
+            className="min-h-[200px] resize-none focus:ring-2 focus:ring-primary/20"
+            autoFocus
+          />
+
+          {/* Type preview */}
+          {content.trim() && (
+            <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
+              <span>Auto-detected: <strong className="capitalize">{detectType(content)}</strong></span>
+              <span>Title: <strong>{generateTitle(content, detectType(content))}</strong></span>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-between pt-2">
+            <div className="text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-xs">
+                <Zap className="w-3 h-3 mr-1" />
+                Quick mode - auto-organized
+              </Badge>
+            </div>
             
             <div className="flex space-x-2">
               <Button
-                type="button"
                 variant="outline"
-                onClick={handleQuickAdd}
-                disabled={isLoading || !content.trim()}
-                className="flex items-center space-x-1"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
               >
-                <Zap className="w-4 h-4" />
-                <span>Quick Add</span>
+                Cancel
               </Button>
               
               <Button
-                type="submit"
+                onClick={handleQuickSave}
                 disabled={isLoading || !content.trim()}
-                className="flex items-center space-x-1"
+                className="bg-gradient-hero text-white hover:opacity-90"
               >
-                <Plus className="w-4 h-4" />
-                <span>{isLoading ? 'Adding...' : 'Add Item'}</span>
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Save (⌘↵)
+                  </>
+                )}
               </Button>
             </div>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

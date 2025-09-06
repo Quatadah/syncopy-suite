@@ -1,6 +1,7 @@
 import AddItemDialog from "@/components/dashboard/AddItemDialog";
 import ClipboardItem from "@/components/dashboard/ClipboardItem";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import InstantPasteButton from "@/components/dashboard/InstantPasteButton";
 import QuickAddDialog from "@/components/dashboard/QuickAddDialog";
 import {
   AlertDialog,
@@ -348,6 +349,19 @@ const Dashboard = memo(() => {
                     <CheckSquare className="w-3.5 h-3.5 mr-1" />
                     Select
                   </Button>
+                  
+                  <InstantPasteButton 
+                    onAdd={async (item) => {
+                      await createItem({
+                        title: item.title,
+                        content: item.content,
+                        type: item.type,
+                        tags: item.tags,
+                        is_pinned: false,
+                        is_favorite: false
+                      });
+                    }}
+                  />
                   
                   <Button
                     size="sm"
