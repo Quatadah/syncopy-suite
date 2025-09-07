@@ -1,6 +1,5 @@
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Button, Card, CardBody, CardHeader, Divider, Input, Tab, Tabs } from "@heroui/react";
+import { addToast, Button, Card, CardBody, CardHeader, Divider, Input, Tab, Tabs } from "@heroui/react";
 import { Eye, EyeOff, Github, Loader2, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +11,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -27,16 +25,18 @@ const Auth = () => {
 
   const handleMagicLink = async () => {
     if (!email) {
-      toast({
+      addToast({
         title: "Email required",
         description: "Please enter your email address",
-        variant: "destructive",
-      });
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
       return;
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error: authError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
@@ -45,32 +45,39 @@ const Auth = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
+    if (authError) {
+      addToast({
         title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        description: authError.message,
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
     } else {
-      toast({
+      addToast({
         title: "Check your email",
         description: "We sent you a magic link to sign in",
-      });
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      })
     }
   };
 
   const handleSignUp = async () => {
     if (!email || !password) {
-      toast({
+      addToast({
         title: "Missing fields",
         description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
       return;
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -83,52 +90,68 @@ const Auth = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
+    if (authError) {
+      addToast({
         title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        description: authError.message,
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
     } else {
-      toast({
+      addToast({
         title: "Check your email",
         description: "We sent you a confirmation link",
-      });
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      })
     }
   };
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      toast({
+      addToast({
         title: "Missing fields",
         description: "Please enter your email and password",
-        variant: "destructive",
-      });
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
       return;
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
+    if (authError) {
+      addToast({
         title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        description: authError.message,
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
     } else {
+      addToast({
+        title: "Welcome back!",
+        description: "You have been signed in successfully",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      })
       navigate('/dashboard');
     }
   };
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
@@ -137,18 +160,20 @@ const Auth = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
+    if (authError) {
+      addToast({
         title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        description: authError.message,
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
     }
   };
 
   const handleGithubAuth = async () => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
@@ -157,27 +182,29 @@ const Auth = () => {
 
     setIsLoading(false);
 
-    if (error) {
-      toast({
+    if (authError) {
+      addToast({
         title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+        description: authError.message,
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      })
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center flex flex-col items-center">
           <h2 className="text-2xl font-bold">Welcome to Clipboard</h2>
           <p className="text-sm text-muted-foreground">
             Sign in to access your clipboard across all devices
           </p>
         </CardHeader>
-        <CardBody>
+        <CardBody className="w-full">
           <Tabs defaultSelectedKey="signin" className="w-full">
-            <Tab key="signin" title="Sign In" className="space-y-4">
+            <Tab key="signin" title="Sign In" className="space-y-4 w-full">
               <div className="space-y-2">
                 <Input
                   id="email"
@@ -222,7 +249,7 @@ const Auth = () => {
                 Sign In
               </Button>
             </Tab>
-            <Tab key="signup" title="Sign Up" className="space-y-4">
+            <Tab key="signup" title="Sign Up" className="space-y-4 w-full">
               <div className="space-y-2">
                 <Input
                   id="fullName"

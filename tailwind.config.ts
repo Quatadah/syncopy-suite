@@ -21,6 +21,16 @@ export default {
     },
     extend: {
       fontFamily: {
+        bricolage: [
+          "Bricolage Grotesque",
+          "Inter",
+          "SF Pro Display",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
         poppins: ["Poppins", "sans-serif"],
       },
       colors: {

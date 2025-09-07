@@ -1,12 +1,12 @@
 "use client";
 
+import syncopyLogo from "@/assets/images/syncopy-logo.png";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
-  Clipboard,
   Clock,
   Download,
   Globe,
@@ -83,7 +83,7 @@ const Landing = () => {
       role: "Product Designer",
       company: "Figma",
       avatar: "SC",
-      content: "ClipSync has revolutionized my workflow. I can seamlessly move between my Mac and iPad without losing any design assets or notes."
+      content: "Syncopy has revolutionized my workflow. I can seamlessly move between my Mac and iPad without losing any design assets or notes."
     },
     {
       name: "Marcus Rodriguez",
@@ -97,7 +97,7 @@ const Landing = () => {
       role: "Content Creator",
       company: "YouTube",
       avatar: "EW",
-      content: "From research links to video scripts, ClipSync keeps everything organized and accessible. It's become essential to my content creation process."
+      content: "From research links to video scripts, Syncopy keeps everything organized and accessible. It's become essential to my content creation process."
     }
   ];
 
@@ -136,13 +136,17 @@ const Landing = () => {
         <div className="container mx-auto max-w-7xl flex items-center justify-between">
           <motion.div 
             whileHover={{ scale: 1.05 }}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-3"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <Clipboard className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden">
+              <img 
+                src={syncopyLogo} 
+                alt="Syncopy Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-              ClipSync
+            <span className="text-2xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent" font-bricolage>
+              Syncopy
             </span>
           </motion.div>
           
@@ -302,7 +306,7 @@ const Landing = () => {
               </span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Join thousands of professionals who trust ClipSync to streamline their workflow.
+              Join thousands of professionals who trust Syncopy to streamline their workflow.
             </p>
           </motion.div>
 
@@ -357,7 +361,7 @@ const Landing = () => {
               Your Workflow?
             </h2>
             <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Join thousands of professionals who have revolutionized their productivity with ClipSync.
+              Join thousands of professionals who have revolutionized their productivity with Syncopy.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -388,12 +392,16 @@ const Landing = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <Clipboard className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 rounded-xl overflow-hidden">
+                  <img 
+                    src={syncopyLogo} 
+                    alt="Syncopy Logo" 
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-                  ClipSync
+                <span className="text-2xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent" font-bricolage>
+                  Syncopy
                 </span>
               </div>
               <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
@@ -436,7 +444,7 @@ const Landing = () => {
           
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 ClipSync. All rights reserved.
+              © 2024 Syncopy. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm text-gray-400 mt-4 md:mt-0">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>

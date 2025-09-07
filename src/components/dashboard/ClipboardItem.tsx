@@ -1,59 +1,102 @@
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+import { addToast, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
+import { AnimatePresence, motion } from "framer-motion"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
-import {
-  Check,
+  Calendar,
   CheckSquare,
   Clock,
   Code,
   Copy,
-  Edit,
-  ExternalLink,
   FileText,
   Heart,
-  Image as ImageIcon,
+  Image,
+  Link,
   MoreHorizontal,
   Pin,
+  Share2,
   Tag,
-  Trash2,
-  Zap
-} from "lucide-react";
-import { useEffect, useState } from "react";
+  Trash2
+} from "lucide-react"
+import React, { useEffect, useState } from "react"
 
-interface ClipboardItemProps {
-  item: {
-    id: string;
-    title: string;
-    content: string;
-    type: 'text' | 'link' | 'image' | 'code';
-    tags: string[];
-    isPinned: boolean;
-    isFavorite: boolean;
-    createdAt: string;
-    preview?: string;
-  };
-  view?: 'grid' | 'list';
-  deleteItem: (id: string) => Promise<void>;
-  toggleFavorite: (id: string, isFavorite: boolean) => Promise<void>;
-  togglePin: (id: string, isPinned: boolean) => Promise<void>;
-  copyToClipboard: (content: string) => Promise<void>;
-  isSelectionMode?: boolean;
-  isSelected?: boolean;
-  onToggleSelection?: (id: string) => void;
+interface ClipboardItem {
+  id: string
+  type: "text" | "image" | "link" | "code"
+  content: string
+  preview?: string
+  title?: string
+  timestamp: Date
+  tags: string[]
+  isPinned: boolean
+  isFavorite: boolean
+  size?: number
+  createdAt: string
 }
 
-const ClipboardItem = ({ 
+interface ClipboardItemProps {
+  item: ClipboardItem
+  layout?: "grid" | "list"
+  onPin?: (id: string) => void
+  onFavorite?: (id: string) => void
+  onCopy?: (id: string) => void
+  onDelete?: (id: string) => void
+  onShare?: (id: string) => void
+  className?: string
+  // Legacy props for compatibility
+  view?: 'grid' | 'list'
+  deleteItem?: (id: string) => Promise<void>
+  toggleFavorite?: (id: string, isFavorite: boolean) => Promise<void>
+  togglePin?: (id: string, isPinned: boolean) => Promise<void>
+  copyToClipboard?: (content: string) => Promise<void>
+  isSelectionMode?: boolean
+  isSelected?: boolean
+  onToggleSelection?: (id: string) => void
+}
+
+const typeIcons = {
+  text: FileText,
+  image: Image,
+  link: Link,
+  code: Code,
+}
+
+const typeColors = {
+  text: "bg-blue-500/10 text-blue-600 border-blue-200",
+  image: "bg-green-500/10 text-green-600 border-green-200",
+  link: "bg-purple-500/10 text-purple-600 border-purple-200",
+  code: "bg-orange-500/10 text-orange-600 border-orange-200",
+}
+
+function formatTimeAgo(date: Date): string {
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) return "Just now"
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+  return `${Math.floor(diffInSeconds / 86400)}d ago`
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 B"
+  const k = 1024
+  const sizes = ["B", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i]
+}
+
+function ClipboardCard({ 
   item, 
+  layout = "grid", 
+  onPin, 
+  onFavorite, 
+  onCopy, 
+  onDelete, 
+  onShare,
+  className,
+  // Legacy props for compatibility
   view = 'grid', 
   deleteItem, 
   toggleFavorite, 
@@ -62,14 +105,18 @@ const ClipboardItem = ({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection
-}: ClipboardItemProps) => {
+}: ClipboardItemProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [showActions, setShowActions] = useState(false)
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { isOpen: showDeleteDialog, onOpen: setShowDeleteDialog, onOpenChange: onDeleteDialogChange } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const { toast } = useToast();
+  
+  // Use layout prop with fallback to view for compatibility
+  const currentLayout = layout || view
+  const isListLayout = currentLayout === "list"
 
   // Reset copy feedback after 2 seconds
   useEffect(() => {
@@ -79,68 +126,84 @@ const ClipboardItem = ({
     }
   }, [justCopied]);
 
-  const getTypeIcon = () => {
-    switch (item.type) {
-      case 'link':
-        return <ExternalLink className="w-4 h-4" />;
-      case 'image':
-        return <ImageIcon className="w-4 h-4" />;
-      case 'code':
-        return <Code className="w-4 h-4" />;
-      default:
-        return <FileText className="w-4 h-4" />;
+  const TypeIcon = typeIcons[item.type];
+
+  const handlePin = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onPin) {
+      onPin(item.id)
+    } else if (togglePin) {
+      handleTogglePin()
+    }
+  }
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onFavorite) {
+      onFavorite(item.id)
+    } else if (toggleFavorite) {
+      handleToggleFavorite(e)
+    }
+  }
+
+  const handleCopy = async (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    try {
+      if (onCopy) {
+        onCopy(item.id)
+      } else if (copyToClipboard) {
+        await copyToClipboard(item.content);
+        setJustCopied(true);
+      }
+    } catch (error) {
+      addToast({
+        title: "Copy failed",
+        description: "Unable to copy content to clipboard",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      });
     }
   };
 
-  const getTypeConfig = () => {
-    switch (item.type) {
-      case 'link':
-        return {
-          gradient: 'from-primary/10 to-primary/5',
-          border: 'border-primary/20',
-          iconColor: 'text-primary',
-          accentColor: 'bg-primary/10 text-primary',
-          hoverColor: 'hover:bg-primary/5'
-        };
-      case 'image':
-        return {
-          gradient: 'from-accent/10 to-accent/5',
-          border: 'border-accent/20',
-          iconColor: 'text-accent',
-          accentColor: 'bg-accent/10 text-accent',
-          hoverColor: 'hover:bg-accent/5'
-        };
-      case 'code':
-        return {
-          gradient: 'from-success/10 to-success/5',
-          border: 'border-success/20',
-          iconColor: 'text-success',
-          accentColor: 'bg-success/10 text-success',
-          hoverColor: 'hover:bg-success/5'
-        };
-      default:
-        return {
-          gradient: 'from-muted-foreground/10 to-muted-foreground/5',
-          border: 'border-muted-foreground/20',
-          iconColor: 'text-muted-foreground',
-          accentColor: 'bg-muted text-muted-foreground',
-          hoverColor: 'hover:bg-muted/80'
-        };
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onDelete) {
+      onDelete(item.id)
+    } else if (deleteItem) {
+      setShowDeleteDialog()
     }
-  };
+  }
 
-  const handleCopy = async () => {
-    await copyToClipboard(item.content);
-    setJustCopied(true);
-  };
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onShare) {
+      onShare(item.id)
+    }
+  }
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsLoading(true);
     try {
       await toggleFavorite(item.id, isStarred);
       setIsStarred(!isStarred);
+      addToast({
+        title: isStarred ? "Removed from favorites" : "Added to favorites",
+        description: isStarred ? "Item removed from your favorites" : "Item added to your favorites",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      });
     } catch (error) {
       console.error('Error toggling favorite:', error);
+      addToast({
+        title: "Error updating favorite",
+        description: "Failed to update favorite status",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -151,18 +214,35 @@ const ClipboardItem = ({
     try {
       await togglePin(item.id, isPinned);
       setIsPinned(!isPinned);
+      addToast({
+        title: isPinned ? "Unpinned item" : "Pinned item",
+        description: isPinned ? "Item has been unpinned" : "Item has been pinned to the top",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      });
     } catch (error) {
       console.error('Error toggling pin:', error);
+      addToast({
+        title: "Error updating pin",
+        description: "Failed to update pin status",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+
+  const confirmDelete = async () => {
     setIsLoading(true);
     try {
-      await deleteItem(item.id);
-      setShowDeleteDialog(false);
+      if (deleteItem) {
+        await deleteItem(item.id);
+      }
+      onDeleteDialogChange();
     } catch (error) {
       console.error('Error deleting item:', error);
     } finally {
@@ -170,333 +250,316 @@ const ClipboardItem = ({
     }
   };
 
-  const handleSelectionToggle = () => {
+  const handleSelectionToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onToggleSelection) {
       onToggleSelection(item.id);
     }
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  const handleContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleCopy();
   };
 
-  const typeConfig = getTypeConfig();
+  // Get timestamp - use timestamp if available, otherwise createdAt
+  const getTimestamp = () => {
+    if (item.timestamp) return item.timestamp
+    return new Date(item.createdAt)
+  }
 
-  if (view === 'list') {
-    return (
-      <div
+  const renderPreview = () => {
+    switch (item.type) {
+      case "image":
+        return (
+          <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
+            {item.preview ? (
+              <img 
+                src={item.preview} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Image className="w-8 h-8 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        )
+      case "link":
+        return (
+          <div className="p-3 bg-muted/50 rounded-lg border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <Link className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium truncate">{item.title || "Link"}</span>
+            </div>
+            <p className="text-xs text-muted-foreground truncate cursor-pointer" onClick={handleContentClick}>{item.content}</p>
+          </div>
+        )
+      case "code":
+        return (
+          <div className="p-3 bg-muted/50 rounded-lg border border-border font-mono">
+            <pre className="text-xs text-foreground whitespace-pre-wrap line-clamp-3 cursor-pointer" onClick={handleContentClick}>
+              {item.content}
+            </pre>
+          </div>
+        )
+      default:
+        return (
+          <div className="p-3 bg-muted/50 rounded-lg border border-border">
+            <p className="text-sm text-foreground line-clamp-3 cursor-pointer" onClick={handleContentClick}>{item.content}</p>
+          </div>
+        )
+    }
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+      className={cn(className)}
+    >
+      <Card
         className={cn(
-          "group relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-medium",
-          "bg-gradient-to-r bg-card", typeConfig.gradient, typeConfig.border,
-          isPinned && "ring-2 ring-primary/20 shadow-soft",
-          isHovered && "shadow-large scale-[1.02]",
-          isSelected && "ring-2 ring-primary shadow-soft",
-          typeConfig.hoverColor
+          "relative group transition-all duration-300",
+          "hover:shadow-lg hover:shadow-primary/10",
+          "border border-border/50 hover:border-border",
+          "bg-gradient-to-br from-background to-background/80",
+          "backdrop-blur-sm",
+          isListLayout ? "flex items-center gap-4 p-4" : "p-4",
+          item.isPinned && "ring-2 ring-primary/20 border-primary/30",
+          isSelected && "ring-2 ring-primary shadow-lg"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="flex items-center p-4">
-          {/* Selection Checkbox */}
-          {isSelectionMode && (
-            <button
-              onClick={handleSelectionToggle}
-              className="mr-3 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors"
-            >
-              {isSelected && (
-                <CheckSquare className="w-4 h-4 text-primary fill-primary" />
-              )}
-            </button>
-          )}
-          {/* Type indicator and icon */}
-          <div className={cn("flex items-center justify-center w-10 h-10 rounded-lg mr-4 transition-colors", typeConfig.accentColor)}>
-            <div className={typeConfig.iconColor}>
-              {getTypeIcon()}
-            </div>
-          </div>
+        {/* Gradient overlay on hover */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          initial={false}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+        />
 
-          {/* Content area */}
-          <div className="flex-1 min-w-0 mr-4">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground truncate text-sm">{item.title}</h3>
-              {isPinned && <Pin className="w-4 h-4 text-primary fill-primary/20" />}
-              {isStarred && <Heart className="w-4 h-4 text-destructive fill-destructive/20" />}
-            </div>
-            
-            <p className="text-sm text-muted-foreground truncate mb-2 max-w-lg">
-              {item.content}
-            </p>
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="w-3 h-3" />
-                <span>{formatTimeAgo(item.createdAt)}</span>
-              </div>
-              
-              {item.tags.length > 0 && (
-                <div className="flex items-center gap-1">
-                  {item.tags.slice(0, 2).map((tag) => (
-                    <span key={tag} className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
-                      {tag}
-                    </span>
-                  ))}
-                  {item.tags.length > 2 && (
-                    <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
-                      +{item.tags.length - 2}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quick copy button */}
-          <Button
-            size="lg"
-            onClick={handleCopy}
-            className={cn(
-              "mr-2 min-w-[100px] h-10 font-medium transition-all duration-200",
-              justCopied
-                ? "bg-success hover:bg-success/90 text-white"
-                : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105"
-            )}
+        {/* Selection Checkbox */}
+        {isSelectionMode && (
+          <button
+            onClick={handleSelectionToggle}
+            className="absolute top-2 left-2 z-10 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors bg-background/80 backdrop-blur-sm cursor-pointer"
           >
-            {justCopied ? (
-              <><Check className="w-4 h-4 mr-2" />Copied!</>
-            ) : (
-              <><Copy className="w-4 h-4 mr-2" />Copy</>
+            {isSelected && (
+              <CheckSquare className="w-4 h-4 text-primary fill-primary" />
             )}
-          </Button>
-
-          {/* More actions dropdown */}
-          <Dropdown>
-            <DropdownTrigger>
-              <Button 
-                size="sm" 
-                variant="light"
-                className="opacity-60 hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Item actions">
-              <DropdownItem key="edit" startContent={<Edit className="w-4 h-4" />}>
-                Edit
-              </DropdownItem>
-              <DropdownItem 
-                key="favorite" 
-                startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-destructive text-destructive")} />} 
-                onPress={handleToggleFavorite} 
-                isDisabled={isLoading}
-              >
-                {isStarred ? 'Remove from favorites' : 'Add to favorites'}
-              </DropdownItem>
-              <DropdownItem 
-                key="pin" 
-                startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-primary text-primary")} />} 
-                onPress={handleTogglePin} 
-                isDisabled={isLoading}
-              >
-                {isPinned ? 'Unpin' : 'Pin to top'}
-              </DropdownItem>
-              <DropdownItem key="tags" startContent={<Tag className="w-4 h-4" />}>
-                Manage tags
-              </DropdownItem>
-              <DropdownItem 
-                key="delete" 
-                color="danger" 
-                startContent={<Trash2 className="w-4 h-4" />} 
-                onPress={() => setShowDeleteDialog(true)} 
-                isDisabled={isLoading}
-              >
-                Delete
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-        
-        {/* Subtle hover indicator */}
-        <div className={cn(
-          "absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r transition-opacity duration-300",
-          typeConfig.gradient,
-          isHovered ? "opacity-100" : "opacity-0"
-        )} />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-large",
-        "bg-gradient-to-br bg-card", typeConfig.gradient, typeConfig.border,
-        isPinned && "ring-2 ring-primary/20 shadow-medium",
-        isHovered && "shadow-glow scale-[1.03] -translate-y-1",
-        isSelected && "ring-2 ring-primary shadow-medium",
-        typeConfig.hoverColor
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Selection Checkbox */}
-      {isSelectionMode && (
-        <button
-          onClick={handleSelectionToggle}
-          className="absolute top-3 left-3 z-10 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors bg-background/80 backdrop-blur-sm"
-        >
-          {isSelected && (
-            <CheckSquare className="w-4 h-4 text-primary fill-primary" />
-          )}
-        </button>
-      )}
-      {/* Header with type indicator */}
-      <div className="flex items-center justify-between p-4 pb-2">
-        <div className="flex items-center gap-3">
-          <div className={cn("flex items-center justify-center w-8 h-8 rounded-lg transition-colors", typeConfig.accentColor)}>
-            <div className={typeConfig.iconColor}>
-              {getTypeIcon()}
-            </div>
-          </div>
-          <h3 className="font-semibold text-foreground truncate text-sm">{item.title}</h3>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          {isPinned && <Pin className="w-4 h-4 text-primary fill-primary/20" />}
-          {isStarred && <Heart className="w-4 h-4 text-destructive fill-destructive/20" />}
-        </div>
-      </div>
-
-      {/* Content preview */}
-      <div className="px-4 pb-4">
-        <p className="text-sm text-muted-foreground line-clamp-4 mb-4 min-h-[4rem] leading-relaxed">
-          {item.content}
-        </p>
-
-        {/* Tags */}
-        {item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {item.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
-                {tag}
-              </span>
-            ))}
-            {item.tags.length > 3 && (
-              <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full border border-border">
-                +{item.tags.length - 3}
-              </span>
-            )}
-          </div>
+          </button>
         )}
 
-        {/* Timestamp */}
-        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
-          <Clock className="w-3 h-3" />
-          <span>{formatTimeAgo(item.createdAt)}</span>
-        </div>
-      </div>
-
-      {/* Action bar */}
-      <div className="flex items-center justify-between p-4 pt-2 border-t border-border/50 bg-surface/30">
-        <Button
-          size="sm"
-          onClick={handleCopy}
-          className={cn(
-            "flex-1 mr-2 h-9 font-medium transition-all duration-200",
-            justCopied
-              ? "bg-success hover:bg-success/90 text-white"
-              : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105"
+        {/* Pin indicator */}
+        <AnimatePresence>
+          {item.isPinned && (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              className="absolute top-2 left-2 z-10"
+            >
+              <Pin className="w-4 h-4 text-primary fill-primary" />
+            </motion.div>
           )}
+        </AnimatePresence>
+
+        {/* Action buttons */}
+        <motion.div
+          className="absolute top-2 right-2 z-10 flex items-center gap-1"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
+          transition={{ duration: 0.2 }}
         >
-          {justCopied ? (
-            <><Check className="w-4 h-4 mr-2" />Copied!</>
-          ) : (
-            <><Zap className="w-4 h-4 mr-2" />Quick Copy</>
+          <Button
+            size="sm"
+            variant="light"
+            isIconOnly
+            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+            onClick={handleFavorite}
+          >
+            <Heart 
+              className={cn(
+                "w-4 h-4 transition-colors",
+                item.isFavorite ? "text-red-500 fill-red-500" : "text-muted-foreground"
+              )} 
+            />
+          </Button>
+          <Button
+            size="sm"
+            variant="light"
+            isIconOnly
+            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+            onClick={() => setShowActions(!showActions)}
+          >
+            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+          </Button>
+        </motion.div>
+
+        {/* Actions dropdown */}
+        <AnimatePresence>
+          {showActions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -10 }}
+              className="absolute top-12 right-2 z-20 bg-background border border-border rounded-lg shadow-lg p-1 min-w-[120px]"
+            >
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handleCopy}
+              >
+                <Copy className="w-4 h-4" />
+                Copy
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handlePin}
+              >
+                <Pin className="w-4 h-4" />
+                {item.isPinned ? "Unpin" : "Pin"}
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handleShare}
+              >
+                <Share2 className="w-4 h-4" />
+                Share
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 text-danger hover:text-danger cursor-pointer"
+                onClick={handleDelete}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </Button>
+            </motion.div>
           )}
-        </Button>
+        </AnimatePresence>
 
-        <Dropdown>
-          <DropdownTrigger>
-            <Button 
-              size="sm" 
-              variant="light"
-              className="opacity-60 hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Item actions">
-            <DropdownItem key="edit" startContent={<Edit className="w-4 h-4" />}>
-              Edit content
-            </DropdownItem>
-            <DropdownItem 
-              key="favorite" 
-              startContent={<Heart className={cn("w-4 h-4", isStarred && "fill-destructive text-destructive")} />} 
-              onPress={handleToggleFavorite} 
-              isDisabled={isLoading}
-            >
-              {isStarred ? 'Remove from favorites' : 'Add to favorites'}
-            </DropdownItem>
-            <DropdownItem 
-              key="pin" 
-              startContent={<Pin className={cn("w-4 h-4", isPinned && "fill-primary text-primary")} />} 
-              onPress={handleTogglePin} 
-              isDisabled={isLoading}
-            >
-              {isPinned ? 'Unpin' : 'Pin to top'}
-            </DropdownItem>
-            <DropdownItem key="tags" startContent={<Tag className="w-4 h-4" />}>
-              Manage tags
-            </DropdownItem>
-            <DropdownItem 
-              key="delete" 
-              color="danger" 
-              startContent={<Trash2 className="w-4 h-4" />} 
-              onPress={() => setShowDeleteDialog(true)} 
-              isDisabled={isLoading}
-            >
-              Delete
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
+        <div className={cn("relative z-10", isListLayout ? "flex-1" : "")}>
+          {/* Type indicator and title */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className={cn(
+              "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border",
+              typeColors[item.type]
+            )}>
+              <TypeIcon className="w-3 h-3" />
+              {item.type}
+            </div>
+            {item.size && (
+              <span className="text-xs text-muted-foreground">
+                {formatFileSize(item.size)}
+              </span>
+            )}
+          </div>
 
-      {/* Subtle animated border on hover */}
-      <div className={cn(
-        "absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 pointer-events-none",
-        "bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20",
-        isHovered && "opacity-100"
-      )} />
-      
-      {/* Delete confirmation dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Clipboard Item</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{item.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete}
-              disabled={isLoading}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isLoading ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+          {/* Content preview */}
+          {!isListLayout && (
+            <div className="mb-4 cursor-pointer" onClick={handleContentClick}>
+              {renderPreview()}
+            </div>
+          )}
+
+          {/* Title for list layout */}
+          {isListLayout && item.title && (
+            <h3 className="font-medium text-foreground mb-1 truncate cursor-pointer" onClick={handleContentClick}>
+              {item.title}
+            </h3>
+          )}
+
+          {/* Content snippet for list layout */}
+          {isListLayout && (
+            <p className="text-sm text-muted-foreground line-clamp-1 mb-2 cursor-pointer" onClick={handleContentClick}>
+              {item.content}
+            </p>
+          )}
+
+          {/* Tags */}
+          {item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              {item.tags.slice(0, isListLayout ? 2 : 3).map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="text-xs px-2 py-0.5 bg-secondary/50 hover:bg-secondary/80 transition-colors"
+                >
+                  <Tag className="w-2.5 h-2.5 mr-1" />
+                  {tag}
+                </Badge>
+              ))}
+              {item.tags.length > (isListLayout ? 2 : 3) && (
+                <Badge variant="outline" className="text-xs px-2 py-0.5">
+                  +{item.tags.length - (isListLayout ? 2 : 3)}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Timestamp */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {formatTimeAgo(getTimestamp())}
+            </div>
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {getTimestamp().toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+
+        {/* Hover glow effect */}
+        <motion.div
+          className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{
+            background: "linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--secondary), 0.1) 100%)",
+            filter: "blur(1px)",
+          }}
+          initial={false}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+        />
+      </Card>
+
+      {/* Delete confirmation modal */}
+      <Modal isOpen={showDeleteDialog} onOpenChange={onDeleteDialogChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Delete Clipboard Item</ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to delete "{item.title}"? This action cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose} disabled={isLoading}>
+                  Cancel
+                </Button>
+                <Button color="danger" onPress={confirmDelete} disabled={isLoading}>
+                  {isLoading ? "Deleting..." : "Delete"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </motion.div>
   );
 };
 
-export default ClipboardItem;
+export default ClipboardCard;

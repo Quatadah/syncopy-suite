@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
+import { addToast } from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
-import { useToast } from "./use-toast";
 import { useAuth } from "./useAuth";
 
 export interface ClipboardItem {
@@ -32,12 +32,12 @@ export const useClipboardItems = (currentBoardId?: string) => {
   const [items, setItems] = useState<ClipboardItem[]>([]);
   const [allItems, setAllItems] = useState<ClipboardItem[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [boardsLoading, setBoardsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [totalCount, setTotalCount] = useState(0);
   const { user } = useAuth();
-  const { toast } = useToast();
 
   const fetchItems = async (
     boardId?: string,
@@ -53,8 +53,6 @@ export const useClipboardItems = (currentBoardId?: string) => {
     if (requestCache.has(cacheKey)) {
       return requestCache.get(cacheKey);
     }
-
-    setLoading(true);
 
     const requestPromise = (async () => {
       try {
@@ -111,14 +109,14 @@ export const useClipboardItems = (currentBoardId?: string) => {
       } catch (error: any) {
         // Remove from cache on error
         requestCache.delete(cacheKey);
-        toast({
+        addToast({
           title: "Error fetching items",
           description: error.message,
-          variant: "destructive",
+          color: "danger",
+          variant: "solid",
+          timeout: 5000,
         });
         throw error;
-      } finally {
-        setLoading(false);
       }
     })();
 
@@ -177,10 +175,12 @@ export const useClipboardItems = (currentBoardId?: string) => {
         return transformedItems;
       } catch (error: any) {
         requestCache.delete(cacheKey);
-        toast({
+        addToast({
           title: "Error fetching all items",
           description: error.message,
-          variant: "destructive",
+          color: "danger",
+          variant: "solid",
+          timeout: 5000,
         });
         throw error;
       }
@@ -199,6 +199,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
       return requestCache.get(cacheKey);
     }
 
+    setBoardsLoading(true);
     const requestPromise = (async () => {
       try {
         const { data, error } = await supabase
@@ -209,15 +210,19 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
         if (error) throw error;
         setBoards(data || []);
+        setBoardsLoading(false);
 
         requestCache.delete(cacheKey);
         return data;
       } catch (error: any) {
+        setBoardsLoading(false);
         requestCache.delete(cacheKey);
-        toast({
+        addToast({
           title: "Error fetching boards",
           description: error.message,
-          variant: "destructive",
+          color: "danger",
+          variant: "solid",
+          timeout: 5000,
         });
         throw error;
       }
@@ -244,17 +249,22 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
       await fetchBoards();
 
-      toast({
+      addToast({
         title: "Board created",
         description: "Your new board has been created successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
 
       return data;
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error creating board",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -273,15 +283,20 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
       await fetchBoards();
 
-      toast({
+      addToast({
         title: "Board updated",
         description: "Your board has been updated successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error updating board",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -300,15 +315,20 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
       await fetchBoards();
 
-      toast({
+      addToast({
         title: "Board deleted",
         description: "Your board has been deleted successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error deleting board",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -336,10 +356,12 @@ export const useClipboardItems = (currentBoardId?: string) => {
         return data || [];
       } catch (error: any) {
         requestCache.delete(cacheKey);
-        toast({
+        addToast({
           title: "Error fetching tags",
           description: error.message,
-          variant: "destructive",
+          color: "danger",
+          variant: "solid",
+          timeout: 5000,
         });
         return [];
       }
@@ -347,7 +369,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
     requestCache.set(cacheKey, requestPromise);
     return requestPromise;
-  }, [user, toast]);
+  }, [user]);
 
   const createItem = async (
     itemData: Omit<
@@ -396,17 +418,22 @@ export const useClipboardItems = (currentBoardId?: string) => {
       await fetchItems(currentBoardId, currentPage, pageSize);
       await fetchAllItems();
 
-      toast({
+      addToast({
         title: "Item created",
         description: "Your clipboard item has been saved successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
 
       return data;
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error creating item",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -426,15 +453,20 @@ export const useClipboardItems = (currentBoardId?: string) => {
       await fetchItems(currentBoardId, currentPage, pageSize);
       await fetchAllItems();
 
-      toast({
+      addToast({
         title: "Item updated",
         description: "Your clipboard item has been updated successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error updating item",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -454,15 +486,20 @@ export const useClipboardItems = (currentBoardId?: string) => {
       await fetchItems(currentBoardId, currentPage, pageSize);
       await fetchAllItems();
 
-      toast({
+      addToast({
         title: "Item deleted",
         description: "Your clipboard item has been deleted successfully.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error deleting item",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -482,17 +519,22 @@ export const useClipboardItems = (currentBoardId?: string) => {
       await fetchItems(currentBoardId, currentPage, pageSize);
       await fetchAllItems();
 
-      toast({
+      addToast({
         title: "Items deleted",
         description: `${ids.length} clipboard item${
           ids.length > 1 ? "s" : ""
         } deleted successfully.`,
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error: any) {
-      toast({
+      addToast({
         title: "Error deleting items",
         description: error.message,
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -508,15 +550,20 @@ export const useClipboardItems = (currentBoardId?: string) => {
   const copyToClipboard = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      toast({
+      addToast({
         title: "Copied to clipboard",
         description: "Content has been copied to your clipboard.",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
       });
     } catch (error) {
-      toast({
+      addToast({
         title: "Copy failed",
         description: "Unable to copy content to clipboard.",
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     }
   };
@@ -538,11 +585,27 @@ export const useClipboardItems = (currentBoardId?: string) => {
     [currentBoardId]
   );
 
+  // Fetch boards only when user changes
   useEffect(() => {
     if (user) {
-      fetchItems(currentBoardId, 1, pageSize);
-      fetchAllItems();
       fetchBoards();
+    }
+  }, [user]);
+
+  // Fetch items when user or currentBoardId changes
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      // Use Promise.all to wait for both operations to complete
+      Promise.all([
+        fetchItems(currentBoardId, 1, pageSize),
+        fetchAllItems(),
+      ]).finally(() => {
+        setLoading(false);
+      });
+    } else {
+      // If no user, set loading to false
+      setLoading(false);
     }
   }, [user, currentBoardId]);
 
@@ -551,6 +614,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
     allItems,
     boards,
     loading,
+    boardsLoading,
     currentPage,
     pageSize,
     totalCount,

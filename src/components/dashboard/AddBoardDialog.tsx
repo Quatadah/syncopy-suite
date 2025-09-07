@@ -1,6 +1,6 @@
+import { AddIcon } from "@/assets/icons/AddIcon";
 import { Board } from "@/hooks/useClipboardItems";
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, useDisclosure } from "@heroui/react";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 
 interface AddBoardDialogProps {
@@ -43,8 +43,8 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
   };
 
   const defaultTrigger = (
-    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onPress={onOpen}>
-      <Plus className="w-3 h-3" />
+    <Button isIconOnly size="sm" variant="light" onPress={onOpen}>
+      <AddIcon className="w-4 h-4" />
     </Button>
   );
 

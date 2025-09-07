@@ -5,26 +5,45 @@ import { useState } from "react";
 
 interface AddItemDialogProps {
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  createItem?: (itemData: any) => Promise<any>;
+  boards?: Array<{
+    id: string;
+    name: string;
+    description?: string;
+    color: string;
+    is_default?: boolean;
+  }>;
+  fetchAllItems?: () => Promise<any>;
 }
 
-const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const AddItemDialog = ({ trigger, open, onOpenChange, createItem, boards, fetchAllItems }: AddItemDialogProps) => {
+  const { isOpen: internalIsOpen, onOpen: internalOnOpen, onClose: internalOnClose } = useDisclosure();
+  
+  // Use external control if provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalIsOpen;
+  const onOpen = onOpenChange ? () => onOpenChange(true) : internalOnOpen;
+  const onClose = onOpenChange ? () => onOpenChange(false) : internalOnClose;
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [type, setType] = useState<'text' | 'link' | 'image' | 'code'>('text');
   const [tags, setTags] = useState("");
   const [boardId, setBoardId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { createItem, boards } = useClipboardItems();
+
+  // Use hook if props are not provided
+  const hookData = useClipboardItems();
+  const finalCreateItem = createItem || hookData.createItem;
+  const finalBoards = boards || hookData.boards;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() || !content.trim() || !finalCreateItem) return;
 
     setIsLoading(true);
     try {
-      await createItem({
+      await finalCreateItem({
         title: title.trim(),
         content: content.trim(),
         type,
@@ -33,6 +52,8 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
         board_id: boardId || undefined,
         tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       });
+      
+      // Note: fetchAllItems is already called inside createItem
       
       // Reset form
       setTitle("");
@@ -49,7 +70,7 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
   };
 
   const defaultTrigger = (
-    <Button size="sm" className="bg-gradient-hero text-white" onPress={onOpen}>
+    <Button size="sm" variant="faded" onPress={onOpen}>
       <Plus className="w-4 h-4 mr-2" />
       New Clip
     </Button>
@@ -116,7 +137,7 @@ const AddItemDialog = ({ trigger }: AddItemDialogProps) => {
               selectedKeys={boardId ? [boardId] : []}
               onSelectionChange={(keys) => setBoardId(Array.from(keys)[0] as string || "")}
             >
-              {boards.filter(board => !board.is_default).map((board) => (
+              {finalBoards?.filter(board => !board.is_default).map((board) => (
                 <SelectItem key={board.id}>
                   <div className="flex items-center space-x-2">
                     <div 

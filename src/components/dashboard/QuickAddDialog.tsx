@@ -2,10 +2,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { addToast } from '@heroui/react';
 import {
     Clipboard,
-    Plus,
     Zap
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -31,7 +30,6 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
   const [content, setContent] = useState(initialContent);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
 
   // Reset and focus when dialog opens
   useEffect(() => {
@@ -107,10 +105,12 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
 
   const handleQuickSave = async () => {
     if (!content.trim()) {
-      toast({
+      addToast({
         title: 'Nothing to save',
         description: 'Please paste or type some content first.',
-        variant: 'destructive'
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
       });
       return;
     }
@@ -127,17 +127,22 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
         tags: [] // No tags for quick save
       });
       
-      toast({
+      addToast({
         title: 'Saved!',
         description: 'Content saved to your clipboard.',
+        color: 'success',
+        variant: 'solid',
+        timeout: 5000,
       });
       
       onOpenChange(false);
     } catch (error) {
-      toast({
+      addToast({
         title: 'Error',
         description: 'Failed to save content. Please try again.',
-        variant: 'destructive'
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -152,10 +157,12 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
         textareaRef.current?.focus();
       }
     } catch (error) {
-      toast({
+      addToast({
         title: 'Cannot access clipboard',
         description: 'Please paste manually using Ctrl+V.',
-        variant: 'destructive'
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
       });
     }
   };

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Clipboard, Zap } from "lucide-react";
+import { addToast } from "@heroui/react";
+import { Bolt, CloudLightning } from "lucide-react";
 import { useState } from "react";
 
 interface InstantPasteButtonProps {
@@ -15,7 +15,6 @@ interface InstantPasteButtonProps {
 
 const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   // Auto-detect content type
   const detectType = (text: string): 'text' | 'link' | 'image' | 'code' => {
@@ -60,10 +59,12 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
 
   const handleInstantPaste = async () => {
     if (!navigator.clipboard) {
-      toast({
+      addToast({
         title: 'Clipboard not supported',
         description: 'Your browser does not support clipboard access.',
-        variant: 'destructive'
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
       });
       return;
     }
@@ -73,10 +74,12 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
       const text = await navigator.clipboard.readText();
       
       if (!text.trim()) {
-        toast({
+        addToast({
           title: 'Clipboard is empty',
           description: 'Copy something first, then try again.',
-          variant: 'destructive'
+          color: 'danger',
+          variant: 'solid',
+          timeout: 5000,
         });
         return;
       }
@@ -91,23 +94,30 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
         tags: []
       });
       
-      toast({
+      addToast({
         title: 'Instant save!',
         description: `Saved "${title}" from clipboard.`,
+        color: 'success',
+        variant: 'solid',
+        timeout: 5000,
       });
       
     } catch (error) {
       if (error instanceof Error && error.name === 'NotAllowedError') {
-        toast({
+        addToast({
           title: 'Clipboard access denied',
           description: 'Please grant clipboard permissions and try again.',
-          variant: 'destructive'
+          color: 'danger',
+          variant: 'solid',
+          timeout: 5000,
         });
       } else {
-        toast({
+        addToast({
           title: 'Error',
           description: 'Failed to read from clipboard.',
-          variant: 'destructive'
+          color: 'danger',
+          variant: 'solid',
+          timeout: 5000,
         });
       }
     } finally {
@@ -120,7 +130,6 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
       onClick={handleInstantPaste}
       disabled={isLoading}
       size="sm"
-      className={`bg-gradient-hero text-white hover:opacity-90 ${className}`}
     >
       {isLoading ? (
         <>
@@ -129,8 +138,7 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
         </>
       ) : (
         <>
-          <Clipboard className="w-3.5 h-3.5 mr-2" />
-          <Zap className="w-3 h-3 mr-1" />
+          <CloudLightning className="w-3.5 h-3.5" />
           Paste & Save
         </>
       )}

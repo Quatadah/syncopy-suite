@@ -216,7 +216,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     <div className={cn("relative", className)}>
       {/* Search Input */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           ref={inputRef}
           type="text"
@@ -227,16 +227,19 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           className={cn(
-            "w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+            "w-full pl-10 pr-10 py-3 h-12 text-sm",
+            "bg-background border border-border rounded-xl",
+            "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50",
+            "placeholder:text-muted-foreground text-foreground",
             "transition-all duration-200",
-            isFocused && "ring-2 ring-blue-500 border-transparent"
+            "hover:border-border/80",
+            isFocused && "ring-2 ring-primary/20 border-primary/50"
           )}
         />
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -247,37 +250,37 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
       {showSuggestionsPanel && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto"
         >
           {suggestions.map((suggestion, index) => (
             <button
               key={suggestion.id}
               onClick={() => handleSuggestionSelect(suggestion)}
               className={cn(
-                "w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors",
-                "first:rounded-t-lg last:rounded-b-lg",
-                selectedIndex === index && "bg-blue-50 border-l-4 border-blue-500"
+                "w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-accent/50 transition-colors",
+                "first:rounded-t-xl last:rounded-b-xl",
+                selectedIndex === index && "bg-accent border-l-4 border-primary"
               )}
             >
-              <div className="flex-shrink-0 text-gray-400">
+              <div className="flex-shrink-0 text-muted-foreground">
                 {suggestion.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
+                <div className="text-sm font-medium text-foreground truncate">
                   {suggestion.text}
                 </div>
                 {suggestion.subtitle && (
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-xs text-muted-foreground truncate">
                     {suggestion.subtitle}
                   </div>
                 )}
               </div>
               {suggestion.count && (
-                <div className="flex-shrink-0 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                <div className="flex-shrink-0 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                   {suggestion.count}
                 </div>
               )}
-              <div className="flex-shrink-0 text-gray-400">
+              <div className="flex-shrink-0 text-muted-foreground">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </button>
@@ -287,16 +290,16 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
       {/* Quick Filters */}
       {isFocused && !query && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 p-4">
           <div className="space-y-3">
-            <div className="text-xs font-medium text-gray-700 mb-2">Quick Filters</div>
+            <div className="text-xs font-medium text-foreground mb-2">Quick Filters</div>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => {
                   setQuery('type:text');
                   onSearch('type:text');
                 }}
-                className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Text only
               </button>
@@ -305,7 +308,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
                   setQuery('type:link');
                   onSearch('type:link');
                 }}
-                className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Links only
               </button>
@@ -314,7 +317,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
                   setQuery('is:favorite');
                   onSearch('is:favorite');
                 }}
-                className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Favorites
               </button>
@@ -323,7 +326,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
                   setQuery('is:pinned');
                   onSearch('is:pinned');
                 }}
-                className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Pinned
               </button>

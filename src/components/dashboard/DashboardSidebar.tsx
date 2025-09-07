@@ -1,33 +1,40 @@
-import { HomeIcon, SettingsIcon } from "@/assets";
+import { HomeIcon } from "@/assets";
+import FilterIcon from "@/assets/icons/FilterIcon";
+import syncopyLogo from "@/assets/images/syncopy-logo.png";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { Button, Input } from "@heroui/react";
+import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { useBoard } from "@/contexts/BoardContext";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import {
+  ChevronDown,
   Clock,
-  Filter,
-  MoreHorizontal,
-  Plus,
-  Search,
+  Settings,
   Star,
-  Tag
+  Tag,
+  User
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddBoardDialog from "./AddBoardDialog";
-import EditBoardDialog from "./EditBoardDialog";
 
 interface DashboardSidebarProps {
-  activeBoard: string;
-  setActiveBoard: (board: string) => void;
   createBoard: (boardData: any) => Promise<any>;
   items: any[];
   boards: any[];
   fetchTags: () => Promise<any[]>;
 }
 
-const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boards, fetchTags }: DashboardSidebarProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+const DashboardSidebar = ({ createBoard, items, boards, fetchTags }: DashboardSidebarProps) => {
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
+  const { activeBoard, setActiveBoard } = useBoard();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,41 +91,46 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
   };
 
   return (
-    <div className="w-72 bg-sidebar border-r border-sidebar-border flex flex-col h-full">
-      {/* Header */}
+    <div className="w-72 bg-sidebar border-r border-sidebar-border flex flex-col h-full shadow-sm">
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-sidebar-foreground">ClipSync</h2>
-          <Button size="sm" className="bg-gradient-hero text-white">
-            <Plus className="w-4 h-4 mr-1" />
-            New
-          </Button>
-        </div>
-        
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search clips..."
-            className="pl-10 bg-sidebar-accent border-sidebar-border"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
+            <div className="w-12 h-12 rounded-lg overflow-hidden">
+              <img 
+                src={syncopyLogo} 
+                alt="Syncopy Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-left">
+              <h2 className="text-lg font-bold text-sidebar-foreground">
+                Syncopy
+              </h2>
+              <p className="text-xs text-sidebar-foreground/60">Free plan</p>
+            </div>
+          </button>
         </div>
       </div>
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto p-6">
-        {/* Main Boards */}
+        {/* Main Navigation - Overview */}
         <div className="mb-8">
-          <h3 className="text-sm font-medium text-sidebar-foreground mb-3">Overview</h3>
+          <h3 className="text-xs font-thin text-muted-foreground mb-2">Overview</h3>
           <div className="space-y-1">
             {defaultBoards.map((board) => {
               const Icon = board.icon;
               return (
                 <button
                   key={board.id}
-                  onClick={() => setActiveBoard(board.id)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveBoard(board.id);
+                  }}
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors",
                     activeBoard === board.id
@@ -143,19 +155,24 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
           </div>
         </div>
 
+
         {/* Custom Boards */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-sidebar-foreground">Boards</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-thin text-muted-foreground">Boards</h3>
             <AddBoardDialog createBoard={createBoard} />
           </div>
           <div className="space-y-1">
             {boards.filter(board => !board.is_default).map((board) => (
               <button
                 key={board.id}
-                onClick={() => setActiveBoard(board.id)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveBoard(board.id);
+                }}
                 className={cn(
-                  "w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors group",
+                  "w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors",
                   activeBoard === board.id
                     ? "bg-sidebar-accent text-sidebar-primary font-medium"
                     : "text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -168,24 +185,9 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   />
                   <span>{board.name}</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Badge variant="secondary" className="text-xs">
-                    {getItemCountForBoard(board.id)}
-                  </Badge>
-                  <EditBoardDialog 
-                    board={board}
-                    trigger={
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreHorizontal className="w-3 h-3" />
-                      </Button>
-                    }
-                  />
-                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {getItemCountForBoard(board.id)}
+                </Badge>
               </button>
             ))}
           </div>
@@ -193,11 +195,9 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
 
         {/* Tags */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-sidebar-foreground">Tags</h3>
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-              <Filter className="w-3 h-3" />
-            </Button>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-thin text-muted-foreground">Tags</h3>
+            <FilterIcon className="w-4 h-4 text-sidebar-foreground/60" />
           </div>
           <div className="space-y-1">
             {tags.map((tag) => (
@@ -206,7 +206,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                 className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
               >
                 <div className="flex items-center space-x-3">
-                  <Tag className="w-4 h-4" />
+                  <Tag className="w-4 h-4 text-sidebar-foreground" />
                   <span>#{tag.name}</span>
                 </div>
                 <Badge variant="secondary" className="text-xs">
@@ -218,16 +218,64 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-6 border-t border-sidebar-border">
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start text-sidebar-foreground"
-          onClick={() => navigate('/settings')}
-        >
-          <SettingsIcon className="w-4 h-4 mr-3" />
-          Settings
-        </Button>
+      {/* User Profile */}
+      <div className="p-2 border-t border-sidebar-border">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start px-2"
+            >
+              <div className="flex items-center space-x-2 w-full">
+                  <User className="w-4 h-4 text-sidebar-foreground" />
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-sidebar-foreground">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-sidebar-foreground/60">
+                    {user?.email || 'user@example.com'}
+                  </p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-sidebar-foreground/60" />
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="w-64 bg-sidebar border-sidebar-border" 
+            align="start"
+            side="top"
+            sideOffset={8}
+          >
+            <div className="p-4">
+              <div className="flex items-center space-x-2 mb-2 pb-2 border-b border-sidebar-border">
+                  <User className="w-5 h-5 text-sidebar-foreground" />
+                <div>
+                  <p className="text-sm font-medium text-sidebar-foreground">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-sidebar-foreground/60">
+                    {user?.email || 'user@example.com'}
+                  </p>
+                </div>
+              </div>
+              <DropdownMenuItem 
+                onClick={() => navigate('/settings')}
+                className="flex items-center space-x-2 p-2 rounded-lg text-left transition-colors hover:bg-sidebar-accent/50 cursor-pointer"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="text-sm">Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={signOut}
+                className="flex items-center space-x-2 p-2 rounded-lg text-left transition-colors hover:bg-sidebar-accent/50 cursor-pointer text-danger"
+              >
+                <User className="w-4 h-4" />
+                <span className="text-sm">Sign Out</span>
+              </DropdownMenuItem>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

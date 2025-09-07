@@ -29,7 +29,7 @@ const Hero = () => {
         </h1>
 
         <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up [animation-delay:0.1s]">
-          Never lose important clips again. ClipSync seamlessly syncs your clipboard 
+          Never lose important clips again. Syncopy seamlessly syncs your clipboard 
           across all devices with powerful organization and instant search.
         </p>
 
@@ -81,7 +81,7 @@ const Hero = () => {
                   <div className="w-3 h-3 bg-warning rounded-full"></div>
                   <div className="w-3 h-3 bg-success rounded-full"></div>
                 </div>
-                <div className="text-sm text-muted-foreground">ClipSync Dashboard</div>
+                <div className="text-sm text-muted-foreground">Syncopy Dashboard</div>
               </div>
               
               <div className="space-y-3">

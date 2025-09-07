@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Bell, Shield, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { addToast } from '@heroui/react';
+import { ArrowLeft, Bell, Download, Shield, Upload, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
@@ -16,7 +16,6 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const { user, signOut } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,18 +61,17 @@ const Settings = () => {
 
       if (error) throw error;
 
-      toast({
+      addToast({
         title: 'Profile updated',
         description: 'Your profile has been updated successfully.',
-      });
+        color: 'success',
+        variant: 'solid',
+        timeout: 5000,
+      })
 
       await fetchProfile();
     } catch (error: any) {
-      toast({
-        title: 'Error updating profile',
-        description: error.message,
-        variant: 'destructive',
-      });
+      error('Error updating profile', error.message);
     } finally {
       setLoading(false);
     }
@@ -82,13 +80,22 @@ const Settings = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      addToast({
+        title: 'Signed out',
+        description: 'You have been signed out successfully',
+        color: 'success',
+        variant: 'solid',
+        timeout: 5000,
+      })
       navigate('/');
     } catch (error: any) {
-      toast({
+      addToast({
         title: 'Error signing out',
         description: error.message,
-        variant: 'destructive',
-      });
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
+      })
     }
   };
 
@@ -121,21 +128,26 @@ const Settings = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `clipsync-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `syncopy-backup-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({
+      addToast({
         title: 'Data exported',
         description: 'Your data has been exported successfully.',
-      });
+        color: 'success',
+        variant: 'solid',
+        timeout: 5000,  
+      })
     } catch (error: any) {
-      toast({
+      addToast({
         title: 'Export failed',
         description: error.message,
-        variant: 'destructive',
+        color: 'danger',
+        variant: 'solid',
+        timeout: 5000,
       });
     }
   };
@@ -212,7 +224,7 @@ const Settings = () => {
                 Preferences
               </CardTitle>
               <CardDescription>
-                Customize your ClipSync experience.
+                Customize your Syncopy experience.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -1,9 +1,9 @@
+import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { cn } from "@/lib/utils";
+import { Button, Checkbox, Input, Select, SelectItem } from "@heroui/react";
 import {
     Clock,
     Code,
@@ -37,6 +37,7 @@ const Search = memo(() => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
+  const [activeBoard, setActiveBoard] = useState('all');
   const [filters, setFilters] = useState<SearchFilters>({
     type: 'all',
     tags: [],
@@ -46,7 +47,7 @@ const Search = memo(() => {
     isPinned: false
   });
 
-  const { allItems, boards, copyToClipboard, toggleFavorite, togglePin, fetchTags } = useClipboardItems();
+  const { allItems, boards, copyToClipboard, toggleFavorite, togglePin, fetchTags, createBoard } = useClipboardItems();
   const [availableTags, setAvailableTags] = useState<Array<{name: string, count: number}>>([]);
 
   // Update search query when URL changes
@@ -243,134 +244,158 @@ const Search = memo(() => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Search</h1>
-              <p className="text-muted-foreground mt-1">
-                Find your clipboard items with advanced filtering
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              {/* View Toggle */}
-              <div className="flex items-center bg-muted rounded-lg p-1">
-                <Button
-                  size="sm"
-                  variant={view === 'grid' ? 'default' : 'ghost'}
-                  onClick={() => setView('grid')}
-                  className="h-8 px-3"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={view === 'list' ? 'default' : 'ghost'}
-                  onClick={() => setView('list')}
-                  className="h-8 px-3"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
+    <div className="h-screen flex bg-background">
+      {/* Sidebar */}
+      <DashboardSidebar
+        activeBoard={activeBoard}
+        setActiveBoard={setActiveBoard}
+        createBoard={createBoard}
+        items={allItems}
+        boards={boards}
+        fetchTags={fetchTags}
+      />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="border-b border-border bg-card">
+          <div className="px-6 py-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Search</h1>
+                <p className="text-muted-foreground mt-1">
+                  Find your clipboard items with advanced filtering
+                </p>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                {/* View Toggle */}
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  <Button
+                    size="sm"
+                    variant={view === 'grid' ? 'default' : 'ghost'}
+                    onClick={() => setView('grid')}
+                    className="h-8 px-3"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={view === 'list' ? 'default' : 'ghost'}
+                    onClick={() => setView('list')}
+                    className="h-8 px-3"
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                {/* Theme Toggle */}
+                <ThemeToggleButton />
               </div>
             </div>
-          </div>
 
-          {/* Search Bar */}
-          <div className="relative max-w-2xl">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search your clipboard items..."
-              className="pl-10 h-12 text-lg"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+            {/* Search Bar */}
+            <div className="relative max-w-2xl">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search your clipboard items..."
+                className="pl-10 h-12 text-lg"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-          {/* Filter Toggle */}
-          <div className="flex items-center justify-between mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Filters</span>
-              {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-2">
-                  {Object.values(filters).filter(value => 
-                    Array.isArray(value) ? value.length > 0 : value !== 'all' && value !== false
-                  ).length}
-                </Badge>
-              )}
-            </Button>
-
-            {hasActiveFilters && (
-              <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground">
-                <X className="w-4 h-4 mr-2" />
-                Clear filters
+            {/* Filter Toggle */}
+            <div className="flex items-center justify-between mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2"
+              >
+                <Filter className="w-4 h-4" />
+                <span>Filters</span>
+                {hasActiveFilters && (
+                  <Badge variant="secondary" className="ml-2">
+                    {Object.values(filters).filter(value => 
+                      Array.isArray(value) ? value.length > 0 : value !== 'all' && value !== false
+                    ).length}
+                  </Badge>
+                )}
               </Button>
-            )}
+
+              {hasActiveFilters && (
+                <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground">
+                  <X className="w-4 h-4 mr-2" />
+                  Clear filters
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="border-b border-border bg-card">
-          <div className="max-w-7xl mx-auto px-6 py-4">
+        {/* Filters Panel */}
+        {showFilters && (
+          <div className="border-b border-border bg-card">
+            <div className="px-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Type Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
-                <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="link">Link</SelectItem>
-                    <SelectItem value="image">Image</SelectItem>
-                    <SelectItem value="code">Code</SelectItem>
-                  </SelectContent>
+                <Select 
+                  selectedKeys={[filters.type]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, type: selectedValue }));
+                  }}
+                  placeholder="Select type"
+                  className="max-w-xs"
+                >
+                  <SelectItem key="all">All Types</SelectItem>
+                  <SelectItem key="text">Text</SelectItem>
+                  <SelectItem key="link">Link</SelectItem>
+                  <SelectItem key="image">Image</SelectItem>
+                  <SelectItem key="code">Code</SelectItem>
                 </Select>
               </div>
 
               {/* Date Range Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Date Range</label>
-                <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                    <SelectItem value="year">This Year</SelectItem>
-                  </SelectContent>
+                <Select 
+                  selectedKeys={[filters.dateRange]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, dateRange: selectedValue }));
+                  }}
+                  placeholder="Select date range"
+                  className="max-w-xs"
+                >
+                  <SelectItem key="all">All Time</SelectItem>
+                  <SelectItem key="today">Today</SelectItem>
+                  <SelectItem key="week">This Week</SelectItem>
+                  <SelectItem key="month">This Month</SelectItem>
+                  <SelectItem key="year">This Year</SelectItem>
                 </Select>
               </div>
 
               {/* Board Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Board</label>
-                <Select value={filters.board} onValueChange={(value) => setFilters(prev => ({ ...prev, board: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Boards</SelectItem>
-                    <SelectItem value="favorites">Favorites</SelectItem>
-                    <SelectItem value="recent">Recent</SelectItem>
-                    {boards.map(board => (
-                      <SelectItem key={board.id} value={board.id}>{board.name}</SelectItem>
-                    ))}
-                  </SelectContent>
+                <Select 
+                  selectedKeys={[filters.board]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, board: selectedValue }));
+                  }}
+                  placeholder="Select board"
+                  className="max-w-xs"
+                >
+                  <SelectItem key="all">All Boards</SelectItem>
+                  <SelectItem key="favorites">Favorites</SelectItem>
+                  <SelectItem key="recent">Recent</SelectItem>
+                  {boards.map(board => (
+                    <SelectItem key={board.id}>{board.name}</SelectItem>
+                  ))}
                 </Select>
               </div>
 
@@ -378,24 +403,20 @@ const Search = memo(() => {
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Status</label>
                 <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={filters.isFavorite}
-                      onChange={(e) => setFilters(prev => ({ ...prev, isFavorite: e.target.checked }))}
-                      className="rounded"
-                    />
+                  <Checkbox
+                    isSelected={filters.isFavorite}
+                    onValueChange={(checked) => setFilters(prev => ({ ...prev, isFavorite: checked }))}
+                    size="sm"
+                  >
                     <span className="text-sm">Favorites only</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={filters.isPinned}
-                      onChange={(e) => setFilters(prev => ({ ...prev, isPinned: e.target.checked }))}
-                      className="rounded"
-                    />
+                  </Checkbox>
+                  <Checkbox
+                    isSelected={filters.isPinned}
+                    onValueChange={(checked) => setFilters(prev => ({ ...prev, isPinned: checked }))}
+                    size="sm"
+                  >
                     <span className="text-sm">Pinned only</span>
-                  </label>
+                  </Checkbox>
                 </div>
               </div>
             </div>
@@ -423,12 +444,13 @@ const Search = memo(() => {
                 </div>
               </div>
             )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* Results */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-6 py-6">
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -596,6 +618,8 @@ const Search = memo(() => {
             })}
           </div>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );
