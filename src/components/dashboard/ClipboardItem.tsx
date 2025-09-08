@@ -81,10 +81,10 @@ const typeIcons = {
 };
 
 const typeColors = {
-  text: "bg-blue-500/10 text-blue-600 border-blue-200",
-  image: "bg-green-500/10 text-green-600 border-green-200",
-  link: "bg-purple-500/10 text-purple-600 border-purple-200",
-  code: "bg-orange-500/10 text-orange-600 border-orange-200",
+  text: "bg-gradient-to-r from-blue-500/10 to-blue-600/10 text-blue-600 border-blue-200/50 shadow-sm",
+  image: "bg-gradient-to-r from-green-500/10 to-green-600/10 text-green-600 border-green-200/50 shadow-sm",
+  link: "bg-gradient-to-r from-purple-500/10 to-purple-600/10 text-purple-600 border-purple-200/50 shadow-sm",
+  code: "bg-gradient-to-r from-orange-500/10 to-orange-600/10 text-orange-600 border-orange-200/50 shadow-sm",
 };
 
 function formatTimeAgo(date: Date): string {
@@ -326,12 +326,12 @@ function ClipboardCard({
     switch (item.type) {
       case "image":
         return (
-          <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
+          <div className="relative w-full h-32 bg-gradient-to-br from-muted/80 to-muted/60 rounded-xl overflow-hidden border border-border/30 shadow-sm">
             {item.preview ? (
               <img
                 src={item.preview}
                 alt="Preview"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover/preview:scale-105"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -342,15 +342,17 @@ function ClipboardCard({
         );
       case "link":
         return (
-          <div className="p-3 bg-muted/50 rounded-lg border border-border">
-            <div className="flex items-center gap-2 mb-1">
-              <Link className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium truncate">
+          <div className="p-4 bg-gradient-to-br from-muted/60 to-muted/40 rounded-xl border border-border/30 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Link className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm font-semibold truncate">
                 {item.title || "Link"}
               </span>
             </div>
             <p
-              className="text-xs text-muted-foreground truncate cursor-pointer"
+              className="text-xs text-muted-foreground truncate cursor-pointer hover:text-foreground transition-colors duration-300"
               onClick={handleContentClick}
             >
               {item.content}
@@ -359,9 +361,9 @@ function ClipboardCard({
         );
       case "code":
         return (
-          <div className="p-3 bg-muted/50 rounded-lg border border-border font-mono">
+          <div className="p-4 bg-gradient-to-br from-muted/60 to-muted/40 rounded-xl border border-border/30 shadow-sm hover:shadow-md transition-all duration-300 font-mono">
             <pre
-              className="text-xs text-foreground whitespace-pre-wrap line-clamp-3 cursor-pointer"
+              className="text-xs text-foreground whitespace-pre-wrap line-clamp-3 cursor-pointer hover:text-primary transition-colors duration-300"
               onClick={handleContentClick}
             >
               {item.content}
@@ -370,9 +372,9 @@ function ClipboardCard({
         );
       default:
         return (
-          <div className="p-3 bg-muted/50 rounded-lg border border-border">
+          <div className="p-4 bg-gradient-to-br from-muted/60 to-muted/40 rounded-xl border border-border/30 shadow-sm hover:shadow-md transition-all duration-300">
             <p
-              className="text-sm text-foreground line-clamp-3 cursor-pointer"
+              className="text-sm text-foreground line-clamp-3 cursor-pointer hover:text-primary transition-colors duration-300"
               onClick={handleContentClick}
             >
               {item.content}
@@ -394,21 +396,32 @@ function ClipboardCard({
     >
       <Card
         className={cn(
-          "relative group transition-all duration-300",
-          "hover:shadow-lg hover:shadow-primary/10",
-          "border border-border/50 hover:border-border",
-          "bg-gradient-to-br from-background to-background/80",
-          "backdrop-blur-sm",
+          "relative group transition-all duration-300 ease-out",
+          "hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.02]",
+          "border border-border/30 hover:border-primary/30",
+          "bg-gradient-to-br from-background/95 to-background/80",
+          "backdrop-blur-sm rounded-xl",
           isListLayout ? "flex items-center gap-4 p-4" : "p-4",
-          item.isPinned && "ring-2 ring-primary/20 border-primary/30",
-          isSelected && "ring-2 ring-primary shadow-lg"
+          item.isPinned && "ring-2 ring-primary/30 border-primary/40 shadow-lg shadow-primary/10",
+          isSelected && "ring-2 ring-primary shadow-xl shadow-primary/20"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Gradient overlay on hover */}
+        {/* Enhanced gradient overlay on hover */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          initial={false}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+        />
+        
+        {/* Subtle border glow effect */}
+        <motion.div
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          style={{
+            background: "linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--accent), 0.1) 100%)",
+            filter: "blur(1px)",
+          }}
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}
         />
@@ -417,7 +430,7 @@ function ClipboardCard({
         {isSelectionMode && (
           <button
             onClick={handleSelectionToggle}
-            className="absolute top-2 left-2 z-10 flex items-center justify-center w-5 h-5 rounded border-2 border-muted-foreground/30 hover:border-primary transition-colors bg-background/80 backdrop-blur-sm cursor-pointer"
+            className="absolute top-3 left-3 z-10 flex items-center justify-center w-6 h-6 rounded-lg border-2 border-muted-foreground/30 hover:border-primary transition-all duration-300 bg-background/90 backdrop-blur-sm cursor-pointer hover:shadow-md hover:scale-110"
           >
             {isSelected && (
               <CheckSquare className="w-4 h-4 text-primary fill-primary" />
@@ -432,7 +445,7 @@ function ClipboardCard({
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 180 }}
-              className="absolute top-2 left-2 z-10"
+              className="absolute top-3 left-3 z-10 p-1.5 rounded-lg bg-primary/10 backdrop-blur-sm"
             >
               <Pin className="w-4 h-4 text-primary fill-primary" />
             </motion.div>
@@ -441,17 +454,17 @@ function ClipboardCard({
 
         {/* Action buttons */}
         <motion.div
-          className="absolute top-2 right-2 z-20 flex items-center gap-1"
+          className="absolute top-3 right-3 z-20 flex items-center gap-2"
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: isHovered || isStarred ? 1 : 0, x: isHovered || isStarred ? 0 : 10 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           <motion.div
             key={`heart-${item.id}-${isStarred}`}
             initial={{ scale: 0.8, opacity: 0.7 }}
             animate={{ scale: 1, opacity: 1 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
             transition={{ 
               type: "spring", 
               stiffness: 400, 
@@ -459,13 +472,15 @@ function ClipboardCard({
               duration: 0.3
             }}
           >
-            <Heart
-              className={cn(
-                "w-4 h-4 transition-all cursor-pointer hover:text-red-500 hover:fill-red-500",
-                isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
-              )}
-              onClick={handleFavorite}
-            />
+            <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm hover:bg-red-500/10 transition-all duration-300">
+              <Heart
+                className={cn(
+                  "w-4 h-4 transition-all cursor-pointer hover:text-red-500 hover:fill-red-500",
+                  isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                )}
+                onClick={handleFavorite}
+              />
+            </div>
           </motion.div>
           <Dropdown>
             <DropdownTrigger>
@@ -473,7 +488,7 @@ function ClipboardCard({
                 size="sm"
                 variant="light"
                 isIconOnly
-                className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer relative z-30"
+                className="h-10 w-10 p-0 hover:bg-background/80 cursor-pointer relative z-30 rounded-lg transition-all duration-300 hover:shadow-md hover:scale-110"
               >
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               </Button>
@@ -509,18 +524,18 @@ function ClipboardCard({
 
         <div className={cn("relative z-10", isListLayout ? "flex-1" : "")}>
           {/* Type indicator and title */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-3 mb-4">
             <div
               className={cn(
-                "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border",
+                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-300 hover:scale-105",
                 typeColors[item.type]
               )}
             >
-              <TypeIcon className="w-3 h-3" />
+              <TypeIcon className="w-3.5 h-3.5" />
               {item.type}
             </div>
             {item.size && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-2 py-1 rounded-lg">
                 {formatFileSize(item.size)}
               </span>
             )}
@@ -528,8 +543,10 @@ function ClipboardCard({
 
           {/* Content preview */}
           {!isListLayout && (
-            <div className="mb-4 cursor-pointer" onClick={handleContentClick}>
-              {renderPreview()}
+            <div className="mb-4 cursor-pointer group/preview" onClick={handleContentClick}>
+              <div className="transition-all duration-300 group-hover/preview:scale-[1.02] group-hover/preview:shadow-lg">
+                {renderPreview()}
+              </div>
             </div>
           )}
 
@@ -555,19 +572,19 @@ function ClipboardCard({
 
           {/* Tags */}
           {item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
+            <div className="flex flex-wrap gap-2 mb-4">
               {item.tags.slice(0, isListLayout ? 2 : 3).map((tag, index) => (
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="text-xs px-2 py-0.5 bg-secondary/50 hover:bg-secondary/80 transition-colors"
+                  className="text-xs px-3 py-1.5 bg-gradient-to-r from-secondary/60 to-secondary/40 hover:from-secondary/80 hover:to-secondary/60 transition-all duration-300 hover:scale-105 rounded-lg font-medium"
                 >
-                  <Tag className="w-2.5 h-2.5 mr-1" />
+                  <Tag className="w-3 h-3 mr-1.5" />
                   {tag}
                 </Badge>
               ))}
               {item.tags.length > (isListLayout ? 2 : 3) && (
-                <Badge variant="outline" className="text-xs px-2 py-0.5">
+                <Badge variant="outline" className="text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-muted/50 transition-all duration-300 hover:scale-105">
                   +{item.tags.length - (isListLayout ? 2 : 3)}
                 </Badge>
               )}
@@ -576,24 +593,24 @@ function ClipboardCard({
 
           {/* Timestamp */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {formatTimeAgo(getTimestamp())}
+            <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg">
+              <Clock className="w-3.5 h-3.5" />
+              <span className="font-medium">{formatTimeAgo(getTimestamp())}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              {getTimestamp().toLocaleDateString()}
+            <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg">
+              <Calendar className="w-3.5 h-3.5" />
+              <span className="font-medium">{getTimestamp().toLocaleDateString()}</span>
             </div>
           </div>
         </div>
 
-        {/* Hover glow effect */}
+        {/* Enhanced hover glow effect */}
         <motion.div
-          className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
           style={{
             background:
-              "linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--secondary), 0.1) 100%)",
-            filter: "blur(1px)",
+              "linear-gradient(135deg, rgba(var(--primary), 0.15) 0%, rgba(var(--accent), 0.15) 100%)",
+            filter: "blur(2px)",
           }}
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}

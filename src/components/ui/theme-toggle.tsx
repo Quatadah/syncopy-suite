@@ -49,19 +49,8 @@ export const ThemeToggle = () => {
 export const ThemeToggleButton = () => {
   const { resolvedTheme, toggleTheme } = useTheme();
 
+  const Icon = resolvedTheme === 'light' ? Sun : Moon;
   return (
-    <Button
-      isIconOnly
-      variant="ghost"
-      size="sm"
-      onClick={toggleTheme}
-      aria-label="Toggle theme"
-    >
-      {resolvedTheme === 'light' ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
-    </Button>
+      <Icon onClick={toggleTheme} className="h-4 w-4 cursor-pointer hover:text-primary hover:fill-primary" />
   );
 };

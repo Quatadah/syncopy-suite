@@ -1,6 +1,8 @@
 import { cn } from '@/lib/utils';
+import { Kbd } from '@heroui/kbd';
 import { ArrowRight, Clock, Search, Tag, X } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SearchSuggestion {
   id: string;
@@ -25,7 +27,7 @@ interface EnhancedSearchBarProps {
 }
 
 const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
-  placeholder = "Search your clipboard items...",
+  placeholder = "Search your clipboard items... (Ctrl+K)",
   onSearch,
   onSuggestionSelect,
   recentSearches = [],
@@ -39,10 +41,24 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [showSuggestionsPanel, setShowSuggestionsPanel] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [panelPosition, setPanelPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
+
+  // Keyboard shortcut for Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Debounced search
   useEffect(() => {
@@ -122,11 +138,14 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     const value = e.target.value;
     setQuery(value);
     setSelectedIndex(-1);
-    setShowSuggestionsPanel(value.length > 0);
+    // Keep popover open when typing
+    if (value.length > 0 || isFocused) {
+      setIsPopoverOpen(true);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestionsPanel || suggestions.length === 0) {
+    if (!isPopoverOpen || suggestions.length === 0) {
       if (e.key === 'Enter') {
         onSearch(query);
       }
@@ -155,7 +174,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
         }
         break;
       case 'Escape':
-        setShowSuggestionsPanel(false);
+        setIsPopoverOpen(false);
         setSelectedIndex(-1);
         inputRef.current?.blur();
         break;
@@ -164,7 +183,7 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   const handleSuggestionSelect = (suggestion: SearchSuggestion) => {
     setQuery(suggestion.text);
-    setShowSuggestionsPanel(false);
+    setIsPopoverOpen(false);
     setSelectedIndex(-1);
     
     if (onSuggestionSelect) {
@@ -178,26 +197,57 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   const handleClear = () => {
     setQuery('');
-    setShowSuggestionsPanel(false);
+    setIsPopoverOpen(false);
     setSelectedIndex(-1);
     inputRef.current?.focus();
   };
 
+  const handleQuickFilterClick = (filterQuery: string) => {
+    setQuery(filterQuery);
+    onSearch(filterQuery);
+    setIsPopoverOpen(false);
+    inputRef.current?.blur();
+  };
+
   const handleFocus = () => {
     setIsFocused(true);
-    if (query.length > 0) {
-      setShowSuggestionsPanel(true);
-    }
+    setIsPopoverOpen(true);
   };
 
   const handleBlur = () => {
     setIsFocused(false);
-    // Delay hiding suggestions to allow clicking on them
+    // Delay hiding panels to allow clicking on suggestions
     setTimeout(() => {
-      setShowSuggestionsPanel(false);
+      setIsPopoverOpen(false);
       setSelectedIndex(-1);
     }, 150);
   };
+
+  // Update panel position when popover opens or input position changes
+  useEffect(() => {
+    if (isPopoverOpen && inputRef.current) {
+      const updatePosition = () => {
+        const rect = inputRef.current!.getBoundingClientRect();
+        const position = {
+          top: rect.bottom + 8,
+          left: rect.left,
+          width: rect.width
+        };
+        setPanelPosition(position);
+      };
+      
+      updatePosition();
+      
+      // Update position on scroll and resize
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isPopoverOpen]);
 
   // Scroll selected suggestion into view
   useEffect(() => {
@@ -236,21 +286,31 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
             isFocused && "ring-2 ring-primary/20 border-primary/50"
           )}
         />
-        {query && (
+        {query ? (
           <button
             onClick={handleClear}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
+        ) : (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 text-muted-foreground">
+            <Kbd keys={["command", "ctrl"]}>K</Kbd>
+          </div>
         )}
       </div>
 
-      {/* Suggestions Panel */}
-      {showSuggestionsPanel && suggestions.length > 0 && (
+      {/* Suggestions Panel - Portal */}
+      {isPopoverOpen && query.length > 0 && suggestions.length > 0 && createPortal(
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto"
+          className="fixed bg-card border border-border rounded-xl shadow-2xl max-h-80 overflow-y-auto backdrop-blur-sm"
+          style={{ 
+            zIndex: 99999,
+            top: panelPosition.top,
+            left: panelPosition.left,
+            width: panelPosition.width
+          }}
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -285,54 +345,52 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
               </div>
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Quick Filters */}
-      {isFocused && !query && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 p-4">
+      {/* Quick Filters - Portal */}
+      {isPopoverOpen && query.length === 0 && createPortal(
+        <div 
+          className="fixed bg-card border border-border rounded-xl shadow-2xl p-4 backdrop-blur-sm"
+          style={{ 
+            zIndex: 99999,
+            top: panelPosition.top,
+            left: panelPosition.left,
+            width: panelPosition.width
+          }}
+        >
           <div className="space-y-3">
             <div className="text-xs font-medium text-foreground mb-2">Quick Filters</div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => {
-                  setQuery('type:text');
-                  onSearch('type:text');
-                }}
+                onClick={() => handleQuickFilterClick('type:text')}
                 className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Text only
               </button>
               <button
-                onClick={() => {
-                  setQuery('type:link');
-                  onSearch('type:link');
-                }}
+                onClick={() => handleQuickFilterClick('type:link')}
                 className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Links only
               </button>
               <button
-                onClick={() => {
-                  setQuery('is:favorite');
-                  onSearch('is:favorite');
-                }}
+                onClick={() => handleQuickFilterClick('is:favorite')}
                 className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Favorites
               </button>
               <button
-                onClick={() => {
-                  setQuery('is:pinned');
-                  onSearch('is:pinned');
-                }}
+                onClick={() => handleQuickFilterClick('is:pinned')}
                 className="px-3 py-1.5 text-xs bg-muted text-muted-foreground rounded-full hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Pinned
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

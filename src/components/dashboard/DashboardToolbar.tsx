@@ -2,8 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckSquare, FileText, Filter, Grid3X3, List, Plus, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { CheckSquare, FileText, Filter, Grid3X3, List, Plus, Trash2, X } from "lucide-react";
 import InstantPasteButton from "./InstantPasteButton";
 
 interface DashboardToolbarProps {
@@ -43,26 +43,29 @@ const DashboardToolbar = ({
   return (
     <>
       {/* Main Toolbar */}
-      <div className="h-16 flex items-center justify-between px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40">
+      <div className="relative h-16 flex items-center justify-between px-6 bg-gradient-to-r from-background/95 to-background/80 backdrop-blur-sm border-b border-border/30">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-accent/3"></div>
+        
         {/* Left - View & Filter Controls */}
-        <div className="flex items-center gap-4">
+        <div className="relative flex items-center gap-6">
           {/* View Toggle */}
           <Tabs 
             value={view} 
             onValueChange={(value) => setView(value as "grid" | "list")}
             className="w-auto"
           >
-            <TabsList className="bg-muted/50 rounded-lg p-1 h-9">
+            <TabsList className="bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20">
               <TabsTrigger 
                 value="grid" 
-                className="h-7 px-4 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
               >
                 <Grid3X3 className="w-4 h-4 mr-2" />
                 Grid
               </TabsTrigger>
               <TabsTrigger 
                 value="list" 
-                className="h-7 px-4 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
               >
                 <List className="w-4 h-4 mr-2" />
                 List
@@ -70,13 +73,13 @@ const DashboardToolbar = ({
             </TabsList>
           </Tabs>
 
-          <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-8 bg-gradient-to-b from-transparent via-border/50 to-transparent" />
 
           <Button
             size="sm"
             variant="ghost"
             onClick={onToggleFilters}
-            className="h-9 px-4 text-sm font-medium hover:bg-accent transition-colors"
+            className="h-10 px-4 text-sm font-medium bg-gradient-to-r from-muted/50 to-muted/30 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-xl"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters
@@ -84,12 +87,12 @@ const DashboardToolbar = ({
         </div>
 
         {/* Right - Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="relative flex items-center gap-3">
           <Button
             size="sm"
             variant="ghost"
             onClick={onAddItem}
-            className="h-9 px-4 text-sm font-medium hover:bg-accent transition-colors"
+            className="h-10 px-4 text-sm font-medium bg-gradient-to-r from-muted/50 to-muted/30 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-xl"
           >
             <FileText className="w-4 h-4 mr-2" />
             New Clip
@@ -101,7 +104,7 @@ const DashboardToolbar = ({
             size="sm"
             variant="default"
             onClick={onQuickAdd}
-            className="h-9 px-5 text-sm font-medium bg-primary hover:bg-primary/90 transition-colors"
+            className="h-10 px-5 text-sm font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-105 rounded-xl"
           >
             <Plus className="w-4 h-4 mr-2" />
             Quick Add
@@ -113,36 +116,41 @@ const DashboardToolbar = ({
       <AnimatePresence>
         {selectedItems.size > 0 && (
           <motion.div
-            initial={{ y: 100, opacity: 0, scale: 0.95 }}
+            initial={{ y: 100, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 100, opacity: 0, scale: 0.95 }}
+            exit={{ y: 100, opacity: 0, scale: 0.9 }}
             transition={{ 
               type: "spring", 
-              stiffness: 300, 
-              damping: 30,
-              opacity: { duration: 0.2 }
+              stiffness: 400, 
+              damping: 25,
+              opacity: { duration: 0.3 }
             }}
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl px-6 py-4">
-              <div className="flex items-center gap-4">
+            <div className="relative bg-gradient-to-r from-card/95 to-card/90 backdrop-blur-xl border border-border/30 rounded-2xl shadow-2xl px-6 py-4 overflow-hidden">
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl"></div>
+              
+              <div className="relative flex items-center gap-6">
                 {/* Selection Counter */}
                 <div className="flex items-center gap-3">
-                  <CheckSquare className="w-5 h-5 text-primary" />
-                  <Badge variant="secondary" className="px-3 py-1.5 text-sm font-medium bg-primary/10 text-primary border-primary/20">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-primary/20 to-accent/20">
+                    <CheckSquare className="w-5 h-5 text-primary" />
+                  </div>
+                  <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-primary/15 to-accent/15 text-primary border-primary/30 rounded-xl shadow-sm">
                     {selectedItems.size} selected
                   </Badge>
                 </div>
 
-                <Separator orientation="vertical" className="h-6" />
+                <Separator orientation="vertical" className="h-8 bg-gradient-to-b from-transparent via-border/50 to-transparent" />
 
                 {/* Quick Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={onSelectAll}
-                    className="h-8 px-3 text-sm hover:bg-accent/50 transition-colors"
+                    className="h-9 px-4 text-sm font-medium bg-gradient-to-r from-muted/50 to-muted/30 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-xl"
                   >
                     Select All
                   </Button>
@@ -151,19 +159,19 @@ const DashboardToolbar = ({
                     size="sm"
                     variant="destructive"
                     onClick={onBulkDelete}
-                    className="h-8 px-4 text-sm bg-destructive/90 hover:bg-destructive transition-colors"
+                    className="h-9 px-4 text-sm font-medium bg-gradient-to-r from-destructive/90 to-destructive hover:from-destructive hover:to-destructive/90 hover:shadow-lg hover:shadow-destructive/25 transition-all duration-300 hover:scale-105 rounded-xl"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete ({selectedItems.size})
                   </Button>
 
-                  <Separator orientation="vertical" className="h-6 mx-1" />
+                  <Separator orientation="vertical" className="h-8 bg-gradient-to-b from-transparent via-border/50 to-transparent" />
 
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={onClearSelection}
-                    className="h-8 w-8 p-0 hover:bg-accent/50 transition-colors"
+                    className="h-9 w-9 p-0 bg-gradient-to-r from-muted/50 to-muted/30 hover:from-destructive/10 hover:to-destructive/5 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-xl"
                   >
                     <X className="w-4 h-4" />
                   </Button>
