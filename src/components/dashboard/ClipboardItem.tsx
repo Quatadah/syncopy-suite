@@ -50,9 +50,12 @@ interface ClipboardItemProps {
   toggleFavorite?: (id: string, isFavorite: boolean) => Promise<void>
   togglePin?: (id: string, isPinned: boolean) => Promise<void>
   copyToClipboard?: (content: string) => Promise<void>
-  isSelectionMode?: boolean
+  // Modern props for selection
   isSelected?: boolean
-  onToggleSelection?: (id: string) => void
+  isSelectionMode?: boolean
+  onToggleSelection?: () => void
+  onTogglePin?: () => void
+  onToggleFavorite?: () => void
 }
 
 const typeIcons = {
@@ -253,7 +256,7 @@ function ClipboardCard({
   const handleSelectionToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onToggleSelection) {
-      onToggleSelection(item.id);
+      onToggleSelection();
     }
   };
 

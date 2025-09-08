@@ -260,7 +260,14 @@ const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps
       {/* Content Area */}
       <main className="flex-1 overflow-auto">
         <div className="px-4">
-          <BoardHeader boards={boards} />
+          <BoardHeader boards={boards.map(board => ({
+            id: board.id,
+            name: board.name,
+            description: board.description,
+            color: board.color,
+            is_default: false,
+            created_at: new Date().toISOString()
+          }))} />
           <div className="mb-4 flex justify-end">
             <AddItemDialog 
               open={showAddItemDialog}
@@ -274,9 +281,10 @@ const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps
               content: item.content,
               type: item.type,
               tags: item.tags,
-              isPinned: item.is_pinned,
-              isFavorite: item.is_favorite,
-              createdAt: item.created_at,
+              is_pinned: item.is_pinned,
+              is_favorite: item.is_favorite,
+              created_at: item.created_at,
+              timestamp: new Date(item.created_at)
             }))}
             view={view}
             isSelectionMode={isSelectionMode}

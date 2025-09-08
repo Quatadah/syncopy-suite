@@ -25,15 +25,16 @@ import { useNavigate } from "react-router-dom";
 import AddBoardDialog from "./AddBoardDialog";
 
 interface DashboardSidebarProps {
+  activeBoard: string;
+  setActiveBoard: (board: string) => void;
   createBoard: (boardData: any) => Promise<any>;
   items: any[];
   boards: any[];
   fetchTags: () => Promise<any[]>;
 }
 
-const DashboardSidebar = ({ createBoard, items, boards, fetchTags }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boards, fetchTags }: DashboardSidebarProps) => {
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
-  const { activeBoard, setActiveBoard } = useBoard();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 

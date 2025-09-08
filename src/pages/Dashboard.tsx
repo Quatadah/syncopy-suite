@@ -1,6 +1,6 @@
 import DashboardContent from "@/components/dashboard/DashboardContent";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import { BoardProvider } from "@/contexts/BoardContext";
+import { BoardProvider, useBoard } from "@/contexts/BoardContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { memo } from "react";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const DashboardInner = memo(() => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { activeBoard, setActiveBoard } = useBoard();
 
   const {
     allItems,
@@ -46,6 +47,8 @@ const DashboardInner = memo(() => {
     <div className="h-screen flex bg-background">
       {/* Sidebar */}
       <DashboardSidebar
+        activeBoard={activeBoard}
+        setActiveBoard={setActiveBoard}
         createBoard={createBoard}
         items={allItems}
         boards={boards}
