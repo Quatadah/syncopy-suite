@@ -73,6 +73,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
             { count: "exact" }
           )
           .eq("user_id", user.id)
+          .order("is_pinned", { ascending: false })
           .order("created_at", { ascending: false })
           .range(from, to);
 
@@ -150,6 +151,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
           `
           )
           .eq("user_id", user.id)
+          .order("is_pinned", { ascending: false })
           .order("created_at", { ascending: false });
 
         if (error) throw error;
@@ -586,11 +588,12 @@ export const useClipboardItems = (currentBoardId?: string) => {
   };
 
   const togglePin = async (id: string, isPinned: boolean) => {
-    await updateItem(id, { is_pinned: !isPinned });
+    console.log("togglePin", id, isPinned);
+    await updateItem(id, { is_pinned: isPinned });
   };
 
   const toggleFavorite = async (id: string, isFavorite: boolean) => {
-    await updateItem(id, { is_favorite: !isFavorite });
+    await updateItem(id, { is_favorite: isFavorite });
   };
 
   const copyToClipboard = async (content: string) => {

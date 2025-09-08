@@ -120,6 +120,8 @@ function ClipboardCard({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
+  onTogglePin,
+  onToggleFavorite,
 }: ClipboardItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isStarred, setIsStarred] = useState(item.isFavorite);
@@ -144,11 +146,22 @@ function ClipboardCard({
     }
   }, [justCopied]);
 
+  // Sync local state with prop changes
+  useEffect(() => {
+    setIsStarred(item.isFavorite);
+  }, [item.isFavorite]);
+
+  useEffect(() => {
+    setIsPinned(item.isPinned);
+  }, [item.isPinned]);
+
   const TypeIcon = typeIcons[item.type];
 
   const handlePin = () => {
     if (onPin) {
       onPin(item.id);
+    } else if (onTogglePin) {
+      onTogglePin();
     } else if (togglePin) {
       handleTogglePin();
     }
@@ -158,6 +171,8 @@ function ClipboardCard({
     e.stopPropagation();
     if (onFavorite) {
       onFavorite(item.id);
+    } else if (onToggleFavorite) {
+      onToggleFavorite();
     } else if (toggleFavorite) {
       handleToggleFavorite(e);
     }
@@ -196,20 +211,29 @@ function ClipboardCard({
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsLoading(true);
+    
+    // Store the current state before optimistic update
+    const currentFavoriteState = isStarred;
+    const newFavoriteState = !isStarred;
+    
+    // Optimistically update the UI immediately
+    setIsStarred(newFavoriteState);
+    
     try {
-      await toggleFavorite(item.id, isStarred);
-      setIsStarred(!isStarred);
+      await toggleFavorite(item.id, currentFavoriteState);
       addToast({
-        title: isStarred ? "Removed from favorites" : "Added to favorites",
-        description: isStarred
-          ? "Item removed from your favorites"
-          : "Item added to your favorites",
+        title: newFavoriteState ? "Added to favorites" : "Removed from favorites",
+        description: newFavoriteState
+          ? "Item added to your favorites"
+          : "Item removed from your favorites",
         color: "success",
         variant: "solid",
         timeout: 5000,
       });
     } catch (error) {
       console.error("Error toggling favorite:", error);
+      // Revert the optimistic update on error
+      setIsStarred(currentFavoriteState);
       addToast({
         title: "Error updating favorite",
         description: "Failed to update favorite status",
@@ -224,20 +248,29 @@ function ClipboardCard({
 
   const handleTogglePin = async () => {
     setIsLoading(true);
+    
+    // Store the current state before optimistic update
+    const currentPinState = isPinned;
+    const newPinState = !isPinned;
+    
+    // Optimistically update the UI immediately
+    setIsPinned(newPinState);
+    
     try {
-      await togglePin(item.id, isPinned);
-      setIsPinned(!isPinned);
+      await togglePin(item.id, currentPinState);
       addToast({
-        title: isPinned ? "Unpinned item" : "Pinned item",
-        description: isPinned
-          ? "Item has been unpinned"
-          : "Item has been pinned to the top",
+        title: newPinState ? "Pinned item" : "Unpinned item",
+        description: newPinState
+          ? "Item has been pinned to the top"
+          : "Item has been unpinned",
         color: "success",
         variant: "solid",
         timeout: 5000,
       });
     } catch (error) {
       console.error("Error toggling pin:", error);
+      // Revert the optimistic update on error
+      setIsPinned(currentPinState);
       addToast({
         title: "Error updating pin",
         description: "Failed to update pin status",
@@ -405,15 +438,30 @@ function ClipboardCard({
         <motion.div
           className="absolute top-2 right-2 z-20 flex items-center gap-1"
           initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
+          animate={{ opacity: isHovered || isStarred ? 1 : 0, x: isHovered || isStarred ? 0 : 10 }}
           transition={{ duration: 0.2 }}
         >
-          <Heart
-            className={cn(
-              "w-4 h-4 transition-colors cursor-pointer hover:text-red-500 hover:fill-red-500 hover:scale-110",
-              isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
-            )}
-          />
+          <motion.div
+            key={`heart-${item.id}-${isStarred}`}
+            initial={{ scale: 0.8, opacity: 0.7 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 17,
+              duration: 0.3
+            }}
+          >
+            <Heart
+              className={cn(
+                "w-4 h-4 transition-all cursor-pointer hover:text-red-500 hover:fill-red-500",
+                isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
+              )}
+              onClick={handleFavorite}
+            />
+          </motion.div>
           <Dropdown>
             <DropdownTrigger>
               <Button
