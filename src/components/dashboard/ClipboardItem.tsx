@@ -68,6 +68,9 @@ interface ClipboardItemProps {
   onToggleSelection?: () => void;
   onTogglePin?: () => void;
   onToggleFavorite?: () => void;
+  // Additional props
+  updateItem?: (id: string, updates: any) => Promise<void>;
+  fetchTags?: () => Promise<any[]>;
 }
 
 const typeIcons = {
@@ -122,6 +125,8 @@ function ClipboardCard({
   onToggleSelection,
   onTogglePin,
   onToggleFavorite,
+  updateItem,
+  fetchTags,
 }: ClipboardItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isStarred, setIsStarred] = useState(item.isFavorite);
