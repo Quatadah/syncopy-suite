@@ -342,7 +342,7 @@ function ClipboardCard({
       >
         {/* Gradient overlay on hover */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}
         />
@@ -361,7 +361,7 @@ function ClipboardCard({
 
         {/* Pin indicator */}
         <AnimatePresence>
-          {item.isPinned && (
+          {isPinned && (
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -375,7 +375,7 @@ function ClipboardCard({
 
         {/* Action buttons */}
         <motion.div
-          className="absolute top-2 right-2 z-10 flex items-center gap-1"
+          className="absolute top-2 right-2 z-20 flex items-center gap-1"
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
           transition={{ duration: 0.2 }}
@@ -384,13 +384,13 @@ function ClipboardCard({
             size="sm"
             variant="light"
             isIconOnly
-            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer relative z-30"
             onClick={handleFavorite}
           >
             <Heart 
               className={cn(
                 "w-4 h-4 transition-colors",
-                item.isFavorite ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
               )} 
             />
           </Button>
@@ -398,7 +398,7 @@ function ClipboardCard({
             size="sm"
             variant="light"
             isIconOnly
-            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer relative z-30"
             onClick={() => setShowActions(!showActions)}
           >
             <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
@@ -412,7 +412,7 @@ function ClipboardCard({
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-12 right-2 z-20 bg-background border border-border rounded-lg shadow-lg p-1 min-w-[120px]"
+              className="absolute top-12 right-2 z-50 bg-background border border-border rounded-lg shadow-lg p-1 min-w-[120px]"
             >
               <Button
                 size="sm"
