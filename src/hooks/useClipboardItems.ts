@@ -438,17 +438,63 @@ export const useClipboardItems = (currentBoardId?: string) => {
     }
   };
 
-  const updateItem = async (id: string, updates: Partial<ClipboardItem>) => {
+  const updateItem = async (
+    id: string,
+    updates: Partial<ClipboardItem> & { tags?: string[] }
+  ) => {
     if (!user) return;
 
     try {
+      const { tags, ...itemUpdates } = updates;
+
+      // Update the item itself
       const { error } = await supabase
         .from("clipboard_items")
-        .update(updates)
+        .update(itemUpdates)
         .eq("id", id)
         .eq("user_id", user.id);
 
       if (error) throw error;
+
+      // Handle tags if provided
+      if (tags !== undefined) {
+        // First, remove all existing tag associations
+        await supabase
+          .from("clipboard_item_tags")
+          .delete()
+          .eq("clipboard_item_id", id);
+
+        // Then add new tag associations
+        if (tags.length > 0) {
+          for (const tagName of tags) {
+            // Create or get tag
+            const { data: tagData, error: tagError } = await supabase
+              .from("tags")
+              .upsert({
+                name: tagName,
+                user_id: user.id,
+              })
+              .select()
+              .single();
+
+            if (!tagError && tagData) {
+              // Link tag to item
+              await supabase.from("clipboard_item_tags").insert({
+                clipboard_item_id: id,
+                tag_id: tagData.id,
+              });
+            }
+          }
+        }
+      }
+
+      // Clear cache before fetching updated data
+      const allItemsCacheKey = `all-items-${user.id}`;
+      const itemsCacheKey = `items-${user.id}-${
+        currentBoardId || "all"
+      }-${currentPage}-${pageSize}`;
+      requestCache.delete(allItemsCacheKey);
+      requestCache.delete(itemsCacheKey);
 
       await fetchItems(currentBoardId, currentPage, pageSize);
       await fetchAllItems();
@@ -604,10 +650,25 @@ export const useClipboardItems = (currentBoardId?: string) => {
         setLoading(false);
       });
     } else {
-      // If no user, set loading to false
+      // If no user, set loading to false and clear data
       setLoading(false);
+      setItems([]);
+      setAllItems([]);
     }
   }, [user, currentBoardId]);
+
+  // Ensure data is fetched on mount if user is already available
+  useEffect(() => {
+    if (user && allItems.length === 0 && !loading) {
+      setLoading(true);
+      Promise.all([
+        fetchItems(currentBoardId, 1, pageSize),
+        fetchAllItems(),
+      ]).finally(() => {
+        setLoading(false);
+      });
+    }
+  }, [user]);
 
   return {
     items,

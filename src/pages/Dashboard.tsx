@@ -13,6 +13,7 @@ const DashboardInner = memo(() => {
   const {
     allItems,
     boards,
+    loading,
     boardsLoading,
     createBoard,
     createItem,
@@ -23,6 +24,7 @@ const DashboardInner = memo(() => {
     deleteItems,
     toggleFavorite,
     togglePin,
+    updateItem,
   } = useClipboardItems();
 
 
@@ -56,7 +58,15 @@ const DashboardInner = memo(() => {
       <DashboardContent
         allItems={allItems}
         boards={boards}
+        loading={loading}
+        copyToClipboard={copyToClipboard}
+        createItem={createItem}
+        deleteItem={deleteItem}
+        deleteItems={deleteItems}
+        toggleFavorite={toggleFavorite}
+        togglePin={togglePin}
         fetchTags={fetchTags}
+        updateItem={updateItem}
       />
     </div>
   );

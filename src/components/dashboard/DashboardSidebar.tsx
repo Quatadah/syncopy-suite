@@ -120,7 +120,7 @@ const DashboardSidebar = ({ createBoard, items, boards, fetchTags }: DashboardSi
         {/* Main Navigation - Overview */}
         <div className="mb-8">
           <h3 className="text-xs font-thin text-muted-foreground mb-2">Overview</h3>
-          <div className="space-y-1">
+          <div>
             {defaultBoards.map((board) => {
               const Icon = board.icon;
               return (
@@ -162,7 +162,7 @@ const DashboardSidebar = ({ createBoard, items, boards, fetchTags }: DashboardSi
             <h3 className="text-xs font-thin text-muted-foreground">Boards</h3>
             <AddBoardDialog createBoard={createBoard} />
           </div>
-          <div className="space-y-1">
+          <div>
             {boards.filter(board => !board.is_default).map((board) => (
               <button
                 key={board.id}
@@ -199,7 +199,7 @@ const DashboardSidebar = ({ createBoard, items, boards, fetchTags }: DashboardSi
             <h3 className="text-xs font-thin text-muted-foreground">Tags</h3>
             <FilterIcon className="w-4 h-4 text-sidebar-foreground/60" />
           </div>
-          <div className="space-y-1">
+          <div>
             {tags.map((tag) => (
               <button
                 key={tag.name}

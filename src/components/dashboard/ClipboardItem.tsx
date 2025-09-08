@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { ClipboardItem } from "@/hooks/useClipboardItems"
 import { cn } from "@/lib/utils"
-import { addToast, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
+import { addToast, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Calendar,
@@ -9,6 +10,7 @@ import {
   Clock,
   Code,
   Copy,
+  Edit,
   FileText,
   Heart,
   Image,
@@ -20,23 +22,21 @@ import {
   Trash2
 } from "lucide-react"
 import React, { useEffect, useState } from "react"
+import EditClipboardItemDialog from "./EditClipboardItemDialog"
 
-interface ClipboardItem {
+interface TransformedClipboardItem {
   id: string
-  type: "text" | "image" | "link" | "code"
-  content: string
-  preview?: string
   title?: string
-  timestamp: Date
+  content: string
+  type: "text" | "image" | "link" | "code"
   tags: string[]
-  isPinned: boolean
-  isFavorite: boolean
-  size?: number
+  isPinned?: boolean
+  isFavorite?: boolean
   createdAt: string
 }
 
 interface ClipboardItemProps {
-  item: ClipboardItem
+  item: ClipboardItem | TransformedClipboardItem
   layout?: "grid" | "list"
   onPin?: (id: string) => void
   onFavorite?: (id: string) => void
@@ -49,10 +49,21 @@ interface ClipboardItemProps {
   deleteItem?: (id: string) => Promise<void>
   toggleFavorite?: (id: string, isFavorite: boolean) => Promise<void>
   togglePin?: (id: string, isPinned: boolean) => Promise<void>
+  // New prop names from ClipsGrid
+  onTogglePin?: (id: string) => void
+  onToggleFavorite?: (id: string) => void
   copyToClipboard?: (content: string) => Promise<void>
   isSelectionMode?: boolean
   isSelected?: boolean
   onToggleSelection?: (id: string) => void
+  // Edit functionality props
+  updateItem?: (id: string, updates: Partial<ClipboardItem> & { tags?: string[] }) => Promise<void>
+  fetchTags?: () => Promise<any[]>
+}
+
+// Type guard to check if item is a full ClipboardItem
+function isFullClipboardItem(item: ClipboardItem | TransformedClipboardItem): item is ClipboardItem {
+  return 'is_pinned' in item && 'is_favorite' in item && 'created_at' in item;
 }
 
 const typeIcons = {
@@ -100,16 +111,26 @@ function ClipboardCard({
   view = 'grid', 
   deleteItem, 
   toggleFavorite, 
-  togglePin, 
+  togglePin,
+  // New prop names from ClipsGrid
+  onTogglePin,
+  onToggleFavorite,
   copyToClipboard,
   isSelectionMode = false,
   isSelected = false,
-  onToggleSelection
+  onToggleSelection,
+  // Edit functionality props
+  updateItem,
+  fetchTags
 }: ClipboardItemProps) {
   const [isHovered, setIsHovered] = useState(false)
-  const [showActions, setShowActions] = useState(false)
-  const [isStarred, setIsStarred] = useState(item.isFavorite);
-  const [isPinned, setIsPinned] = useState(item.isPinned);
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [isStarred, setIsStarred] = useState(
+    isFullClipboardItem(item) ? item.is_favorite : (item.isFavorite || false)
+  );
+  const [isPinned, setIsPinned] = useState(
+    isFullClipboardItem(item) ? item.is_pinned : (item.isPinned || false)
+  );
   const { isOpen: showDeleteDialog, onOpen: setShowDeleteDialog, onOpenChange: onDeleteDialogChange } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
@@ -126,12 +147,23 @@ function ClipboardCard({
     }
   }, [justCopied]);
 
+  // Sync local state with item props
+  useEffect(() => {
+    setIsStarred(isFullClipboardItem(item) ? item.is_favorite : (item.isFavorite || false));
+  }, [item]);
+
+  useEffect(() => {
+    setIsPinned(isFullClipboardItem(item) ? item.is_pinned : (item.isPinned || false));
+  }, [item]);
+
   const TypeIcon = typeIcons[item.type];
 
   const handlePin = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (onPin) {
       onPin(item.id)
+    } else if (onTogglePin) {
+      onTogglePin(item.id)
     } else if (togglePin) {
       handleTogglePin()
     }
@@ -141,6 +173,8 @@ function ClipboardCard({
     e.stopPropagation()
     if (onFavorite) {
       onFavorite(item.id)
+    } else if (onToggleFavorite) {
+      onToggleFavorite(item.id)
     } else if (toggleFavorite) {
       handleToggleFavorite(e)
     }
@@ -180,6 +214,11 @@ function ClipboardCard({
     if (onShare) {
       onShare(item.id)
     }
+  }
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowEditDialog(true)
   }
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
@@ -262,10 +301,9 @@ function ClipboardCard({
     handleCopy();
   };
 
-  // Get timestamp - use timestamp if available, otherwise createdAt
+  // Get timestamp - use created_at or createdAt
   const getTimestamp = () => {
-    if (item.timestamp) return item.timestamp
-    return new Date(item.createdAt)
+    return new Date(isFullClipboardItem(item) ? item.created_at : item.createdAt)
   }
 
   const renderPreview = () => {
@@ -273,17 +311,9 @@ function ClipboardCard({
       case "image":
         return (
           <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
-            {item.preview ? (
-              <img 
-                src={item.preview} 
-                alt="Preview" 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Image className="w-8 h-8 text-muted-foreground" />
-              </div>
-            )}
+            <div className="w-full h-full flex items-center justify-center">
+              <Image className="w-8 h-8 text-muted-foreground" />
+            </div>
           </div>
         )
       case "link":
@@ -331,7 +361,7 @@ function ClipboardCard({
           "bg-gradient-to-br from-background to-background/80",
           "backdrop-blur-sm",
           isListLayout ? "flex items-center gap-4 p-4" : "p-4",
-          item.isPinned && "ring-2 ring-primary/20 border-primary/30",
+          isPinned && "ring-2 ring-primary/20 border-primary/30",
           isSelected && "ring-2 ring-primary shadow-lg"
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -358,7 +388,7 @@ function ClipboardCard({
 
         {/* Pin indicator */}
         <AnimatePresence>
-          {item.isPinned && (
+          {isPinned && (
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -381,75 +411,76 @@ function ClipboardCard({
             size="sm"
             variant="light"
             isIconOnly
-            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
             onClick={handleFavorite}
           >
             <Heart 
               className={cn(
                 "w-4 h-4 transition-colors",
-                item.isFavorite ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
               )} 
             />
           </Button>
-          <Button
-            size="sm"
-            variant="light"
-            isIconOnly
-            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
-            onClick={() => setShowActions(!showActions)}
-          >
-            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-          </Button>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                size="sm"
+                variant="light"
+                isIconOnly
+                className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+              >
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Clipboard item actions">
+              <DropdownItem 
+                key="copy" 
+                startContent={<Copy className="w-4 h-4" />}
+                onPress={() => handleCopy()}
+              >
+                Copy
+              </DropdownItem>
+              <DropdownItem 
+                key="edit" 
+                startContent={<Edit className="w-4 h-4" />}
+                onPress={() => setShowEditDialog(true)}
+              >
+                Edit
+              </DropdownItem>
+              <DropdownItem 
+                key="pin" 
+                startContent={<Pin className="w-4 h-4" />}
+                onPress={() => {
+                  if (onPin) {
+                    onPin(item.id)
+                  } else if (onTogglePin) {
+                    onTogglePin(item.id)
+                  } else if (togglePin) {
+                    handleTogglePin()
+                  }
+                }}
+              >
+                {isPinned ? "Unpin" : "Pin"}
+              </DropdownItem>
+              <DropdownItem 
+                key="share" 
+                startContent={<Share2 className="w-4 h-4" />}
+                onPress={() => onShare && onShare(item.id)}
+              >
+                Share
+              </DropdownItem>
+              <DropdownItem 
+                key="delete" 
+                startContent={<Trash2 className="w-4 h-4" />}
+                onPress={() => onDelete && onDelete(item.id)}
+                className="text-danger"
+                color="danger"
+              >
+                Delete
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </motion.div>
 
-        {/* Actions dropdown */}
-        <AnimatePresence>
-          {showActions && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-12 right-2 z-20 bg-background border border-border rounded-lg shadow-lg p-1 min-w-[120px]"
-            >
-              <Button
-                size="sm"
-                variant="light"
-                className="w-full justify-start gap-2 h-8 cursor-pointer"
-                onClick={handleCopy}
-              >
-                <Copy className="w-4 h-4" />
-                Copy
-              </Button>
-              <Button
-                size="sm"
-                variant="light"
-                className="w-full justify-start gap-2 h-8 cursor-pointer"
-                onClick={handlePin}
-              >
-                <Pin className="w-4 h-4" />
-                {item.isPinned ? "Unpin" : "Pin"}
-              </Button>
-              <Button
-                size="sm"
-                variant="light"
-                className="w-full justify-start gap-2 h-8 cursor-pointer"
-                onClick={handleShare}
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </Button>
-              <Button
-                size="sm"
-                variant="light"
-                className="w-full justify-start gap-2 h-8 text-danger hover:text-danger cursor-pointer"
-                onClick={handleDelete}
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <div className={cn("relative z-10", isListLayout ? "flex-1" : "")}>
           {/* Type indicator and title */}
@@ -461,11 +492,6 @@ function ClipboardCard({
               <TypeIcon className="w-3 h-3" />
               {item.type}
             </div>
-            {item.size && (
-              <span className="text-xs text-muted-foreground">
-                {formatFileSize(item.size)}
-              </span>
-            )}
           </div>
 
           {/* Content preview */}
@@ -558,6 +584,26 @@ function ClipboardCard({
           )}
         </ModalContent>
       </Modal>
+
+      {/* Edit dialog */}
+      <EditClipboardItemDialog 
+        item={{
+          id: item.id,
+          title: item.title,
+          content: item.content,
+          type: item.type,
+          tags: item.tags,
+          is_pinned: isPinned,
+          is_favorite: isStarred,
+          created_at: isFullClipboardItem(item) ? item.created_at : item.createdAt,
+          updated_at: isFullClipboardItem(item) ? item.updated_at : item.createdAt,
+        }}
+        trigger={null}
+        isOpen={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        updateItem={updateItem}
+        fetchTags={fetchTags}
+      />
     </motion.div>
   );
 };

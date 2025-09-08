@@ -23,6 +23,8 @@ interface ClipsGridProps {
   onDelete: (itemId: string) => void;
   onCopy: (itemId: string) => void;
   onQuickAdd: () => void;
+  updateItem?: (id: string, updates: any) => Promise<void>;
+  fetchTags?: () => Promise<any[]>;
 }
 
 const ClipsGrid = ({
@@ -36,6 +38,8 @@ const ClipsGrid = ({
   onDelete,
   onCopy,
   onQuickAdd,
+  updateItem,
+  fetchTags,
 }: ClipsGridProps) => {
   if (filteredItems.length === 0) {
     return (
@@ -65,8 +69,8 @@ const ClipsGrid = ({
       className={cn(
         "animate-fade-in",
         view === "grid"
-          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          : "space-y-4"
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
+          : "space-y-2"
       )}
     >
       {filteredItems.map((item) => (
@@ -81,6 +85,8 @@ const ClipsGrid = ({
           onToggleFavorite={() => onToggleFavorite(item.id)}
           onDelete={() => onDelete(item.id)}
           onCopy={() => onCopy(item.id)}
+          updateItem={updateItem}
+          fetchTags={fetchTags}
         />
       ))}
     </div>

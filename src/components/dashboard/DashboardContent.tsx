@@ -1,6 +1,5 @@
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useBoard } from "@/contexts/BoardContext";
-import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { addToast } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,10 +29,30 @@ interface DashboardContentProps {
     description?: string;
     color: string;
   }>;
+  loading: boolean;
+  copyToClipboard: (content: string) => Promise<void>;
+  createItem: (item: any) => Promise<any>;
+  deleteItem: (id: string) => Promise<void>;
+  deleteItems: (ids: string[]) => Promise<void>;
+  toggleFavorite: (id: string, isFavorite: boolean) => Promise<void>;
+  togglePin: (id: string, isPinned: boolean) => Promise<void>;
   fetchTags: () => Promise<any[]>;
+  updateItem: (id: string, updates: any) => Promise<void>;
 }
 
-const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps) => {
+const DashboardContent = ({ 
+  allItems, 
+  boards, 
+  loading,
+  copyToClipboard, 
+  createItem, 
+  deleteItem, 
+  deleteItems, 
+  toggleFavorite, 
+  togglePin, 
+  fetchTags,
+  updateItem
+}: DashboardContentProps) => {
   const { activeBoard, currentBoardId } = useBoard();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,16 +65,6 @@ const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const navigate = useNavigate();
-
-  // Get functions from hook (without data fetching)
-  const {
-    copyToClipboard,
-    createItem,
-    deleteItem,
-    deleteItems,
-    toggleFavorite,
-    togglePin,
-  } = useClipboardItems();
 
   // Filter allItems based on current board selection
   const getItemsForCurrentBoard = () => {
@@ -233,6 +242,24 @@ const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps
     }
   };
 
+  // Show loading state while data is being fetched
+  if (loading) {
+    return (
+      <div className="flex-1 flex flex-col">
+        <DashboardHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filteredItems={[]}
+        />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span>Loading clips...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col">
@@ -287,6 +314,8 @@ const DashboardContent = ({ allItems, boards, fetchTags }: DashboardContentProps
             onDelete={deleteItem}
             onCopy={handleCopy}
             onQuickAdd={handleQuickAdd}
+            updateItem={updateItem}
+            fetchTags={fetchTags}
           />
 
           {/* Pagination */}
