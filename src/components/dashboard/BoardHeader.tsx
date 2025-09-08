@@ -9,6 +9,8 @@ interface BoardHeaderProps {
     name: string;
     description?: string;
     color: string;
+    is_default: boolean;
+    created_at: string;
   }>;
 }
 

@@ -273,7 +273,7 @@ const Search = memo(() => {
                 <div className="flex items-center bg-muted rounded-lg p-1">
                   <Button
                     size="sm"
-                    variant={view === 'grid' ? 'default' : 'ghost'}
+                    variant={view === 'grid' ? 'solid' : 'ghost'}
                     onClick={() => setView('grid')}
                     className="h-8 px-3"
                   >
@@ -281,7 +281,7 @@ const Search = memo(() => {
                   </Button>
                   <Button
                     size="sm"
-                    variant={view === 'list' ? 'default' : 'ghost'}
+                    variant={view === 'list' ? 'solid' : 'ghost'}
                     onClick={() => setView('list')}
                     className="h-8 px-3"
                   >
@@ -308,7 +308,7 @@ const Search = memo(() => {
             {/* Filter Toggle */}
             <div className="flex items-center justify-between mt-4">
               <Button
-                variant="outline"
+                variant="bordered"
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center space-x-2"
               >
@@ -390,12 +390,14 @@ const Search = memo(() => {
                   placeholder="Select board"
                   className="max-w-xs"
                 >
-                  <SelectItem key="all">All Boards</SelectItem>
-                  <SelectItem key="favorites">Favorites</SelectItem>
-                  <SelectItem key="recent">Recent</SelectItem>
-                  {boards.map(board => (
-                    <SelectItem key={board.id}>{board.name}</SelectItem>
-                  ))}
+                  <>
+                    <SelectItem key="all">All Boards</SelectItem>
+                    <SelectItem key="favorites">Favorites</SelectItem>
+                    <SelectItem key="recent">Recent</SelectItem>
+                    {boards.map((board: any) => (
+                      <SelectItem key={board.id}>{board.name}</SelectItem>
+                    ))}
+                  </>
                 </Select>
               </div>
 
@@ -429,7 +431,7 @@ const Search = memo(() => {
                   {availableTags.map(tag => (
                     <Button
                       key={tag.name}
-                      variant={filters.tags.includes(tag.name) ? "default" : "outline"}
+                      variant={filters.tags.includes(tag.name) ? "solid" : "bordered"}
                       size="sm"
                       onClick={() => toggleTagFilter(tag.name)}
                       className="flex items-center space-x-1"
@@ -475,7 +477,7 @@ const Search = memo(() => {
             <p className="text-muted-foreground mb-6 max-w-md">
               Try adjusting your search terms or filters to find what you're looking for.
             </p>
-            <Button variant="outline" onClick={clearFilters}>
+            <Button variant="bordered" onClick={clearFilters}>
               Clear all filters
             </Button>
           </div>

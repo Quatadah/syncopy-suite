@@ -10,9 +10,10 @@ interface ClipsGridProps {
     content: string;
     type: "text" | "link" | "image" | "code";
     tags: string[];
-    isPinned: boolean;
-    isFavorite: boolean;
-    createdAt: string;
+    is_pinned: boolean;
+    is_favorite: boolean;
+    created_at: string;
+    timestamp: Date;
   }>;
   view: "grid" | "list";
   isSelectionMode: boolean;
@@ -76,7 +77,13 @@ const ClipsGrid = ({
       {filteredItems.map((item) => (
         <ClipboardItem
           key={item.id}
-          item={item}
+          item={{
+            ...item,
+            isPinned: item.is_pinned,
+            isFavorite: item.is_favorite,
+            createdAt: item.created_at,
+            timestamp: new Date(item.created_at)
+          }}
           view={view}
           isSelected={selectedItems.has(item.id)}
           isSelectionMode={isSelectionMode}

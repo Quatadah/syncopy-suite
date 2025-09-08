@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { ClipboardItem } from "@/hooks/useClipboardItems"
 import { cn } from "@/lib/utils"
-import { addToast, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
+import { addToast, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Calendar,
@@ -49,9 +49,6 @@ interface ClipboardItemProps {
   deleteItem?: (id: string) => Promise<void>
   toggleFavorite?: (id: string, isFavorite: boolean) => Promise<void>
   togglePin?: (id: string, isPinned: boolean) => Promise<void>
-  // New prop names from ClipsGrid
-  onTogglePin?: (id: string) => void
-  onToggleFavorite?: (id: string) => void
   copyToClipboard?: (content: string) => Promise<void>
   isSelectionMode?: boolean
   isSelected?: boolean
@@ -111,10 +108,7 @@ function ClipboardCard({
   view = 'grid', 
   deleteItem, 
   toggleFavorite, 
-  togglePin,
-  // New prop names from ClipsGrid
-  onTogglePin,
-  onToggleFavorite,
+  togglePin, 
   copyToClipboard,
   isSelectionMode = false,
   isSelected = false,
@@ -124,6 +118,7 @@ function ClipboardCard({
   fetchTags
 }: ClipboardItemProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [showActions, setShowActions] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [isStarred, setIsStarred] = useState(
     isFullClipboardItem(item) ? item.is_favorite : (item.isFavorite || false)
@@ -147,23 +142,12 @@ function ClipboardCard({
     }
   }, [justCopied]);
 
-  // Sync local state with item props
-  useEffect(() => {
-    setIsStarred(isFullClipboardItem(item) ? item.is_favorite : (item.isFavorite || false));
-  }, [item]);
-
-  useEffect(() => {
-    setIsPinned(isFullClipboardItem(item) ? item.is_pinned : (item.isPinned || false));
-  }, [item]);
-
   const TypeIcon = typeIcons[item.type];
 
   const handlePin = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (onPin) {
       onPin(item.id)
-    } else if (onTogglePin) {
-      onTogglePin(item.id)
     } else if (togglePin) {
       handleTogglePin()
     }
@@ -173,8 +157,6 @@ function ClipboardCard({
     e.stopPropagation()
     if (onFavorite) {
       onFavorite(item.id)
-    } else if (onToggleFavorite) {
-      onToggleFavorite(item.id)
     } else if (toggleFavorite) {
       handleToggleFavorite(e)
     }
@@ -218,6 +200,7 @@ function ClipboardCard({
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
+    setShowActions(false)
     setShowEditDialog(true)
   }
 
@@ -361,7 +344,7 @@ function ClipboardCard({
           "bg-gradient-to-br from-background to-background/80",
           "backdrop-blur-sm",
           isListLayout ? "flex items-center gap-4 p-4" : "p-4",
-          isPinned && "ring-2 ring-primary/20 border-primary/30",
+          (isFullClipboardItem(item) ? item.is_pinned : item.isPinned) && "ring-2 ring-primary/20 border-primary/30",
           isSelected && "ring-2 ring-primary shadow-lg"
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -388,7 +371,7 @@ function ClipboardCard({
 
         {/* Pin indicator */}
         <AnimatePresence>
-          {isPinned && (
+          {(isFullClipboardItem(item) ? item.is_pinned : item.isPinned) && (
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -416,71 +399,78 @@ function ClipboardCard({
             <Heart 
               className={cn(
                 "w-4 h-4 transition-colors",
-                isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                (isFullClipboardItem(item) ? item.is_favorite : item.isFavorite) ? "text-red-500 fill-red-500" : "text-muted-foreground"
               )} 
             />
           </Button>
-          <Dropdown>
-            <DropdownTrigger>
+          <Button
+            size="sm"
+            variant="light"
+            isIconOnly
+            className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+            onClick={() => setShowActions(!showActions)}
+          >
+            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+          </Button>
+        </motion.div>
+
+        {/* Actions dropdown */}
+        <AnimatePresence>
+          {showActions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -10 }}
+              className="absolute top-12 right-2 z-20 bg-background border border-border rounded-lg shadow-lg p-1 min-w-[120px]"
+            >
               <Button
                 size="sm"
                 variant="light"
-                isIconOnly
-                className="h-8 w-8 p-0 hover:bg-background/80 cursor-pointer"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handleCopy}
               >
-                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Clipboard item actions">
-              <DropdownItem 
-                key="copy" 
-                startContent={<Copy className="w-4 h-4" />}
-                onPress={() => handleCopy()}
-              >
+                <Copy className="w-4 h-4" />
                 Copy
-              </DropdownItem>
-              <DropdownItem 
-                key="edit" 
-                startContent={<Edit className="w-4 h-4" />}
-                onPress={() => setShowEditDialog(true)}
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handleEdit}
               >
+                <Edit className="w-4 h-4" />
                 Edit
-              </DropdownItem>
-              <DropdownItem 
-                key="pin" 
-                startContent={<Pin className="w-4 h-4" />}
-                onPress={() => {
-                  if (onPin) {
-                    onPin(item.id)
-                  } else if (onTogglePin) {
-                    onTogglePin(item.id)
-                  } else if (togglePin) {
-                    handleTogglePin()
-                  }
-                }}
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handlePin}
               >
-                {isPinned ? "Unpin" : "Pin"}
-              </DropdownItem>
-              <DropdownItem 
-                key="share" 
-                startContent={<Share2 className="w-4 h-4" />}
-                onPress={() => onShare && onShare(item.id)}
+                <Pin className="w-4 h-4" />
+                {(isFullClipboardItem(item) ? item.is_pinned : item.isPinned) ? "Unpin" : "Pin"}
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 cursor-pointer"
+                onClick={handleShare}
               >
+                <Share2 className="w-4 h-4" />
                 Share
-              </DropdownItem>
-              <DropdownItem 
-                key="delete" 
-                startContent={<Trash2 className="w-4 h-4" />}
-                onPress={() => onDelete && onDelete(item.id)}
-                className="text-danger"
-                color="danger"
+              </Button>
+              <Button
+                size="sm"
+                variant="light"
+                className="w-full justify-start gap-2 h-8 text-danger hover:text-danger cursor-pointer"
+                onClick={handleDelete}
               >
+                <Trash2 className="w-4 h-4" />
                 Delete
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </motion.div>
-
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className={cn("relative z-10", isListLayout ? "flex-1" : "")}>
           {/* Type indicator and title */}
@@ -593,8 +583,8 @@ function ClipboardCard({
           content: item.content,
           type: item.type,
           tags: item.tags,
-          is_pinned: isPinned,
-          is_favorite: isStarred,
+          is_pinned: isFullClipboardItem(item) ? item.is_pinned : (item.isPinned || false),
+          is_favorite: isFullClipboardItem(item) ? item.is_favorite : (item.isFavorite || false),
           created_at: isFullClipboardItem(item) ? item.created_at : item.createdAt,
           updated_at: isFullClipboardItem(item) ? item.updated_at : item.createdAt,
         }}
