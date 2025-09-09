@@ -26,6 +26,8 @@ interface ClipsGridProps {
   onQuickAdd: () => void;
   updateItem?: (id: string, updates: any) => Promise<void>;
   fetchTags?: () => Promise<any[]>;
+  searchQuery?: string;
+  highlightSearchTerm?: (text: string, searchTerm: string) => React.ReactNode;
 }
 
 const ClipsGrid = ({
@@ -41,6 +43,8 @@ const ClipsGrid = ({
   onQuickAdd,
   updateItem,
   fetchTags,
+  searchQuery,
+  highlightSearchTerm,
 }: ClipsGridProps) => {
   if (filteredItems.length === 0) {
     return (
@@ -68,7 +72,7 @@ const ClipsGrid = ({
   return (
     <div
       className={cn(
-        "animate-fade-in",
+        "animate-fade-in p-2",
         view === "grid"
           ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
           : "space-y-2"
@@ -94,6 +98,8 @@ const ClipsGrid = ({
           onCopy={() => onCopy(item.id)}
           updateItem={updateItem}
           fetchTags={fetchTags}
+          searchQuery={searchQuery}
+          highlightSearchTerm={highlightSearchTerm}
         />
       ))}
     </div>

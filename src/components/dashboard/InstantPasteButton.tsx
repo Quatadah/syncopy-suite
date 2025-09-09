@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { addToast } from "@heroui/react";
-import { Bolt, CloudLightning } from "lucide-react";
+import { CloudLightning } from "lucide-react";
 import { useState } from "react";
 
 interface InstantPasteButtonProps {
@@ -130,6 +130,8 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
       onClick={handleInstantPaste}
       disabled={isLoading}
       size="sm"
+      variant="default"
+      className="h-10 px-5 text-sm font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 rounded-l-xl rounded-r-none border-r-0"
     >
       {isLoading ? (
         <>
@@ -138,7 +140,7 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
         </>
       ) : (
         <>
-          <CloudLightning className="w-3.5 h-3.5" />
+          <CloudLightning className="w-3.5 h-3.5 mr-2" />
           Paste & Save
         </>
       )}

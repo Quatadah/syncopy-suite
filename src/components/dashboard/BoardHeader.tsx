@@ -1,6 +1,7 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useBoard } from "@/contexts/BoardContext";
-import { Edit } from "lucide-react";
+import { Edit, Search, X } from "lucide-react";
 import EditBoardDialog from "./EditBoardDialog";
 
 interface BoardHeaderProps {
@@ -12,9 +13,13 @@ interface BoardHeaderProps {
     is_default: boolean;
     created_at: string;
   }>;
+  searchQuery?: string;
+  filteredCount?: number;
+  totalCount?: number;
+  onClearSearch?: () => void;
 }
 
-const BoardHeader = ({ boards }: BoardHeaderProps) => {
+const BoardHeader = ({ boards, searchQuery, filteredCount, totalCount, onClearSearch }: BoardHeaderProps) => {
   const { activeBoard } = useBoard();
 
   const getCurrentBoard = () => {
@@ -32,6 +37,58 @@ const BoardHeader = ({ boards }: BoardHeaderProps) => {
   };
 
   const currentBoard = getCurrentBoard();
+
+  // Show search results indicator if searching
+  if (searchQuery) {
+    return (
+      <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg border border-primary/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Search className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Search Results
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {filteredCount !== undefined && totalCount !== undefined ? (
+                  <>
+                    {filteredCount} of {totalCount} items
+                    {filteredCount !== totalCount && (
+                      <span className="ml-2">
+                        <Badge variant="secondary" className="text-xs">
+                          Filtered
+                        </Badge>
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  'Searching...'
+                )}
+              </p>
+            </div>
+          </div>
+          {onClearSearch && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onClearSearch}
+              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-3.5 h-3.5 mr-1" />
+              Clear
+            </Button>
+          )}
+        </div>
+        <div className="mt-2">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium">Query:</span> "{searchQuery}"
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Don't show header for special views (all, favorites, recent)
   if (!currentBoard) {

@@ -71,6 +71,9 @@ interface ClipboardItemProps {
   // Additional props
   updateItem?: (id: string, updates: any) => Promise<void>;
   fetchTags?: () => Promise<any[]>;
+  // Search highlighting
+  searchQuery?: string;
+  highlightSearchTerm?: (text: string, searchTerm: string) => React.ReactNode;
 }
 
 const typeIcons = {
@@ -127,6 +130,9 @@ function ClipboardCard({
   onToggleFavorite,
   updateItem,
   fetchTags,
+  // Search highlighting
+  searchQuery,
+  highlightSearchTerm,
 }: ClipboardItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isStarred, setIsStarred] = useState(item.isFavorite);
@@ -142,6 +148,14 @@ function ClipboardCard({
   // Use layout prop with fallback to view for compatibility
   const currentLayout = layout || view;
   const isListLayout = currentLayout === "list";
+
+  // Helper function to render highlighted text
+  const renderHighlightedText = (text: string) => {
+    if (highlightSearchTerm && searchQuery) {
+      return highlightSearchTerm(text, searchQuery);
+    }
+    return text;
+  };
 
   // Reset copy feedback after 2 seconds
   useEffect(() => {
@@ -348,14 +362,14 @@ function ClipboardCard({
                 <Link className="w-4 h-4 text-primary" />
               </div>
               <span className="text-sm font-semibold truncate">
-                {item.title || "Link"}
+                {renderHighlightedText(item.title || "Link")}
               </span>
             </div>
             <p
               className="text-xs text-muted-foreground truncate cursor-pointer hover:text-foreground transition-colors duration-300"
               onClick={handleContentClick}
             >
-              {item.content}
+              {renderHighlightedText(item.content)}
             </p>
           </div>
         );
@@ -366,7 +380,7 @@ function ClipboardCard({
               className="text-xs text-foreground whitespace-pre-wrap line-clamp-3 cursor-pointer hover:text-primary transition-colors duration-300"
               onClick={handleContentClick}
             >
-              {item.content}
+              {renderHighlightedText(item.content)}
             </pre>
           </div>
         );
@@ -377,7 +391,7 @@ function ClipboardCard({
               className="text-sm text-foreground line-clamp-3 cursor-pointer hover:text-primary transition-colors duration-300"
               onClick={handleContentClick}
             >
-              {item.content}
+              {renderHighlightedText(item.content)}
             </p>
           </div>
         );
@@ -556,7 +570,7 @@ function ClipboardCard({
               className="font-medium text-foreground mb-1 truncate cursor-pointer"
               onClick={handleContentClick}
             >
-              {item.title}
+              {renderHighlightedText(item.title)}
             </h3>
           )}
 
@@ -566,7 +580,7 @@ function ClipboardCard({
               className="text-sm text-muted-foreground line-clamp-1 mb-2 cursor-pointer"
               onClick={handleContentClick}
             >
-              {item.content}
+              {renderHighlightedText(item.content)}
             </p>
           )}
 

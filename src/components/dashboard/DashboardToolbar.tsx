@@ -2,8 +2,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckSquare, FileText, Filter, Grid3X3, List, Plus, Trash2, X } from "lucide-react";
+import { CheckSquare, ChevronDown, FileText, Filter, Grid3X3, List, Plus, Trash2, X } from "lucide-react";
 import InstantPasteButton from "./InstantPasteButton";
 
 interface DashboardToolbarProps {
@@ -24,6 +25,8 @@ interface DashboardToolbarProps {
     type: 'text' | 'link' | 'image' | 'code';
     tags: string[];
   }) => Promise<void>;
+  hasActiveFilters?: boolean;
+  activeFilterCount?: number;
 }
 
 const DashboardToolbar = ({
@@ -39,13 +42,13 @@ const DashboardToolbar = ({
   onAddItem,
   onToggleFilters,
   onCreateItem,
+  hasActiveFilters = false,
+  activeFilterCount = 0,
 }: DashboardToolbarProps) => {
   return (
     <>
       {/* Main Toolbar */}
       <div className="relative h-16 flex items-center justify-between px-6 bg-gradient-to-r from-background/95 to-background/80 backdrop-blur-sm border-b border-border/30">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-accent/3"></div>
         
         {/* Left - View & Filter Controls */}
         <div className="relative flex items-center gap-6">
@@ -83,32 +86,50 @@ const DashboardToolbar = ({
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters
+            {hasActiveFilters && activeFilterCount > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {activeFilterCount}
+              </Badge>
+            )}
           </Button>
         </div>
 
         {/* Right - Action Buttons */}
         <div className="relative flex items-center gap-3">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onAddItem}
-            className="h-10 px-4 text-sm font-medium bg-gradient-to-r from-muted/50 to-muted/30 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-xl"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            New Clip
-          </Button>
-          
-          <InstantPasteButton onAdd={onCreateItem} />
-          
-          <Button
-            size="sm"
-            variant="default"
-            onClick={onQuickAdd}
-            className="h-10 px-5 text-sm font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-105 rounded-xl"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Quick Add
-          </Button>
+          {/* Grouped Add Actions - Paste & Save as primary, others in dropdown */}
+          <div className="flex items-center">
+            {/* Primary Action: Paste & Save */}
+            <InstantPasteButton onAdd={onCreateItem} />
+            
+            {/* Dropdown for other add actions */}
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="h-10 px-2 -ml-px rounded-l-none border-l-1 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-r-xl"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Add actions" className="w-48">
+                <DropdownItem 
+                  key="new-clip" 
+                  startContent={<FileText className="w-4 h-4" />}
+                  onPress={onAddItem}
+                >
+                  New Clip
+                </DropdownItem>
+                <DropdownItem 
+                  key="quick-add" 
+                  startContent={<Plus className="w-4 h-4" />}
+                  onPress={onQuickAdd}
+                >
+                  Quick Add
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         </div>
       </div>
 
@@ -127,9 +148,7 @@ const DashboardToolbar = ({
             }}
             className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <div className="relative bg-gradient-to-r from-card/95 to-card/90 backdrop-blur-xl border border-border/30 rounded-2xl shadow-2xl px-6 py-4 overflow-hidden">
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-2xl"></div>
+            <div className="relative rounded-2xl shadow-2xl px-6 py-4 overflow-hidden">
               
               <div className="relative flex items-center gap-6">
                 {/* Selection Counter */}

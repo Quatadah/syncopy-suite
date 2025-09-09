@@ -1,6 +1,8 @@
+import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useBoard } from "@/contexts/BoardContext";
-import { addToast } from "@heroui/react";
+import { addToast, Button, Checkbox, Select, SelectItem } from "@heroui/react";
+import { Tag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddItemDialog from "./AddItemDialog";
@@ -9,6 +11,15 @@ import ClipsGrid from "./ClipsGrid";
 import DashboardHeader from "./DashboardHeader";
 import DashboardToolbar from "./DashboardToolbar";
 import QuickAddDialog from "./QuickAddDialog";
+
+interface SearchFilters {
+  type: string;
+  tags: string[];
+  dateRange: string;
+  board: string;
+  isFavorite: boolean;
+  isPinned: boolean;
+}
 
 interface DashboardContentProps {
   allItems: Array<{
@@ -64,6 +75,15 @@ const DashboardContent = ({
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
+  const [filters, setFilters] = useState<SearchFilters>({
+    type: 'all',
+    tags: [],
+    dateRange: 'all',
+    board: 'all',
+    isFavorite: false,
+    isPinned: false
+  });
+  const [availableTags, setAvailableTags] = useState<Array<{name: string, count: number}>>([]);
   const navigate = useNavigate();
 
   // Filter allItems based on current board selection
@@ -83,26 +103,142 @@ const DashboardContent = ({
 
   const items = getItemsForCurrentBoard();
 
+  // Load available tags
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tags = await fetchTags();
+        const tagCounts = tags.reduce((acc: Record<string, number>, tag) => {
+          const count = allItems.filter(item => item.tags.includes(tag.name)).length;
+          if (count > 0) {
+            acc[tag.name] = count;
+          }
+          return acc;
+        }, {});
+        
+        const tagsWithCounts = Object.entries(tagCounts).map(([name, count]) => ({
+          name,
+          count: count as number
+        }));
+        
+        setAvailableTags(tagsWithCounts);
+      } catch (error) {
+        console.error('Error loading tags:', error);
+      }
+    };
+
+    if (allItems.length > 0) {
+      loadTags();
+    }
+  }, [allItems, fetchTags]);
 
   const getFilteredItems = () => {
     let filtered = items;
 
-    // Filter by search query
+    // Filter by search query with advanced search support
     if (searchQuery) {
-      filtered = filtered.filter(
-        (item) =>
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.tags.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+      const query = searchQuery.toLowerCase().trim();
+      
+      // Check for special search operators
+      if (query.startsWith('type:')) {
+        const typeFilter = query.replace('type:', '');
+        filtered = filtered.filter(item => item.type === typeFilter);
+      } else if (query.startsWith('is:')) {
+        const statusFilter = query.replace('is:', '');
+        if (statusFilter === 'favorite') {
+          filtered = filtered.filter(item => item.is_favorite);
+        } else if (statusFilter === 'pinned') {
+          filtered = filtered.filter(item => item.is_pinned);
+        }
+      } else if (query.startsWith('tag:')) {
+        const tagFilter = query.replace('tag:', '');
+        filtered = filtered.filter(item => 
+          item.tags.some(tag => tag.toLowerCase().includes(tagFilter))
+        );
+      } else {
+        // Regular text search
+        filtered = filtered.filter(
+          (item) =>
+            item.title.toLowerCase().includes(query) ||
+            item.content.toLowerCase().includes(query) ||
+            item.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
+      }
+    }
+
+    // Apply additional filters
+    // Type filter
+    if (filters.type !== 'all') {
+      filtered = filtered.filter(item => item.type === filters.type);
+    }
+
+    // Tags filter
+    if (filters.tags.length > 0) {
+      filtered = filtered.filter(item =>
+        filters.tags.some(filterTag => item.tags.includes(filterTag))
       );
+    }
+
+    // Date range filter
+    if (filters.dateRange !== 'all') {
+      const now = new Date();
+      let cutoffDate: Date;
+
+      switch (filters.dateRange) {
+        case 'today':
+          cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'year':
+          cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          cutoffDate = new Date(0);
+      }
+
+      filtered = filtered.filter(item => new Date(item.created_at) >= cutoffDate);
+    }
+
+    // Board filter
+    if (filters.board !== 'all') {
+      if (filters.board === 'favorites') {
+        filtered = filtered.filter(item => item.is_favorite);
+      } else if (filters.board === 'recent') {
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(item => new Date(item.created_at) > dayAgo);
+      } else {
+        filtered = filtered.filter(item => item.board_id === filters.board);
+      }
+    }
+
+    // Favorite filter
+    if (filters.isFavorite) {
+      filtered = filtered.filter(item => item.is_favorite);
+    }
+
+    // Pinned filter
+    if (filters.isPinned) {
+      filtered = filtered.filter(item => item.is_pinned);
     }
 
     return filtered;
   };
 
   const filteredItems = getFilteredItems();
+
+  // Check if any filters are active
+  const hasActiveFilters = Object.values(filters).some(value => 
+    Array.isArray(value) ? value.length > 0 : value !== 'all' && value !== false
+  ) || (searchQuery && (
+    searchQuery.startsWith('type:') || 
+    searchQuery.startsWith('is:') || 
+    searchQuery.startsWith('tag:')
+  ));
 
   // Pagination logic
   const totalCount = filteredItems.length;
@@ -242,6 +378,45 @@ const DashboardContent = ({
     }
   };
 
+  // Filter helper functions
+  const toggleTagFilter = (tagName: string) => {
+    setFilters(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tagName)
+        ? prev.tags.filter(t => t !== tagName)
+        : [...prev.tags, tagName]
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      type: 'all',
+      tags: [],
+      dateRange: 'all',
+      board: 'all',
+      isFavorite: false,
+      isPinned: false
+    });
+  };
+
+  // Utility function to highlight search terms
+  const highlightSearchTerm = (text: string, searchTerm: string) => {
+    if (!searchTerm || searchTerm.startsWith('type:') || searchTerm.startsWith('is:') || searchTerm.startsWith('tag:')) {
+      return text;
+    }
+    
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <mark key={index} className="bg-primary/20 text-primary font-medium px-1 rounded">
+          {part}
+        </mark>
+      ) : part
+    );
+  };
+
   // Show loading state while data is being fetched
   if (loading) {
     return (
@@ -250,6 +425,7 @@ const DashboardContent = ({
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           filteredItems={[]}
+          allItems={allItems}
         />
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center space-x-2">
@@ -267,6 +443,7 @@ const DashboardContent = ({
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         filteredItems={filteredItems}
+        allItems={allItems}
       />
 
       <DashboardToolbar
@@ -282,25 +459,160 @@ const DashboardContent = ({
         onAddItem={handleAddItem}
         onToggleFilters={() => setShowFilters(!showFilters)}
         onCreateItem={handleCreateItem}
+        hasActiveFilters={hasActiveFilters}
+        activeFilterCount={Object.values(filters).filter(value => 
+          Array.isArray(value) ? value.length > 0 : value !== 'all' && value !== false
+        ).length}
       />
+
+      {/* Filters Panel */}
+      {showFilters && (
+        <div className="">
+          <div className="px-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Type Filter */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
+                <Select 
+                  selectedKeys={[filters.type]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, type: selectedValue }));
+                  }}
+                  placeholder="Select type"
+                  className="max-w-xs"
+                >
+                  <SelectItem key="all">All Types</SelectItem>
+                  <SelectItem key="text">Text</SelectItem>
+                  <SelectItem key="link">Link</SelectItem>
+                  <SelectItem key="image">Image</SelectItem>
+                  <SelectItem key="code">Code</SelectItem>
+                </Select>
+              </div>
+
+              {/* Date Range Filter */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Date Range</label>
+                <Select 
+                  selectedKeys={[filters.dateRange]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, dateRange: selectedValue }));
+                  }}
+                  placeholder="Select date range"
+                  className="max-w-xs"
+                >
+                  <SelectItem key="all">All Time</SelectItem>
+                  <SelectItem key="today">Today</SelectItem>
+                  <SelectItem key="week">This Week</SelectItem>
+                  <SelectItem key="month">This Month</SelectItem>
+                  <SelectItem key="year">This Year</SelectItem>
+                </Select>
+              </div>
+
+              {/* Board Filter */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Board</label>
+                <Select 
+                  selectedKeys={[filters.board]} 
+                  onSelectionChange={(keys) => {
+                    const selectedValue = Array.from(keys)[0] as string;
+                    setFilters(prev => ({ ...prev, board: selectedValue }));
+                  }}
+                  placeholder="Select board"
+                  className="max-w-xs"
+                >
+                  <>
+                    <SelectItem key="all">All Boards</SelectItem>
+                    <SelectItem key="favorites">Favorites</SelectItem>
+                    <SelectItem key="recent">Recent</SelectItem>
+                    {boards.map((board: any) => (
+                      <SelectItem key={board.id}>{board.name}</SelectItem>
+                    ))}
+                  </>
+                </Select>
+              </div>
+
+              {/* Status Filters */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Status</label>
+                <div className="space-y-2">
+                  <Checkbox
+                    isSelected={filters.isFavorite}
+                    onValueChange={(checked) => setFilters(prev => ({ ...prev, isFavorite: checked }))}
+                    size="sm"
+                  >
+                    <span className="text-sm">Favorites only</span>
+                  </Checkbox>
+                  <Checkbox
+                    isSelected={filters.isPinned}
+                    onValueChange={(checked) => setFilters(prev => ({ ...prev, isPinned: checked }))}
+                    size="sm"
+                  >
+                    <span className="text-sm">Pinned only</span>
+                  </Checkbox>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags Filter */}
+            {availableTags.length > 0 && (
+              <div className="mt-4">
+                <label className="text-sm font-medium text-foreground mb-2 block">Tags</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableTags.map(tag => (
+                    <Button
+                      key={tag.name}
+                      variant={filters.tags.includes(tag.name) ? "solid" : "bordered"}
+                      size="sm"
+                      onClick={() => toggleTagFilter(tag.name)}
+                      className="flex items-center space-x-1"
+                    >
+                      <Tag className="w-3 h-3" />
+                      <span>{tag.name}</span>
+                      <Badge variant="secondary" className="ml-1 text-xs">
+                        {tag.count}
+                      </Badge>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Clear Filters Button */}
+            {hasActiveFilters && (
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  variant="ghost" 
+                  onClick={clearFilters} 
+                  className="text-muted-foreground"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Content Area */}
       <main className="flex-1 overflow-auto">
         <div className="px-4">
-          <BoardHeader boards={boards.map(board => ({
-            id: board.id,
-            name: board.name,
-            description: board.description,
-            color: board.color,
-            is_default: false,
-            created_at: new Date().toISOString()
-          }))} />
-          <div className="mb-4 flex justify-end">
-            <AddItemDialog 
-              open={showAddItemDialog}
-              onOpenChange={setShowAddItemDialog}
-            />
-          </div>
+          <BoardHeader 
+            boards={boards.map(board => ({
+              id: board.id,
+              name: board.name,
+              description: board.description,
+              color: board.color,
+              is_default: false,
+              created_at: new Date().toISOString()
+            }))}
+            searchQuery={searchQuery}
+            filteredCount={filteredItems.length}
+            totalCount={items.length}
+            onClearSearch={() => setSearchQuery('')}
+          />
           <ClipsGrid
             filteredItems={paginatedItems.map((item) => ({
               id: item.id,
@@ -324,6 +636,8 @@ const DashboardContent = ({
             onQuickAdd={handleQuickAdd}
             updateItem={updateItem}
             fetchTags={fetchTags}
+            searchQuery={searchQuery}
+            highlightSearchTerm={highlightSearchTerm}
           />
 
           {/* Pagination */}
@@ -402,6 +716,13 @@ const DashboardContent = ({
         open={showQuickAddDialog}
         onOpenChange={setShowQuickAddDialog}
         onAdd={handleCreateItem}
+      />
+      
+      <AddItemDialog
+        open={showAddItemDialog}
+        onOpenChange={setShowAddItemDialog}
+        createItem={createItem}
+        boards={boards}
       />
     
     </div>

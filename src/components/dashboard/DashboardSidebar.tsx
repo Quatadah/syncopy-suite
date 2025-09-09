@@ -93,7 +93,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
   return (
     <div className="w-72 bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border/50 flex flex-col h-full shadow-xl backdrop-blur-sm">
       {/* Modern Header with Gradient Background */}
-      <div className="relative p-6 border-b border-sidebar-border/30 bg-gradient-to-r from-sidebar-accent/5 to-transparent">
+      <div className="relative px-6	 py-3 bg-gradient-to-r from-sidebar-accent/5 to-transparent">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-b-2xl"></div>
         <div className="relative flex items-center justify-between">
           <button 
@@ -281,14 +281,12 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
       </div>
 
       {/* User Profile */}
-      <div className="relative p-4 border-t border-sidebar-border/30 bg-gradient-to-r from-sidebar-accent/5 to-transparent">
+      <div className="relative px-4 bg-gradient-to-r from-sidebar-accent/5 to-transparent">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 rounded-t-2xl"></div>
         <div className="relative">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 className="w-full justify-start px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-sidebar-accent/30 hover:to-sidebar-accent/10 hover:shadow-md hover:scale-[1.02] transition-all duration-300 ease-out group"
               >
                 <div className="flex items-center space-x-3 w-full">
@@ -310,7 +308,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   </div>
                   <ChevronDown className="w-4 h-4 text-sidebar-foreground/60 group-hover:text-primary transition-colors duration-300" />
                 </div>
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               className="w-72 bg-sidebar/95 backdrop-blur-xl border-sidebar-border/50 shadow-2xl" 
@@ -319,7 +317,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
               sideOffset={12}
             >
               <div className="p-6">
-                <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-sidebar-border/50">
+                <div className="flex items-center space-x-3 mb-4 pb-4 ">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-lg">
                     <User className="w-6 h-6 text-primary" />
                   </div>
