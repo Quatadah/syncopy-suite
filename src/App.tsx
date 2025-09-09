@@ -19,7 +19,6 @@ const App = () => (
     <HeroUIProvider>
       <ToastProvider />
       <BoardProvider>
-        {" "}
         <AuthProvider>
           <BrowserRouter>
             <Routes>

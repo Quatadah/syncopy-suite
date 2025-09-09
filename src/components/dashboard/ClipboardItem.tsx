@@ -22,6 +22,7 @@ import {
   Clock,
   Code,
   Copy,
+  Eye,
   FileText,
   Heart,
   Image,
@@ -32,6 +33,7 @@ import {
   Trash2
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import TextPreviewModal from "./TextPreviewModal";
 
 interface ClipboardItem {
   id: string;
@@ -141,6 +143,11 @@ function ClipboardCard({
     isOpen: showDeleteDialog,
     onOpen: setShowDeleteDialog,
     onOpenChange: onDeleteDialogChange,
+  } = useDisclosure();
+  const {
+    isOpen: showTextPreview,
+    onOpen: setShowTextPreview,
+    onOpenChange: onTextPreviewChange,
   } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
@@ -401,40 +408,40 @@ function ClipboardCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className={cn(className)}
     >
       <Card
         className={cn(
-          "relative group transition-all duration-300 ease-out",
-          "hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.02]",
-          "border border-border/30 hover:border-primary/30",
-          "bg-gradient-to-br from-background/95 to-background/80",
+          "relative group transition-all duration-500 ease-out",
+          "hover:shadow-lg hover:shadow-primary/5 hover:scale-[1.01]",
+          "border border-border/20 hover:border-border/40",
+          "bg-gradient-to-br from-background/98 to-background/95",
           "backdrop-blur-sm rounded-xl",
           isListLayout ? "flex items-center gap-4 p-4" : "p-4",
-          item.isPinned && "ring-2 ring-primary/30 border-primary/40 shadow-lg shadow-primary/10",
-          isSelected && "ring-2 ring-primary shadow-xl shadow-primary/20"
+          item.isPinned && "ring-2 ring-primary/20 border-primary/30 shadow-md shadow-primary/5",
+          isSelected && "ring-2 ring-primary/40 shadow-lg shadow-primary/10"
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Enhanced gradient overlay on hover */}
+        {/* Subtle gradient overlay on hover */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-br from-primary/3 to-accent/3 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}
         />
         
-        {/* Subtle border glow effect */}
+        {/* Very subtle border glow effect */}
         <motion.div
-          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           style={{
-            background: "linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--accent), 0.1) 100%)",
-            filter: "blur(1px)",
+            background: "linear-gradient(135deg, rgba(var(--primary), 0.02) 0%, rgba(var(--accent), 0.02) 100%)",
+            filter: "blur(0.5px)",
           }}
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}
@@ -469,28 +476,28 @@ function ClipboardCard({
         {/* Action buttons */}
         <motion.div
           className="absolute top-3 right-3 z-20 flex items-center gap-2"
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: isHovered || isStarred ? 1 : 0, x: isHovered || isStarred ? 0 : 10 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: isHovered || isStarred ? 1 : 0, x: isHovered || isStarred ? 0 : 8 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <motion.div
             key={`heart-${item.id}-${isStarred}`}
-            initial={{ scale: 0.8, opacity: 0.7 }}
+            initial={{ scale: 0.9, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             transition={{ 
               type: "spring", 
-              stiffness: 400, 
-              damping: 17,
-              duration: 0.3
+              stiffness: 300, 
+              damping: 20,
+              duration: 0.4
             }}
           >
-            <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm hover:bg-red-500/10 transition-all duration-300">
+            <div className="p-2 rounded-lg bg-background/90 backdrop-blur-sm hover:bg-red-500/5 transition-all duration-400">
               <Heart
                 className={cn(
-                  "w-4 h-4 transition-all cursor-pointer hover:text-red-500 hover:fill-red-500",
-                  isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                  "w-4 h-4 transition-all duration-400 cursor-pointer hover:text-red-500 hover:fill-red-500",
+                  isStarred ? "text-red-500 fill-red-500" : "text-muted-foreground/70"
                 )}
                 onClick={handleFavorite}
               />
@@ -502,12 +509,19 @@ function ClipboardCard({
                 size="sm"
                 variant="light"
                 isIconOnly
-                className="h-10 w-10 p-0 hover:bg-background/80 cursor-pointer relative z-30 rounded-lg transition-all duration-300 hover:shadow-md hover:scale-110"
+                className="h-10 w-10 p-0 hover:bg-background/90 cursor-pointer relative z-30 rounded-lg transition-all duration-400 hover:shadow-sm hover:scale-105"
               >
-                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground/70" />
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Clipboard item actions">
+              <DropdownItem
+                key="view"
+                startContent={<Eye className="w-4 h-4" />}
+                onPress={setShowTextPreview}
+              >
+                View Text
+              </DropdownItem>
               <DropdownItem
                 key="copy"
                 startContent={<Copy className="w-4 h-4" />}
@@ -618,13 +632,13 @@ function ClipboardCard({
           </div>
         </div>
 
-        {/* Enhanced hover glow effect */}
+        {/* Subtle hover glow effect */}
         <motion.div
-          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           style={{
             background:
-              "linear-gradient(135deg, rgba(var(--primary), 0.15) 0%, rgba(var(--accent), 0.15) 100%)",
-            filter: "blur(2px)",
+              "linear-gradient(135deg, rgba(var(--primary), 0.03) 0%, rgba(var(--accent), 0.03) 100%)",
+            filter: "blur(1px)",
           }}
           initial={false}
           animate={{ opacity: isHovered ? 1 : 0 }}
@@ -666,6 +680,16 @@ function ClipboardCard({
           )}
         </ModalContent>
       </Modal>
+
+      {/* Text preview modal */}
+      <TextPreviewModal
+        isOpen={showTextPreview}
+        onOpenChange={onTextPreviewChange}
+        content={item.content}
+        title={item.title}
+        type={item.type}
+        onCopy={copyToClipboard}
+      />
     </motion.div>
   );
 }

@@ -203,7 +203,13 @@ const Auth = () => {
           </p>
         </CardHeader>
         <CardBody className="w-full">
-          <Tabs defaultSelectedKey="signin" className="w-full">
+          <Tabs defaultSelectedKey="signin" className="w-full" classNames={{
+            tabList: "w-full",
+            tab: "flex-1 flex items-center justify-center",
+            tabContent: "flex items-center justify-center",
+            cursor: "w-full",
+            panel: "w-full"
+          }}>
             <Tab key="signin" title="Sign In" className="space-y-4 w-full">
               <div className="space-y-2">
                 <Input

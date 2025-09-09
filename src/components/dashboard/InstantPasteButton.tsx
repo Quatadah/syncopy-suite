@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { addToast } from "@heroui/react";
+import { addToast, Tooltip } from "@heroui/react";
 import { CloudLightning } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 interface InstantPasteButtonProps {
   onAdd: (item: {
@@ -57,7 +57,7 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
     return firstLine.length > 50 ? firstLine.substring(0, 47) + '...' : firstLine;
   };
 
-  const handleInstantPaste = async () => {
+  const handleInstantPaste = useCallback(async () => {
     if (!navigator.clipboard) {
       addToast({
         title: 'Clipboard not supported',
@@ -123,28 +123,42 @@ const InstantPasteButton = ({ onAdd, className }: InstantPasteButtonProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [onAdd]);
+
 
   return (
-    <Button
-      onClick={handleInstantPaste}
-      disabled={isLoading}
-      size="sm"
-      variant="default"
-      className="h-10 px-5 text-sm font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 rounded-l-xl rounded-r-none border-r-0"
+    <Tooltip
+      content={
+        <div className="space-y-2 p-2">
+          <p className="font-medium">Instant Paste & Save</p>
+          <p className="text-sm text-muted-foreground">
+            Automatically saves content from your clipboard. Detects content type (text, link, image, or code) and creates a new clip instantly.
+          </p>
+        </div>
+      }
+      placement="bottom"
+      className="max-w-xs"
     >
-      {isLoading ? (
+      <Button
+        onClick={handleInstantPaste}
+        disabled={isLoading}
+        size="sm"
+        variant="default"
+        className="h-10 px-5 text-sm font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 rounded-l-xl rounded-r-none border-r-0"
+      >
+        {isLoading ? (
+          <>
+            <div className="w-3.5 h-3.5 animate-spin rounded-full border-2 border-t-transparent mr-2" />
+            Saving...
+          </>
+        ) : (
         <>
-          <div className="w-3.5 h-3.5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-          Saving...
-        </>
-      ) : (
-        <>
-          <CloudLightning className="w-3.5 h-3.5 mr-2" />
+          <CloudLightning className="w-3.5 h-3.5 mr-1" />
           Paste & Save
         </>
-      )}
-    </Button>
+        )}
+      </Button>
+    </Tooltip>
   );
 };
 

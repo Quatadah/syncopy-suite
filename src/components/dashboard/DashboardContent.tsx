@@ -88,17 +88,30 @@ const DashboardContent = ({
 
   // Filter allItems based on current board selection
   const getItemsForCurrentBoard = () => {
+    let boardItems;
+    
     if (activeBoard === "all") {
-      return allItems;
+      boardItems = allItems;
     } else if (activeBoard === "favorites") {
-      return allItems.filter(item => item.is_favorite);
+      boardItems = allItems.filter(item => item.is_favorite);
     } else if (activeBoard === "recent") {
       const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      return allItems.filter(item => new Date(item.created_at) > dayAgo);
+      boardItems = allItems.filter(item => new Date(item.created_at) > dayAgo);
     } else if (currentBoardId) {
-      return allItems.filter(item => item.board_id === currentBoardId);
+      boardItems = allItems.filter(item => item.board_id === currentBoardId);
+    } else {
+      boardItems = allItems;
     }
-    return allItems;
+
+    // Ensure pinned items are sorted to the top, then by creation date
+    return boardItems.sort((a, b) => {
+      // First sort by pinned status (pinned items first)
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      
+      // Then sort by creation date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
   };
 
   const items = getItemsForCurrentBoard();
@@ -225,6 +238,16 @@ const DashboardContent = ({
     if (filters.isPinned) {
       filtered = filtered.filter(item => item.is_pinned);
     }
+
+    // Sort to ensure pinned items appear first, then by creation date
+    filtered.sort((a, b) => {
+      // First sort by pinned status (pinned items first)
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      
+      // Then sort by creation date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
     return filtered;
   };
@@ -642,70 +665,79 @@ const DashboardContent = ({
 
           {/* Pagination */}
           {filteredItems.length > 0 && totalCount > pageSize && (
-            <div className="mt-8 flex flex-col items-center space-y-4">
+            <div className="mt-8 flex flex-col items-center space-y-6">
               {/* Page Size Selector */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Show:</span>
+              <div className="flex items-center space-x-3 bg-muted/30 px-4 py-2 rounded-lg">
+                <span className="text-sm font-medium text-muted-foreground">Show:</span>
                 <select
                   value={pageSize}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="px-3 py-1 text-sm border border-border rounded-md bg-background"
+                  className="px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 >
+                  <option value={6}>6</option>
                   <option value={12}>12</option>
-                  <option value={24}>24</option>
-                  <option value={48}>48</option>
-                  <option value={96}>96</option>
+                  <option value={18}>18</option>
                 </select>
                 <span className="text-sm text-muted-foreground">per page</span>
               </div>
 
               {/* Pagination Controls */}
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
+              <div className="flex items-center justify-center space-x-2">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className={currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-muted"}
+                      />
+                    </PaginationItem>
 
-                  {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1)
-                    .filter((page) => {
-                      const totalPages = Math.ceil(totalCount / pageSize);
-                      return (
-                        page === 1 ||
-                        page === totalPages ||
-                        (page >= currentPage - 2 && page <= currentPage + 2)
-                      );
-                    })
-                    .map((page, index, array) => (
-                      <div key={page} className="flex items-center">
-                        {index > 0 && array[index - 1] !== page - 1 && (
-                          <span className="px-2 text-muted-foreground">...</span>
-                        )}
-                        <PaginationItem>
-                          <PaginationLink
-                            onClick={() => handlePageChange(page)}
-                            isActive={currentPage === page}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </div>
-                    ))}
+                    {Array.from({ length: Math.ceil(totalCount / pageSize) }, (_, i) => i + 1)
+                      .filter((page) => {
+                        const totalPages = Math.ceil(totalCount / pageSize);
+                        return (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 2 && page <= currentPage + 2)
+                        );
+                      })
+                      .map((page, index, array) => (
+                        <div key={page} className="flex items-center">
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <PaginationItem>
+                              <span className="px-2 text-muted-foreground">...</span>
+                            </PaginationItem>
+                          )}
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => handlePageChange(page)}
+                              isActive={currentPage === page}
+                              className="hover:bg-muted transition-colors"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        </div>
+                      ))}
 
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      className={
-                        currentPage >= Math.ceil(totalCount / pageSize)
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className={
+                          currentPage >= Math.ceil(totalCount / pageSize)
+                            ? "pointer-events-none opacity-50"
+                            : "hover:bg-muted"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+
+              {/* Page Info */}
+              <div className="text-sm text-muted-foreground">
+                Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
+              </div>
             </div>
           )}
         </div>
@@ -719,6 +751,7 @@ const DashboardContent = ({
       />
       
       <AddItemDialog
+        trigger={<div />}
         open={showAddItemDialog}
         onOpenChange={setShowAddItemDialog}
         createItem={createItem}

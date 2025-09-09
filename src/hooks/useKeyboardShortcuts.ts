@@ -1,5 +1,5 @@
+import { addToast } from "@heroui/react";
 import { useCallback, useEffect } from "react";
-import { useToast } from "./use-toast";
 
 interface KeyboardShortcut {
   key: string;
@@ -22,7 +22,6 @@ export const useKeyboardShortcuts = (
   options: UseKeyboardShortcutsOptions = {}
 ) => {
   const { enabled = true, global = false } = options;
-  const { toast } = useToast();
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -47,15 +46,15 @@ export const useKeyboardShortcuts = (
           matchingShortcut.action();
         } catch (error) {
           console.error("Error executing keyboard shortcut:", error);
-          toast({
+          addToast({
             title: "Shortcut Error",
             description: "An error occurred while executing the shortcut.",
-            variant: "destructive",
+            color: "danger",
           });
         }
       }
     },
-    [shortcuts, enabled, toast]
+    [shortcuts, enabled]
   );
 
   useEffect(() => {
@@ -172,28 +171,27 @@ export const useCopyShortcuts = (
   items: Array<{ id: string; content: string; title: string }>,
   copyToClipboard: (content: string) => Promise<void>
 ) => {
-  const { toast } = useToast();
-
   const copyItemByIndex = useCallback(
     async (index: number) => {
       if (index >= 0 && index < items.length) {
         const item = items[index];
         try {
           await copyToClipboard(item.content);
-          toast({
+          addToast({
             title: "Copied!",
             description: `"${item.title}" copied to clipboard`,
+            color: "success",
           });
         } catch (error) {
-          toast({
+          addToast({
             title: "Copy Failed",
             description: "Unable to copy to clipboard",
-            variant: "destructive",
+            color: "danger",
           });
         }
       }
     },
-    [items, copyToClipboard, toast]
+    [items, copyToClipboard]
   );
 
   const shortcuts = [
@@ -288,4 +286,3 @@ export const useQuickActions = (
 };
 
 export default useKeyboardShortcuts;
-
