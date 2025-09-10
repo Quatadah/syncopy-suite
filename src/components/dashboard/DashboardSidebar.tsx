@@ -401,52 +401,46 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
 
       {/* User Profile */}
       <div className={cn(
-        "relative bg-gradient-to-r from-sidebar-accent/5 to-transparent",
+        "relative bg-gradient-to-r from-sidebar-accent/5 to-transparent p-4",
         isCollapsed ? "px-2" : "px-4"
       )}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
         <div className="relative">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Tooltip 
-                content={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                placement="right"
-                isDisabled={!isCollapsed}
+              <button
+                className={cn(
+                  "w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 ease-out group",
+                  isCollapsed ? "justify-center px-2" : "justify-start"
+                )}
               >
-                <button
-                  className={cn(
-                    "w-full justify-start px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 ease-out group",
-                    isCollapsed && "justify-center px-2"
-                  )}
-                >
-                  <div className={cn(
-                    "flex items-center w-full",
-                    isCollapsed ? "space-x-0 justify-center" : "space-x-3"
-                  )}>
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-200">
-                        <User className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-primary to-accent rounded-full border-2 border-sidebar flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                      </div>
+                <div className={cn(
+                  "flex items-center w-full",
+                  isCollapsed ? "space-x-0 justify-center" : "space-x-3"
+                )}>
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-200">
+                      <User className="w-5 h-5 text-primary" />
                     </div>
-                    {!isCollapsed && (
-                      <>
-                        <div className="flex-1 text-left">
-                          <p className="text-sm font-semibold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
-                            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                          </p>
-                          <p className="text-xs text-sidebar-foreground/70 font-medium">
-                            {user?.email || 'user@example.com'}
-                          </p>
-                        </div>
-                        <ChevronDown className="w-4 h-4 text-sidebar-foreground/60 group-hover:text-primary transition-colors duration-300" />
-                      </>
-                    )}
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-primary to-accent rounded-full border-2 border-sidebar flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    </div>
                   </div>
-                </button>
-              </Tooltip>
+                  {!isCollapsed && (
+                    <>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-semibold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
+                          {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                        </p>
+                        <p className="text-xs text-sidebar-foreground/70 font-medium">
+                          {user?.email || 'user@example.com'}
+                        </p>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-sidebar-foreground/60 group-hover:text-primary transition-colors duration-300" />
+                    </>
+                  )}
+                </div>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               className="w-72 bg-sidebar/95 backdrop-blur-xl border-sidebar-border/50 shadow-2xl" 
@@ -455,7 +449,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
               sideOffset={12}
             >
               <div className="p-2">
-                <div className="flex items-center space-x-3 pb-4 ">
+                <div className="flex items-center space-x-3 pb-4 border-b border-sidebar-border/30">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-lg">
                     <User className="w-6 h-6 text-primary" />
                   </div>
@@ -468,21 +462,21 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     </p>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1 pt-2">
                   <DropdownMenuItem 
                     onClick={() => navigate('/settings')}
-                    className="flex items-center space-x-3 rounded-xl text-left transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] cursor-pointer group"
+                    className="flex items-center space-x-3 p-3 rounded-xl text-left transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm cursor-pointer group"
                   >
-                    <div className="rounded-lg bg-sidebar-accent/40 group-hover:bg-primary/5 transition-all duration-200">
+                    <div className="p-2 rounded-lg bg-sidebar-accent/40 group-hover:bg-primary/5 transition-all duration-200">
                       <Settings className="w-4 h-4 text-sidebar-foreground group-hover:text-primary" />
                     </div>
-                    <span className="text-sm font-medium">Settings</span>
+                    <span className="text-sm font-medium text-sidebar-foreground group-hover:text-primary">Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={signOut}
-                    className="flex items-center space-x-3 p-3 rounded-xl text-left transition-all duration-200 hover:shadow-sm hover:scale-[1.01] cursor-pointer group"
+                    className="flex items-center space-x-3 p-3 rounded-xl text-left transition-all duration-200 hover:bg-destructive/10 hover:shadow-sm cursor-pointer group"
                   >
-                    <div className="rounded-lg bg-destructive/5 group-hover:bg-destructive/10 transition-all duration-200">
+                    <div className="p-2 rounded-lg bg-destructive/5 group-hover:bg-destructive/10 transition-all duration-200">
                       <User className="w-4 h-4 text-destructive" />
                     </div>
                     <span className="text-sm font-medium text-destructive">Sign Out</span>

@@ -4,12 +4,12 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckSquare, ChevronDown, FileText, Filter, Grid3X3, List, Plus, Trash2, X } from "lucide-react";
+import { CheckSquare, ChevronDown, FileText, Filter, Grid3X3, List, Plus, Table, Trash2, X } from "lucide-react";
 import InstantPasteButton from "./InstantPasteButton";
 
 interface DashboardToolbarProps {
-  view: "grid" | "list";
-  setView: (view: "grid" | "list") => void;
+  view: "grid" | "list" | "table";
+  setView: (view: "grid" | "list" | "table") => void;
   isSelectionMode: boolean;
   selectedItems: Set<string>;
   onToggleSelectionMode: () => void;
@@ -55,12 +55,12 @@ const DashboardToolbar = ({
           {/* View Toggle */}
           <Tabs 
             value={view} 
-            onValueChange={(value) => setView(value as "grid" | "list")}
+            onValueChange={(value) => setView(value as "grid" | "list" | "table")}
             className="w-auto"
           >
             <TabsList className="bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20">
               <TabsTrigger 
-                value="grid" 
+                value="grid"
                 className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
               >
                 <Grid3X3 className="w-4 h-4 mr-2" />
@@ -72,6 +72,13 @@ const DashboardToolbar = ({
               >
                 <List className="w-4 h-4 mr-2" />
                 List
+              </TabsTrigger>
+              <TabsTrigger 
+                value="table" 
+                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
+              >
+                <Table className="w-4 h-4 mr-2" />
+                Table
               </TabsTrigger>
             </TabsList>
           </Tabs>

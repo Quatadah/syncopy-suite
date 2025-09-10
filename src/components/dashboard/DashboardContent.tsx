@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import AddItemDialog from "./AddItemDialog";
 import BoardHeader from "./BoardHeader";
 import ClipsGrid from "./ClipsGrid";
+import ClipsTable from "./ClipsTable";
 import DashboardHeader from "./DashboardHeader";
 import DashboardToolbar from "./DashboardToolbar";
 import QuickAddDialog from "./QuickAddDialog";
@@ -68,7 +69,7 @@ const DashboardContent = ({
   isSidebarCollapsed
 }: DashboardContentProps) => {
   const { activeBoard, currentBoardId } = useBoard();
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const [view, setView] = useState<"grid" | "list" | "table">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -642,32 +643,60 @@ const DashboardContent = ({
             totalCount={items.length}
             onClearSearch={() => setSearchQuery('')}
           />
-          <ClipsGrid
-            filteredItems={paginatedItems.map((item) => ({
-              id: item.id,
-              title: item.title,
-              content: item.content,
-              type: item.type,
-              tags: item.tags,
-              is_pinned: item.is_pinned,
-              is_favorite: item.is_favorite,
-              created_at: item.created_at,
-              timestamp: new Date(item.created_at)
-            }))}
-            view={view}
-            isSelectionMode={isSelectionMode}
-            selectedItems={selectedItems}
-            onToggleSelection={toggleSelection}
-            onTogglePin={(itemId) => togglePin(itemId, !paginatedItems.find(item => item.id === itemId)?.is_pinned)}
-            onToggleFavorite={(itemId) => toggleFavorite(itemId, !paginatedItems.find(item => item.id === itemId)?.is_favorite)}
-            onDelete={deleteItem}
-            onCopy={handleCopy}
-            onQuickAdd={handleQuickAdd}
-            updateItem={updateItem}
-            fetchTags={fetchTags}
-            searchQuery={searchQuery}
-            highlightSearchTerm={highlightSearchTerm}
-          />
+          {view === "table" ? (
+            <ClipsTable
+              filteredItems={paginatedItems.map((item) => ({
+                id: item.id,
+                title: item.title,
+                content: item.content,
+                type: item.type,
+                tags: item.tags,
+                is_pinned: item.is_pinned,
+                is_favorite: item.is_favorite,
+                created_at: item.created_at,
+                timestamp: new Date(item.created_at)
+              }))}
+              isSelectionMode={isSelectionMode}
+              selectedItems={selectedItems}
+              onToggleSelection={toggleSelection}
+              onTogglePin={(itemId) => togglePin(itemId, !paginatedItems.find(item => item.id === itemId)?.is_pinned)}
+              onToggleFavorite={(itemId) => toggleFavorite(itemId, !paginatedItems.find(item => item.id === itemId)?.is_favorite)}
+              onDelete={deleteItem}
+              onCopy={handleCopy}
+              onQuickAdd={handleQuickAdd}
+              updateItem={updateItem}
+              fetchTags={fetchTags}
+              searchQuery={searchQuery}
+              highlightSearchTerm={highlightSearchTerm}
+            />
+          ) : (
+            <ClipsGrid
+              filteredItems={paginatedItems.map((item) => ({
+                id: item.id,
+                title: item.title,
+                content: item.content,
+                type: item.type,
+                tags: item.tags,
+                is_pinned: item.is_pinned,
+                is_favorite: item.is_favorite,
+                created_at: item.created_at,
+                timestamp: new Date(item.created_at)
+              }))}
+              view={view}
+              isSelectionMode={isSelectionMode}
+              selectedItems={selectedItems}
+              onToggleSelection={toggleSelection}
+              onTogglePin={(itemId) => togglePin(itemId, !paginatedItems.find(item => item.id === itemId)?.is_pinned)}
+              onToggleFavorite={(itemId) => toggleFavorite(itemId, !paginatedItems.find(item => item.id === itemId)?.is_favorite)}
+              onDelete={deleteItem}
+              onCopy={handleCopy}
+              onQuickAdd={handleQuickAdd}
+              updateItem={updateItem}
+              fetchTags={fetchTags}
+              searchQuery={searchQuery}
+              highlightSearchTerm={highlightSearchTerm}
+            />
+          )}
 
           {/* Pagination */}
           {filteredItems.length > 0 && totalCount > pageSize && (
