@@ -3,13 +3,14 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { BoardProvider, useBoard } from "@/contexts/BoardContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const DashboardInner = memo(() => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { activeBoard, setActiveBoard } = useBoard();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const {
     allItems,
@@ -55,6 +56,8 @@ const DashboardInner = memo(() => {
         items={allItems}
         boards={boards}
         fetchTags={fetchTags}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
       {/* Main Content */}
@@ -70,6 +73,7 @@ const DashboardInner = memo(() => {
         togglePin={togglePin}
         fetchTags={fetchTags}
         updateItem={updateItem}
+        isSidebarCollapsed={isSidebarCollapsed}
       />
     </div>
   );

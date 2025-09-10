@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useBoard } from "@/contexts/BoardContext";
+import { cn } from "@/lib/utils";
 import { addToast, Button, Checkbox, Select, SelectItem } from "@heroui/react";
 import { Tag, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -49,6 +50,7 @@ interface DashboardContentProps {
   togglePin: (id: string, isPinned: boolean) => Promise<void>;
   fetchTags: () => Promise<any[]>;
   updateItem: (id: string, updates: any) => Promise<void>;
+  isSidebarCollapsed: boolean;
 }
 
 const DashboardContent = ({ 
@@ -62,7 +64,8 @@ const DashboardContent = ({
   toggleFavorite, 
   togglePin, 
   fetchTags,
-  updateItem
+  updateItem,
+  isSidebarCollapsed
 }: DashboardContentProps) => {
   const { activeBoard, currentBoardId } = useBoard();
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -461,7 +464,10 @@ const DashboardContent = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className={cn(
+      "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+      isSidebarCollapsed ? "ml-0" : "ml-0"
+    )}>
       <DashboardHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

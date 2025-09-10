@@ -38,6 +38,7 @@ const Search = memo(() => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [activeBoard, setActiveBoard] = useState('all');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     type: 'all',
     tags: [],
@@ -253,6 +254,8 @@ const Search = memo(() => {
         items={allItems}
         boards={boards}
         fetchTags={fetchTags}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
       
       {/* Main Content */}
