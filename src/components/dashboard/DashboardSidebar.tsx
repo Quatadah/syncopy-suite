@@ -199,42 +199,51 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     setActiveBoard(board.id);
                   }}
                   className={cn(
-                    "group w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition-all duration-200 ease-out relative overflow-hidden",
+                    "group w-full flex items-center justify-between text-sm rounded-xl relative overflow-hidden",
+                    "h-12 px-3 py-2.5", // Fixed height to prevent layout shifts
+                    "transition-all duration-500 ease-out transform-gpu", // Smoother, longer animation
+                    "border border-transparent", // Always have border to prevent layout shift
                     isActive
-                      ? "bg-gradient-to-r from-primary/8 to-accent/8 text-primary font-semibold shadow-md shadow-primary/5 border border-primary/15"
-                      : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01]",
+                      ? "bg-gradient-to-r from-primary/8 to-accent/8 text-primary font-semibold shadow-md shadow-primary/5 border-primary/15 scale-[1.02]"
+                      : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
                     isCollapsed && "justify-center px-2"
                   )}
                 >
-                  {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-accent/3 rounded-xl"></div>
-                  )}
+                  {/* Background overlay for active state */}
                   <div className={cn(
-                    "relative flex items-center transition-all duration-200",
+                    "absolute inset-0 bg-gradient-to-r from-primary/3 to-accent/3 rounded-xl transition-opacity duration-500",
+                    isActive ? "opacity-100" : "opacity-0"
+                  )}></div>
+                  
+                  <div className={cn(
+                    "relative flex items-center transition-all duration-500 ease-out",
                     isCollapsed ? "space-x-0" : "space-x-3"
                   )}>
                     <div className={cn(
-                      "p-2 rounded-lg transition-all duration-200",
+                      "p-2 rounded-lg transition-all duration-500 ease-out transform-gpu",
                       isActive 
-                        ? "bg-primary/15 text-primary" 
-                        : "bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-primary/5 group-hover:text-primary"
+                        ? "bg-primary/15 text-primary scale-110" 
+                        : "bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-primary/5 group-hover:text-primary group-hover:scale-105"
                     )}>
                       {board.id === 'all' ? (
-                        <HomeIcon className="w-4 h-4" />
+                        <HomeIcon className="w-4 h-4 transition-transform duration-300" />
                       ) : (
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-4 h-4 transition-transform duration-300" />
                       )}
                     </div>
                     {!isCollapsed && (
                       <>
-                        <span className="font-medium">{board.name}</span>
+                        <span className={cn(
+                          "font-medium transition-all duration-300",
+                          isActive && "translate-x-1"
+                        )}>{board.name}</span>
                         <Badge 
                           variant="secondary" 
                           className={cn(
-                            "text-xs font-semibold transition-all duration-200",
+                            "text-xs font-semibold transition-all duration-500 ease-out ml-auto",
                             isActive 
-                              ? "bg-primary/15 text-primary border-primary/20" 
-                              : "bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-primary/5 group-hover:text-primary"
+                              ? "bg-primary/15 text-primary border-primary/20 scale-105" 
+                              : "bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-primary/5 group-hover:text-primary group-hover:scale-105"
                           )}
                         >
                           {board.count}
@@ -282,41 +291,50 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     setActiveBoard(board.id);
                   }}
                   className={cn(
-                    "group w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition-all duration-200 ease-out relative overflow-hidden",
+                    "group w-full flex items-center justify-between text-sm rounded-xl relative overflow-hidden",
+                    "h-12 px-3 py-2.5", // Fixed height to prevent layout shifts
+                    "transition-all duration-500 ease-out transform-gpu", // Smoother, longer animation
+                    "border border-transparent", // Always have border to prevent layout shift
                     isActive
-                      ? "bg-gradient-to-r from-accent/8 to-primary/8 text-accent font-semibold shadow-md shadow-accent/5 border border-accent/15"
-                      : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01]",
+                      ? "bg-gradient-to-r from-accent/8 to-primary/8 text-accent font-semibold shadow-md shadow-accent/5 border-accent/15 scale-[1.02]"
+                      : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
                     isCollapsed && "justify-center px-2"
                   )}
                 >
-                  {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-accent/3 to-primary/3 rounded-xl"></div>
-                  )}
+                  {/* Background overlay for active state */}
                   <div className={cn(
-                    "relative flex items-center transition-all duration-200",
+                    "absolute inset-0 bg-gradient-to-r from-accent/3 to-primary/3 rounded-xl transition-opacity duration-500",
+                    isActive ? "opacity-100" : "opacity-0"
+                  )}></div>
+                  
+                  <div className={cn(
+                    "relative flex items-center transition-all duration-500 ease-out",
                     isCollapsed ? "space-x-0" : "space-x-3"
                   )}>
                     <div className={cn(
-                      "p-2 rounded-lg transition-all duration-200",
+                      "p-2 rounded-lg transition-all duration-500 ease-out transform-gpu",
                       isActive 
-                        ? "bg-accent/15 text-accent" 
-                        : "bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-accent/5 group-hover:text-accent"
+                        ? "bg-accent/15 text-accent scale-110" 
+                        : "bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-accent/5 group-hover:text-accent group-hover:scale-105"
                     )}>
                       <div 
-                        className="w-3 h-3 rounded-full shadow-sm" 
+                        className="w-3 h-3 rounded-full shadow-sm transition-all duration-300" 
                         style={{ backgroundColor: board.color }}
                       />
                     </div>
                     {!isCollapsed && (
                       <>
-                        <span className="font-medium">{board.name}</span>
+                        <span className={cn(
+                          "font-medium transition-all duration-300",
+                          isActive && "translate-x-1"
+                        )}>{board.name}</span>
                         <Badge 
                           variant="secondary" 
                           className={cn(
-                            "text-xs font-semibold transition-all duration-200",
+                            "text-xs font-semibold transition-all duration-500 ease-out ml-auto",
                             isActive 
-                              ? "bg-accent/15 text-accent border-accent/20" 
-                              : "bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-accent/5 group-hover:text-accent"
+                              ? "bg-accent/15 text-accent border-accent/20 scale-105" 
+                              : "bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-accent/5 group-hover:text-accent group-hover:scale-105"
                           )}
                         >
                           {getItemCountForBoard(board.id)}
@@ -359,23 +377,27 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                 <button
                   key={tag.name}
                   className={cn(
-                    "group w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 ease-out",
+                    "group w-full flex items-center justify-between text-sm rounded-xl relative overflow-hidden text-sidebar-foreground",
+                    "h-12 px-3 py-2.5", // Fixed height to prevent layout shifts
+                    "transition-all duration-500 ease-out transform-gpu", // Smoother, longer animation
+                    "border border-transparent", // Always have border to prevent layout shift
+                    "hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
                     isCollapsed && "justify-center px-2"
                   )}
                 >
                   <div className={cn(
-                    "flex items-center transition-all duration-200",
+                    "flex items-center transition-all duration-500 ease-out",
                     isCollapsed ? "space-x-0" : "space-x-3"
                   )}>
-                    <div className="p-2 rounded-lg bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-primary/5 group-hover:text-primary transition-all duration-200">
-                      <Tag className="w-4 h-4" />
+                    <div className="p-2 rounded-lg bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-primary/5 group-hover:text-primary group-hover:scale-105 transition-all duration-500 ease-out transform-gpu">
+                      <Tag className="w-4 h-4 transition-transform duration-300" />
                     </div>
                     {!isCollapsed && (
                       <>
-                        <span className="font-medium">#{tag.name}</span>
+                        <span className="font-medium transition-all duration-300">#{tag.name}</span>
                         <Badge 
                           variant="secondary" 
-                          className="text-xs font-semibold bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-primary/5 group-hover:text-primary transition-all duration-200"
+                          className="text-xs font-semibold bg-sidebar-accent/40 text-sidebar-foreground/70 group-hover:bg-primary/5 group-hover:text-primary group-hover:scale-105 transition-all duration-500 ease-out ml-auto"
                         >
                           {tag.count}
                         </Badge>
