@@ -21,6 +21,7 @@ import {
   CheckSquare,
   Clock,
   Copy,
+  Edit,
   Eye,
   Heart,
   Image,
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { typeColors, typeIcons } from "./constants";
+import EditClipboardItemDialog from "./EditClipboardItemDialog";
 import TextPreviewModal from "./TextPreviewModal";
 
 interface ClipboardItem {
@@ -134,6 +136,11 @@ function ClipboardCard({
     isOpen: showTextPreview,
     onOpen: setShowTextPreview,
     onOpenChange: onTextPreviewChange,
+  } = useDisclosure();
+  const {
+    isOpen: showEditDialog,
+    onOpen: setShowEditDialog,
+    onOpenChange: onEditDialogChange,
   } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
@@ -509,6 +516,13 @@ function ClipboardCard({
                 View Text
               </DropdownItem>
               <DropdownItem
+                key="edit"
+                startContent={<Edit className="w-4 h-4" />}
+                onPress={setShowEditDialog}
+              >
+                Edit
+              </DropdownItem>
+              <DropdownItem
                 key="copy"
                 startContent={<Copy className="w-4 h-4" />}
                 onPress={handleCopy}
@@ -675,6 +689,26 @@ function ClipboardCard({
         title={item.title}
         type={item.type}
         onCopy={copyToClipboard}
+      />
+
+      {/* Edit item modal */}
+      <EditClipboardItemDialog
+        item={{
+          id: item.id,
+          title: item.title || "",
+          content: item.content,
+          type: item.type,
+          tags: item.tags,
+          is_pinned: item.isPinned,
+          is_favorite: item.isFavorite,
+          created_at: item.createdAt,
+          updated_at: item.createdAt, // fallback to createdAt if updatedAt not available
+          board_id: undefined, // not available in this interface
+        }}
+        isOpen={showEditDialog}
+        onClose={() => onEditDialogChange()}
+        updateItem={updateItem}
+        fetchTags={fetchTags}
       />
     </motion.div>
   );

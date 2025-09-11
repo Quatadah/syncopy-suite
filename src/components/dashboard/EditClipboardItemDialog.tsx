@@ -50,6 +50,8 @@ const EditClipboardItemDialog = ({ item, trigger, isOpen, onClose, updateItem: p
 
     setIsLoading(true);
     try {
+      console.log('EditClipboardItemDialog - Submitting with tags:', tags);
+      
       // Update the item with new data
       await updateItem(item.id, {
         title: title.trim() || null,

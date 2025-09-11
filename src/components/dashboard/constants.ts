@@ -22,3 +22,4 @@ export const typeChipColors = {
   link: "secondary",
   code: "warning",
 } as const;
+

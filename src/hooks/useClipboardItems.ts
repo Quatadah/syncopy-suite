@@ -64,7 +64,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
           .select(
             `
             *,
-            clipboard_item_tags!fk_clipboard_item_tags_clipboard_item (
+            clipboard_item_tags (
               tags (
                 name
               )
@@ -86,19 +86,24 @@ export const useClipboardItems = (currentBoardId?: string) => {
         if (error) throw error;
 
         const transformedItems =
-          data?.map((item) => ({
-            id: item.id,
-            title: item.title,
-            content: item.content,
-            type: item.type as "text" | "link" | "image" | "code",
-            tags:
-              item.clipboard_item_tags?.map((tag: any) => tag.tags.name) || [],
-            is_pinned: item.is_pinned || false,
-            is_favorite: item.is_favorite || false,
-            board_id: item.board_id || undefined,
-            created_at: item.created_at,
-            updated_at: item.updated_at,
-          })) || [];
+          data?.map((item) => {
+            console.log("Raw item data:", item);
+            console.log("clipboard_item_tags:", item.clipboard_item_tags);
+            return {
+              id: item.id,
+              title: item.title,
+              content: item.content,
+              type: item.type as "text" | "link" | "image" | "code",
+              tags:
+                item.clipboard_item_tags?.map((tag: any) => tag.tags.name) ||
+                [],
+              is_pinned: item.is_pinned || false,
+              is_favorite: item.is_favorite || false,
+              board_id: item.board_id || undefined,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+            };
+          }) || [];
 
         setItems(transformedItems);
         setTotalCount(count || 0);
@@ -143,7 +148,7 @@ export const useClipboardItems = (currentBoardId?: string) => {
           .select(
             `
             *,
-            clipboard_item_tags!fk_clipboard_item_tags_clipboard_item (
+            clipboard_item_tags (
               tags (
                 name
               )
@@ -460,15 +465,25 @@ export const useClipboardItems = (currentBoardId?: string) => {
 
       // Handle tags if provided
       if (tags !== undefined) {
+        console.log("Processing tags for item:", id, tags);
+
         // First, remove all existing tag associations
-        await supabase
+        const { error: deleteError } = await supabase
           .from("clipboard_item_tags")
           .delete()
           .eq("clipboard_item_id", id);
 
+        if (deleteError) {
+          console.error("Error deleting existing tags:", deleteError);
+        } else {
+          console.log("Successfully deleted existing tags for item:", id);
+        }
+
         // Then add new tag associations
         if (tags.length > 0) {
           for (const tagName of tags) {
+            console.log("Processing tag:", tagName);
+
             // Create or get tag
             const { data: tagData, error: tagError } = await supabase
               .from("tags")
@@ -480,11 +495,26 @@ export const useClipboardItems = (currentBoardId?: string) => {
               .single();
 
             if (!tagError && tagData) {
+              console.log("Tag created/found:", tagData);
+
               // Link tag to item
-              await supabase.from("clipboard_item_tags").insert({
-                clipboard_item_id: id,
-                tag_id: tagData.id,
-              });
+              const { error: linkError } = await supabase
+                .from("clipboard_item_tags")
+                .insert({
+                  clipboard_item_id: id,
+                  tag_id: tagData.id,
+                });
+
+              if (linkError && linkError.code !== "23505") {
+                // 23505 is unique constraint violation (duplicate)
+                console.error("Error linking tag to item:", linkError);
+              } else if (linkError && linkError.code === "23505") {
+                console.log("Tag already linked to item (duplicate):", tagName);
+              } else {
+                console.log("Successfully linked tag to item:", tagName);
+              }
+            } else if (tagError) {
+              console.error("Error creating/getting tag:", tagError);
             }
           }
         }
