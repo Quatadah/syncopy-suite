@@ -405,10 +405,15 @@ export const useClipboardItems = (currentBoardId?: string) => {
           // Create or get tag
           const { data: tagData, error: tagError } = await supabase
             .from("tags")
-            .upsert({
-              name: tagName,
-              user_id: user.id,
-            })
+            .upsert(
+              {
+                name: tagName,
+                user_id: user.id,
+              },
+              {
+                onConflict: "name,user_id",
+              }
+            )
             .select()
             .single();
 
@@ -487,10 +492,15 @@ export const useClipboardItems = (currentBoardId?: string) => {
             // Create or get tag
             const { data: tagData, error: tagError } = await supabase
               .from("tags")
-              .upsert({
-                name: tagName,
-                user_id: user.id,
-              })
+              .upsert(
+                {
+                  name: tagName,
+                  user_id: user.id,
+                },
+                {
+                  onConflict: "name,user_id",
+                }
+              )
               .select()
               .single();
 

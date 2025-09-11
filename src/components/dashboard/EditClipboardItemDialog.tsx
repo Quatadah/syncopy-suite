@@ -30,7 +30,8 @@ const EditClipboardItemDialog = ({ item, trigger, isOpen, onClose, updateItem: p
       setTitle(item.title || "");
       setContent(item.content);
       setType(item.type);
-      setTags([...item.tags]);
+      setTags(item.tags ? [...item.tags] : []);
+      setNewTag("");
       loadAvailableTags();
     }
   }, [isOpen, item]);
