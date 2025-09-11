@@ -58,27 +58,27 @@ const DashboardToolbar = ({
             onValueChange={(value) => setView(value as "grid" | "list" | "table")}
             className="w-auto"
           >
-            <TabsList className="bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20">
+            <TabsList className="bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20 w-[240px] flex">
               <TabsTrigger 
                 value="grid"
-                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
+                className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <Grid3X3 className="w-4 h-4 mr-2" />
-                Grid
+                <Grid3X3 className="w-4 h-4 mr-2 transition-transform duration-300" />
+                <span className="transition-all duration-300">Grid</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="list" 
-                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
+                className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <List className="w-4 h-4 mr-2" />
-                List
+                <List className="w-4 h-4 mr-2 transition-transform duration-300" />
+                <span className="transition-all duration-300">List</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="table" 
-                className="h-8 px-4 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all duration-300 hover:scale-105"
+                className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <Table className="w-4 h-4 mr-2" />
-                Table
+                <Table className="w-4 h-4 mr-2 transition-transform duration-300" />
+                <span className="transition-all duration-300">Table</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
