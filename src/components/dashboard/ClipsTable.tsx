@@ -2,30 +2,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
-    Selection,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-    useDisclosure
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Selection,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  useDisclosure
 } from "@heroui/react";
 import { format } from "date-fns";
 import {
-    Calendar,
-    Copy,
-    Eye,
-    Heart,
-    MoreVertical,
-    Pin,
-    Search,
-    Tag,
-    Trash2
+  Calendar,
+  Copy,
+  Eye,
+  Heart,
+  MoreVertical,
+  Pin,
+  Search,
+  Tag,
+  Trash2
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { typeColors, typeIcons } from "./constants";
@@ -294,7 +294,7 @@ const ClipsTable = ({
   }
 
   return (
-    <div className="w-full pt-2">
+    <div className="w-full pt-2 overflow-x-auto">
       <Table 
         aria-label="Clips table"
         selectionMode={isSelectionMode ? "multiple" : "none"}
@@ -303,7 +303,7 @@ const ClipsTable = ({
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
         classNames={{
-          wrapper: "min-h-[400px] bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-sm border border-border/20 hover:border-border/40 shadow-lg hover:shadow-primary/5 rounded-xl transition-all duration-500 ease-out",
+          wrapper: "min-h-[400px] bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-sm border border-border/20 hover:border-border/40 shadow-lg hover:shadow-primary/5 rounded-xl transition-all duration-500 ease-out min-w-[600px]",
           table: "bg-transparent",
           thead: "[&>tr]:first:shadow-none",
           th: "bg-gradient-to-br from-muted/60 to-muted/40 text-foreground font-medium border-b border-border/30 first:rounded-tl-lg last:rounded-tr-lg backdrop-blur-sm",

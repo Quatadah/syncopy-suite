@@ -3,23 +3,24 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import syncopyLogo from "@/assets/images/syncopy-logo.png";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@heroui/react";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Settings,
-  Star,
-  Tag,
-  User
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    Settings,
+    Star,
+    Tag,
+    User,
+    X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,9 +35,24 @@ interface DashboardSidebarProps {
   fetchTags: () => Promise<any[]>;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  isMobile?: boolean;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boards, fetchTags, isCollapsed, onToggleCollapse }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ 
+  activeBoard, 
+  setActiveBoard, 
+  createBoard, 
+  items, 
+  boards, 
+  fetchTags, 
+  isCollapsed, 
+  onToggleCollapse,
+  isMobile = false,
+  isMobileOpen = false,
+  onMobileClose
+}: DashboardSidebarProps) => {
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -97,30 +113,37 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
   return (
       <div className={cn(
         "bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border/50 flex flex-col h-full shadow-xl backdrop-blur-sm transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-16" : "w-72"
+        isMobile ? "fixed left-0 top-0 z-50 w-80 transform" : "relative",
+        isMobile && !isMobileOpen ? "-translate-x-full" : "translate-x-0",
+        !isMobile && isCollapsed ? "w-16" : !isMobile ? "w-72" : "w-80"
       )}>
       {/* Modern Header with Gradient Background */}
       <div className={cn(
         "relative py-3 bg-gradient-to-r from-sidebar-accent/5 to-transparent",
-        isCollapsed ? "px-2" : "px-6"
+        isCollapsed && !isMobile ? "px-2" : "px-6"
       )}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
         <div className="relative flex items-center justify-between">
           <Tooltip 
             content="Syncopy Dashboard"
             placement="right"
-            isDisabled={!isCollapsed}
+            isDisabled={!isCollapsed || isMobile}
           >
             <button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => {
+                navigate('/dashboard');
+                if (isMobile && onMobileClose) {
+                  onMobileClose();
+                }
+              }}
               className={cn(
                 "group flex items-center hover:scale-105 transition-all duration-300 ease-out",
-                isCollapsed ? "space-x-0 justify-center" : "space-x-3"
+                (isCollapsed && !isMobile) ? "space-x-0 justify-center" : "space-x-3"
               )}
             >
               <div className={cn(
                 "relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 p-2 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/20 transition-all duration-300",
-                isCollapsed ? "w-10 h-10" : "w-14 h-14"
+                (isCollapsed && !isMobile) ? "w-10 h-10" : "w-14 h-14"
               )}>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl"></div>
                 <img 
@@ -129,7 +152,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   className="relative w-full h-full object-contain z-10"
                 />
               </div>
-              {!isCollapsed && (
+              {!(isCollapsed && !isMobile) && (
                 <div className="text-left">
                   <h2 className="text-xl font-bold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
                     Syncopy
@@ -143,32 +166,45 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
             </button>
           </Tooltip>
           
-          {/* Toggle Button */}
-          {!isCollapsed ? (
-            <Tooltip 
-              content="Collapse sidebar"
-              placement="right"
-            >
+          {/* Toggle Button - Only show on desktop */}
+          {!isMobile && (
+            <>
+              {!isCollapsed ? (
+                <Tooltip 
+                  content="Collapse sidebar"
+                  placement="right"
+                >
+                  <button
+                    onClick={onToggleCollapse}
+                    className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
+                  </button>
+                </Tooltip>
+              ) : (
+                <Tooltip 
+                  content="Expand sidebar"
+                  placement="right"
+                >
+                  <button
+                    onClick={onToggleCollapse}
+                    className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
+                  >
+                    <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
+                  </button>
+                </Tooltip>
+              )}
+            </>
+          )}
 
+          {/* Mobile Close Button */}
+          {isMobile && onMobileClose && (
             <button
-              onClick={onToggleCollapse}
+              onClick={onMobileClose}
               className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
             >
-                <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
-              </button>
-            </Tooltip>
-          ) : (
-            <Tooltip 
-              content="Expand sidebar"
-              placement="right"
-            >
-              <button
-                onClick={onToggleCollapse}
-                className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
-              >
-                <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
-              </button>
-            </Tooltip>
+              <X className="w-4 h-4 text-sidebar-foreground" />
+            </button>
           )}
         </div>
       </div>
@@ -176,11 +212,11 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
       {/* Navigation */}
       <div className={cn(
         "flex-1 overflow-y-auto space-y-6 transition-all duration-300",
-        isCollapsed ? "p-2" : "p-6"
+        (isCollapsed && !isMobile) ? "p-2" : "p-6"
       )}>
         {/* Main Navigation - Overview */}
         <div className="space-y-3">
-          {!isCollapsed && (
+          {!(isCollapsed && !isMobile) && (
             <div className="flex items-center space-x-2 mb-3">
               <div className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full"></div>
               <h3 className="text-sm font-semibold text-sidebar-foreground/80 tracking-wide uppercase">Overview</h3>
@@ -197,6 +233,9 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   onClick={(e) => {
                     e.preventDefault();
                     setActiveBoard(board.id);
+                    if (isMobile && onMobileClose) {
+                      onMobileClose();
+                    }
                   }}
                   className={cn(
                     "group w-full flex items-center justify-between text-sm rounded-xl relative overflow-hidden",
@@ -206,7 +245,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     isActive
                       ? "bg-gradient-to-r from-primary/8 to-accent/8 text-primary font-semibold shadow-md shadow-primary/5 border-primary/15 scale-[1.02]"
                       : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
-                    isCollapsed && "justify-center px-2"
+                    (isCollapsed && !isMobile) && "justify-center px-2"
                   )}
                 >
                   {/* Background overlay for active state */}
@@ -217,7 +256,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   
                   <div className={cn(
                     "relative flex items-center transition-all duration-500 ease-out",
-                    isCollapsed ? "space-x-0" : "space-x-3"
+                    (isCollapsed && !isMobile) ? "space-x-0" : "space-x-3"
                   )}>
                     <div className={cn(
                       "p-2 rounded-lg transition-all duration-500 ease-out transform-gpu",
@@ -231,7 +270,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                         <Icon className="w-4 h-4 transition-transform duration-300" />
                       )}
                     </div>
-                    {!isCollapsed && (
+                    {!(isCollapsed && !isMobile) && (
                       <>
                         <span className={cn(
                           "font-medium transition-all duration-300",
@@ -270,7 +309,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
 
         {/* Custom Boards */}
         <div className="space-y-3">
-          {!isCollapsed && (
+          {!(isCollapsed && !isMobile) && (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-6 bg-gradient-to-b from-accent to-primary rounded-full"></div>
@@ -289,6 +328,9 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   onClick={(e) => {
                     e.preventDefault();
                     setActiveBoard(board.id);
+                    if (isMobile && onMobileClose) {
+                      onMobileClose();
+                    }
                   }}
                   className={cn(
                     "group w-full flex items-center justify-between text-sm rounded-xl relative overflow-hidden",
@@ -298,7 +340,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     isActive
                       ? "bg-gradient-to-r from-accent/8 to-primary/8 text-accent font-semibold shadow-md shadow-accent/5 border-accent/15 scale-[1.02]"
                       : "text-sidebar-foreground hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
-                    isCollapsed && "justify-center px-2"
+                    (isCollapsed && !isMobile) && "justify-center px-2"
                   )}
                 >
                   {/* Background overlay for active state */}
@@ -309,7 +351,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                   
                   <div className={cn(
                     "relative flex items-center transition-all duration-500 ease-out",
-                    isCollapsed ? "space-x-0" : "space-x-3"
+                    (isCollapsed && !isMobile) ? "space-x-0" : "space-x-3"
                   )}>
                     <div className={cn(
                       "p-2 rounded-lg transition-all duration-500 ease-out transform-gpu",
@@ -322,7 +364,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                         style={{ backgroundColor: board.color }}
                       />
                     </div>
-                    {!isCollapsed && (
+                    {!(isCollapsed && !isMobile) && (
                       <>
                         <span className={cn(
                           "font-medium transition-all duration-300",
@@ -360,7 +402,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
 
         {/* Tags */}
         <div className="space-y-3">
-          {!isCollapsed && (
+          {!(isCollapsed && !isMobile) && (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full"></div>
@@ -382,17 +424,17 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                     "transition-all duration-500 ease-out transform-gpu", // Smoother, longer animation
                     "border border-transparent", // Always have border to prevent layout shift
                     "hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] hover:border-sidebar-accent/20",
-                    isCollapsed && "justify-center px-2"
+                    (isCollapsed && !isMobile) && "justify-center px-2"
                   )}
                 >
                   <div className={cn(
                     "flex items-center transition-all duration-500 ease-out",
-                    isCollapsed ? "space-x-0" : "space-x-3"
+                    (isCollapsed && !isMobile) ? "space-x-0" : "space-x-3"
                   )}>
                     <div className="p-2 rounded-lg bg-sidebar-accent/40 text-sidebar-foreground group-hover:bg-primary/5 group-hover:text-primary group-hover:scale-105 transition-all duration-500 ease-out transform-gpu">
                       <Tag className="w-4 h-4 transition-transform duration-300" />
                     </div>
-                    {!isCollapsed && (
+                    {!(isCollapsed && !isMobile) && (
                       <>
                         <span className="font-medium transition-all duration-300">#{tag.name}</span>
                         <Badge 
@@ -424,7 +466,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
       {/* User Profile */}
       <div className={cn(
         "relative bg-gradient-to-r from-sidebar-accent/5 to-transparent p-4",
-        isCollapsed ? "px-2" : "px-4"
+        (isCollapsed && !isMobile) ? "px-2" : "px-4"
       )}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
         <div className="relative">
@@ -433,12 +475,12 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
               <button
                 className={cn(
                   "w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm hover:scale-[1.01] transition-all duration-200 ease-out group",
-                  isCollapsed ? "justify-center px-2" : "justify-start"
+                  (isCollapsed && !isMobile) ? "justify-center px-2" : "justify-start"
                 )}
               >
                 <div className={cn(
                   "flex items-center w-full",
-                  isCollapsed ? "space-x-0 justify-center" : "space-x-3"
+                  (isCollapsed && !isMobile) ? "space-x-0 justify-center" : "space-x-3"
                 )}>
                   <div className="relative">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-200">
@@ -448,7 +490,7 @@ const DashboardSidebar = ({ activeBoard, setActiveBoard, createBoard, items, boa
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                   </div>
-                  {!isCollapsed && (
+                  {!(isCollapsed && !isMobile) && (
                     <>
                       <div className="flex-1 text-left">
                         <p className="text-sm font-semibold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">

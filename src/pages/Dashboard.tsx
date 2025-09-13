@@ -1,6 +1,7 @@
 import DashboardContent from "@/components/dashboard/DashboardContent";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { BoardProvider, useBoard } from "@/contexts/BoardContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { memo, useState } from "react";
@@ -10,7 +11,9 @@ const DashboardInner = memo(() => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { activeBoard, setActiveBoard } = useBoard();
+  const isMobile = useIsMobile();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const {
     allItems,
@@ -48,6 +51,14 @@ const DashboardInner = memo(() => {
 
   return (
     <div className="h-screen flex bg-background">
+      {/* Mobile Overlay */}
+      {isMobile && isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <DashboardSidebar
         activeBoard={activeBoard}
@@ -56,8 +67,11 @@ const DashboardInner = memo(() => {
         items={allItems}
         boards={boards}
         fetchTags={fetchTags}
-        isCollapsed={isSidebarCollapsed}
+        isCollapsed={isMobile ? false : isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobile={isMobile}
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Main Content */}
@@ -73,7 +87,9 @@ const DashboardInner = memo(() => {
         togglePin={togglePin}
         fetchTags={fetchTags}
         updateItem={updateItem}
-        isSidebarCollapsed={isSidebarCollapsed}
+        isSidebarCollapsed={isMobile ? false : isSidebarCollapsed}
+        isMobile={isMobile}
+        onMobileSidebarToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
     </div>
   );

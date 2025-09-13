@@ -1,8 +1,10 @@
+import { Button } from "@/components/ui/button";
 import EnhancedSearchBar from "@/components/ui/enhanced-search-bar";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 import { useBoard } from "@/contexts/BoardContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,9 +28,11 @@ interface DashboardHeaderProps {
     created_at: string;
     updated_at: string;
   }>;
+  isMobile?: boolean;
+  onMobileSidebarToggle?: () => void;
 }
 
-const DashboardHeader = ({ searchQuery, setSearchQuery, filteredItems, allItems }: DashboardHeaderProps) => {
+const DashboardHeader = ({ searchQuery, setSearchQuery, filteredItems, allItems, isMobile = false, onMobileSidebarToggle }: DashboardHeaderProps) => {
   const { activeBoard } = useBoard();
   const { signOut } = useAuth();
   const navigate = useNavigate();
@@ -122,8 +126,20 @@ const DashboardHeader = ({ searchQuery, setSearchQuery, filteredItems, allItems 
       
       {/* Main Header */}
       <div className="relative h-16 flex items-center justify-between px-6">
-        {/* Left Section - Search */}
-        <div className="flex items-center space-x-6 flex-1">
+        {/* Left Section - Mobile Menu & Search */}
+        <div className="flex items-center space-x-4 flex-1">
+          {/* Mobile Menu Button */}
+          {isMobile && onMobileSidebarToggle && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onMobileSidebarToggle}
+              className="lg:hidden p-2"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          )}
+          
           {/* Search Bar - Prominent */}
           <div className="flex-1 max-w-2xl flex items-center space-x-3">
             <div className="relative w-full">

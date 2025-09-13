@@ -23,21 +23,21 @@ const Hero = () => {
         </div>
 
         {/* Main Headlines */}
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
           Your Clipboard,{" "}
           <span className="gradient-text">Everywhere</span>
         </h1>
 
-        <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up [animation-delay:0.1s]">
+        <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up [animation-delay:0.1s] px-4">
           Never lose important clips again. Syncopy seamlessly syncs your clipboard 
           across all devices with powerful organization and instant search.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up [animation-delay:0.2s]">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up [animation-delay:0.2s] px-4">
           <Button 
             size="lg" 
-            className="bg-gradient-hero hover:opacity-90 text-white text-lg px-8 py-3 h-auto"
+            className="bg-gradient-hero hover:opacity-90 text-white text-lg px-6 sm:px-8 py-3 h-auto"
             onClick={() => navigate('/dashboard')}
           >
             Start Free Trial
@@ -47,7 +47,7 @@ const Hero = () => {
           <Button 
             size="lg" 
             variant="bordered" 
-            className="text-lg px-8 py-3 h-auto hover-lift"
+            className="text-lg px-6 sm:px-8 py-3 h-auto hover-lift"
           >
             <Chrome className="w-5 h-5 mr-2" />
             Add Extension
@@ -55,25 +55,25 @@ const Hero = () => {
         </div>
 
         {/* Trust Indicators */}
-        <div className="flex flex-wrap justify-center items-center gap-8 text-muted-foreground animate-fade-in [animation-delay:0.3s]">
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-muted-foreground animate-fade-in [animation-delay:0.3s] px-4">
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-success" />
-            <span>End-to-end encrypted</span>
+            <span className="text-sm md:text-base">End-to-end encrypted</span>
           </div>
           <div className="flex items-center space-x-2">
             <Smartphone className="w-5 h-5 text-primary" />
-            <span>Works on all devices</span>
+            <span className="text-sm md:text-base">Works on all devices</span>
           </div>
           <div className="flex items-center space-x-2">
             <Clipboard className="w-5 h-5 text-accent" />
-            <span>Unlimited clips</span>
+            <span className="text-sm md:text-base">Unlimited clips</span>
           </div>
         </div>
 
         {/* Hero Visual */}
-        <div className="mt-20 relative animate-scale-in [animation-delay:0.4s]">
-          <div className="bg-gradient-card rounded-2xl p-8 shadow-large max-w-4xl mx-auto">
-            <div className="bg-background rounded-xl p-6 shadow-medium">
+        <div className="mt-16 md:mt-20 relative animate-scale-in [animation-delay:0.4s] px-4">
+          <div className="bg-gradient-card rounded-2xl p-4 md:p-8 shadow-large max-w-4xl mx-auto">
+            <div className="bg-background rounded-xl p-4 md:p-6 shadow-medium">
               {/* Mock Dashboard Preview */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">

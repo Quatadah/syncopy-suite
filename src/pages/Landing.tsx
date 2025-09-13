@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowRight,
-  Clock,
-  Download,
-  Globe,
-  Play,
-  Search,
-  Shield,
-  Sparkles,
-  Star,
-  Zap
+    ArrowRight,
+    Clock,
+    Download,
+    Globe,
+    Play,
+    Search,
+    Shield,
+    Sparkles,
+    Star,
+    Zap
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -182,7 +182,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
+            className="text-4xl sm:text-6xl md:text-8xl font-bold mb-8 leading-tight"
           >
             Your Clipboard,{" "}
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
@@ -194,7 +194,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+            className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed px-4"
           >
             The most powerful clipboard manager that syncs instantly across all your devices. 
             Never lose important content again with AI-powered organization and military-grade security.
@@ -204,7 +204,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 px-4"
           >
             <Button 
               size="lg"
@@ -230,7 +230,7 @@ const Landing = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-2xl mx-auto px-4"
           >
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
@@ -254,13 +254,13 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6">
               Powerful{" "}
               <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Features
               </span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">
               Everything you need to supercharge your productivity and keep your important content organized across all devices.
             </p>
           </motion.div>
@@ -270,7 +270,7 @@ const Landing = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           >
             {features.map((feature, index) => (
               <motion.div key={index} variants={fadeInUp}>

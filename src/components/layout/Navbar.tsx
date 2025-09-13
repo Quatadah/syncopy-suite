@@ -37,7 +37,7 @@ const Navbar = () => {
         </Link>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-8">
           <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
             Features
           </a>
@@ -50,7 +50,7 @@ const Navbar = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4">
           <Button
             variant="ghost"
             size="sm"
@@ -60,12 +60,12 @@ const Navbar = () => {
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
           
-          <Button variant="ghost" className="hidden sm:flex items-center space-x-2">
+          <Button variant="ghost" className="hidden md:flex items-center space-x-2">
             <Github className="w-4 h-4" />
             <span>GitHub</span>
           </Button>
 
-          <Button variant="ghost" className="hidden sm:flex items-center space-x-2">
+          <Button variant="ghost" className="hidden md:flex items-center space-x-2">
             <Download className="w-4 h-4" />
             <span>Extension</span>
           </Button>
@@ -73,13 +73,14 @@ const Navbar = () => {
           <Link to="/auth">
             <Button variant="ghost" className="flex items-center space-x-2">
               <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign In</span>
+              <span className="hidden md:inline">Sign In</span>
             </Button>
           </Link>
 
           <Link to="/auth">
-            <Button className="bg-gradient-hero hover:opacity-90 text-white">
-              Get Started
+            <Button className="bg-gradient-hero hover:opacity-90 text-white text-sm px-3 py-2">
+              <span className="hidden sm:inline">Get Started</span>
+              <span className="sm:hidden">Start</span>
             </Button>
           </Link>
         </div>

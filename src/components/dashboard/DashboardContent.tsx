@@ -52,6 +52,8 @@ interface DashboardContentProps {
   fetchTags: () => Promise<any[]>;
   updateItem: (id: string, updates: any) => Promise<void>;
   isSidebarCollapsed: boolean;
+  isMobile?: boolean;
+  onMobileSidebarToggle?: () => void;
 }
 
 const DashboardContent = ({ 
@@ -66,7 +68,9 @@ const DashboardContent = ({
   togglePin, 
   fetchTags,
   updateItem,
-  isSidebarCollapsed
+  isSidebarCollapsed,
+  isMobile = false,
+  onMobileSidebarToggle
 }: DashboardContentProps) => {
   const { activeBoard, currentBoardId } = useBoard();
   const [view, setView] = useState<"grid" | "list" | "table">("grid");
@@ -474,6 +478,8 @@ const DashboardContent = ({
         setSearchQuery={setSearchQuery}
         filteredItems={filteredItems}
         allItems={allItems}
+        isMobile={isMobile}
+        onMobileSidebarToggle={onMobileSidebarToggle}
       />
 
       <DashboardToolbar
@@ -493,13 +499,14 @@ const DashboardContent = ({
         activeFilterCount={Object.values(filters).filter(value => 
           Array.isArray(value) ? value.length > 0 : value !== 'all' && value !== false
         ).length}
+        isMobile={isMobile}
       />
 
       {/* Filters Panel */}
       {showFilters && (
         <div className="">
-          <div className="px-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="px-4 md:px-6 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Type Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
@@ -628,7 +635,7 @@ const DashboardContent = ({
 
       {/* Content Area */}
       <main className="flex-1 overflow-auto">
-        <div className="px-4">
+        <div className="px-2 md:px-4">
           <BoardHeader 
             boards={boards.map(board => ({
               id: board.id,
@@ -700,20 +707,20 @@ const DashboardContent = ({
 
           {/* Pagination */}
           {filteredItems.length > 0 && totalCount > pageSize && (
-            <div className="mt-8 flex flex-col items-center space-y-6">
+            <div className="mt-8 flex flex-col items-center space-y-4 md:space-y-6">
               {/* Page Size Selector */}
-              <div className="flex items-center space-x-3 bg-muted/30 px-4 py-2 rounded-lg">
-                <span className="text-sm font-medium text-muted-foreground">Show:</span>
+              <div className="flex items-center space-x-2 md:space-x-3 bg-muted/30 px-3 md:px-4 py-2 rounded-lg">
+                <span className="text-xs md:text-sm font-medium text-muted-foreground">Show:</span>
                 <select
                   value={pageSize}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                  className="px-2 md:px-3 py-1.5 text-xs md:text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                 >
                   <option value={6}>6</option>
                   <option value={12}>12</option>
                   <option value={18}>18</option>
                 </select>
-                <span className="text-sm text-muted-foreground">per page</span>
+                <span className="text-xs md:text-sm text-muted-foreground">per page</span>
               </div>
 
               {/* Pagination Controls */}
@@ -770,7 +777,7 @@ const DashboardContent = ({
               </div>
 
               {/* Page Info */}
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground text-center px-4">
                 Showing {Math.min((currentPage - 1) * pageSize + 1, totalCount)} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
               </div>
             </div>

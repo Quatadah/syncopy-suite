@@ -83,18 +83,18 @@ const Features = () => {
       <div className="container mx-auto max-w-6xl">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             Everything you need in a{" "}
             <span className="gradient-text">clipboard manager</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Powerful features designed to supercharge your productivity 
             and keep your important content organized.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {features.map((feature, index) => (
             <Card 
               key={index} 
@@ -118,14 +118,14 @@ const Features = () => {
 
         {/* Bottom CTA */}
         <div className="text-center mt-16">
-          <p className="text-lg text-muted-foreground mb-6">
+          <p className="text-lg text-muted-foreground mb-6 px-4">
             Ready to revolutionize your clipboard workflow?
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-hero text-white px-8 py-3 rounded-lg text-lg font-medium hover:opacity-90 transition-opacity">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
+            <button className="bg-gradient-hero text-white px-6 sm:px-8 py-3 rounded-lg text-lg font-medium hover:opacity-90 transition-opacity">
               Start Free Trial
             </button>
-            <button className="border border-border px-8 py-3 rounded-lg text-lg font-medium hover:bg-surface transition-colors">
+            <button className="border border-border px-6 sm:px-8 py-3 rounded-lg text-lg font-medium hover:bg-surface transition-colors">
               View Pricing
             </button>
           </div>

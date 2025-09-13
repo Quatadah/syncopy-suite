@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckSquare, ChevronDown, FileText, Filter, Grid3X3, List, Plus, Table, Trash2, X } from "lucide-react";
@@ -27,6 +28,7 @@ interface DashboardToolbarProps {
   }) => Promise<void>;
   hasActiveFilters?: boolean;
   activeFilterCount?: number;
+  isMobile?: boolean;
 }
 
 const DashboardToolbar = ({
@@ -44,6 +46,7 @@ const DashboardToolbar = ({
   onCreateItem,
   hasActiveFilters = false,
   activeFilterCount = 0,
+  isMobile = false,
 }: DashboardToolbarProps) => {
   return (
     <>
@@ -51,34 +54,37 @@ const DashboardToolbar = ({
       <div className="relative h-16 flex items-center justify-between px-6 bg-gradient-to-r from-background/95 to-background/80 backdrop-blur-sm border-b border-border/30">
         
         {/* Left - View & Filter Controls */}
-        <div className="relative flex items-center gap-6">
+        <div className="relative flex items-center gap-3 md:gap-6">
           {/* View Toggle */}
           <Tabs 
             value={view} 
             onValueChange={(value) => setView(value as "grid" | "list" | "table")}
             className="w-auto"
           >
-            <TabsList className="bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20 w-[240px] flex">
+            <TabsList className={cn(
+              "bg-gradient-to-r from-muted/60 to-muted/40 rounded-xl p-1.5 h-10 shadow-sm border border-border/20 flex",
+              isMobile ? "w-[180px]" : "w-[240px]"
+            )}>
               <TabsTrigger 
                 value="grid"
                 className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <Grid3X3 className="w-4 h-4 mr-2 transition-transform duration-300" />
-                <span className="transition-all duration-300">Grid</span>
+                <Grid3X3 className={cn("w-4 h-4 transition-transform duration-300", isMobile ? "mr-1" : "mr-2")} />
+                {!isMobile && <span className="transition-all duration-300">Grid</span>}
               </TabsTrigger>
               <TabsTrigger 
                 value="list" 
                 className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <List className="w-4 h-4 mr-2 transition-transform duration-300" />
-                <span className="transition-all duration-300">List</span>
+                <List className={cn("w-4 h-4 transition-transform duration-300", isMobile ? "mr-1" : "mr-2")} />
+                {!isMobile && <span className="transition-all duration-300">List</span>}
               </TabsTrigger>
               <TabsTrigger 
                 value="table" 
                 className="h-8 flex-1 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/10 data-[state=active]:to-accent/10 data-[state=active]:text-primary data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 data-[state=active]:scale-105 transition-all duration-500 ease-out hover:scale-[1.02] transform-gpu"
               >
-                <Table className="w-4 h-4 mr-2 transition-transform duration-300" />
-                <span className="transition-all duration-300">Table</span>
+                <Table className={cn("w-4 h-4 transition-transform duration-300", isMobile ? "mr-1" : "mr-2")} />
+                {!isMobile && <span className="transition-all duration-300">Table</span>}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -102,41 +108,48 @@ const DashboardToolbar = ({
         </div>
 
         {/* Right - Action Buttons */}
-        <div className="relative flex items-center gap-3">
-          {/* Grouped Add Actions - Paste & Save as primary, others in dropdown */}
-          <div className="flex items-center">
-            {/* Primary Action: Paste & Save */}
+        <div className="relative flex items-center gap-2 md:gap-3">
+          {/* Mobile: Show only primary action, desktop: show full toolbar */}
+          {isMobile ? (
             <InstantPasteButton onAdd={onCreateItem} />
-            
-            {/* Dropdown for other add actions */}
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="h-10 px-2 -ml-px rounded-l-none border-l-1 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-r-xl"
-                >
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Add actions" className="w-48">
-                <DropdownItem 
-                  key="new-clip" 
-                  startContent={<FileText className="w-4 h-4" />}
-                  onPress={onAddItem}
-                >
-                  New Clip
-                </DropdownItem>
-                <DropdownItem 
-                  key="quick-add" 
-                  startContent={<Plus className="w-4 h-4" />}
-                  onPress={onQuickAdd}
-                >
-                  Quick Add
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
+          ) : (
+            <>
+              {/* Grouped Add Actions - Paste & Save as primary, others in dropdown */}
+              <div className="flex items-center">
+                {/* Primary Action: Paste & Save */}
+                <InstantPasteButton onAdd={onCreateItem} />
+                
+                {/* Dropdown for other add actions */}
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="h-10 px-2 -ml-px rounded-l-none border-l-1 hover:from-primary/10 hover:to-accent/10 hover:shadow-md transition-all duration-300 hover:scale-105 rounded-r-xl"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="Add actions" className="w-48">
+                    <DropdownItem 
+                      key="new-clip" 
+                      startContent={<FileText className="w-4 h-4" />}
+                      onPress={onAddItem}
+                    >
+                      New Clip
+                    </DropdownItem>
+                    <DropdownItem 
+                      key="quick-add" 
+                      startContent={<Plus className="w-4 h-4" />}
+                      onPress={onQuickAdd}
+                    >
+                      Quick Add
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
