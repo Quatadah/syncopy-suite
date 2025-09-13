@@ -21,9 +21,9 @@ const Settings = () => {
 
   // SEO optimization
   useSEO({
-    title: "Settings | Syncopy",
-    description: "Manage your Syncopy account settings, preferences, and privacy options. Customize your clipboard experience.",
-    url: "https://syncopy.app/settings",
+    title: "Settings | Clippy",
+    description: "Manage your Clippy account settings, preferences, and privacy options. Customize your clipboard experience.",
+    url: "https://clippy.app/settings",
     noindex: true, // Settings page is private
     nofollow: true
   });
@@ -138,7 +138,7 @@ const Settings = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `syncopy-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `clippy-backup-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -234,7 +234,7 @@ const Settings = () => {
                 Preferences
               </CardTitle>
               <CardDescription>
-                Customize your Syncopy experience.
+                Customize your Clippy experience.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

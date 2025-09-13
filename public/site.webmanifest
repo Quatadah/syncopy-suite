@@ -1,6 +1,6 @@
 {
-  "name": "Syncopy - Your Clipboard, Everywhere",
-  "short_name": "Syncopy",
+  "name": "Clippy - Your Clipboard, Everywhere",
+  "short_name": "Clippy",
   "description": "The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption.",
   "start_url": "/",
   "display": "standalone",
@@ -46,14 +46,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Syncopy Desktop Dashboard"
+      "label": "Clippy Desktop Dashboard"
     },
     {
       "src": "/screenshot-mobile.png",
       "sizes": "375x667",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Syncopy Mobile Interface"
+      "label": "Clippy Mobile Interface"
     }
   ],
   "shortcuts": [

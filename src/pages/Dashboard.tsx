@@ -20,9 +20,9 @@ const DashboardInner = memo(() => {
 
   // SEO optimization
   useSEO({
-    title: `Dashboard - ${activeBoard?.name || 'All Items'} | Syncopy`,
-    description: `Manage your clipboard items with Syncopy's powerful dashboard. Organize, search, and sync your clipboard content across all devices.`,
-    url: "https://syncopy.app/dashboard",
+    title: `Dashboard - ${activeBoard?.name || 'All Items'} | Clippy`,
+    description: `Manage your clipboard items with Clippy's powerful dashboard. Organize, search, and sync your clipboard content across all devices.`,
+    url: "https://clippy.app/dashboard",
     noindex: true, // Dashboard is private, don't index
     nofollow: true
   });

@@ -1,28 +1,28 @@
 "use client";
 
-import syncopyLogo from "@/assets/images/syncopy-logo.png";
+import clippyLogo from "@/assets/images/clippy-logo.png";
 import HeroGeometric from "@/components/sections/HeroGeometric";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSEO } from "@/hooks/useSEO";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowRight,
-  Clock,
-  Code,
-  Folder,
-  Github,
-  Globe,
-  Heart,
-  Image,
-  Keyboard,
-  Link,
-  Search,
-  Shield,
-  Smartphone,
-  Star,
-  Tag,
-  Zap
+    ArrowRight,
+    Clock,
+    Code,
+    Folder,
+    Github,
+    Globe,
+    Heart,
+    Image,
+    Keyboard,
+    Link,
+    Search,
+    Shield,
+    Smartphone,
+    Star,
+    Tag,
+    Zap
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,11 +34,11 @@ const Landing = () => {
   
   // SEO optimization
   useSEO({
-    title: "Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager",
+    title: "Clippy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager",
     description: "The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption. Free and open source.",
     keywords: "clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips, open source, free, encryption, code snippets, productivity tool",
-    url: "https://syncopy.app/",
-    image: "https://syncopy.app/syncopy-logo.png",
+    url: "https://clippy.app/",
+    image: "https://clippy.app/clippy-logo.png",
     type: "website",
     tags: ["clipboard", "productivity", "sync", "open source", "encryption", "cross-platform"]
   });
@@ -234,20 +234,20 @@ const Landing = () => {
             >
               <div className="w-10 h-10 rounded-xl overflow-hidden">
                 <img 
-                  src={syncopyLogo} 
-                  alt="Syncopy Logo" 
+                  src={clippyLogo} 
+                  alt="Clippy Logo" 
                   className="w-full h-full object-contain"
                 />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent">
-                Syncopy
+                Clippy
               </span>
             </motion.div>
             
             <div className="hidden md:flex items-center space-x-6">
               <a href="#features" className="text-gray-300 hover:text-blue-300 transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Features</a>
               <a href="#community" className="text-gray-300 hover:text-blue-300 transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Community</a>
-              <a href="https://github.com/quatadah/syncopy-suite" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-300 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-white/5">
+              <a href="https://github.com/quatadah/clippy-clipboard-manager" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-300 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-white/5">
                 <Github className="w-4 h-4 mr-2" />
                 GitHub
               </a>
@@ -426,7 +426,7 @@ const Landing = () => {
               </span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Built by developers, for developers. Join our open source community and help make Syncopy even better.
+              Built by developers, for developers. Join our open source community and help make Clippy even better.
             </p>
           </motion.div>
 
@@ -441,9 +441,9 @@ const Landing = () => {
               {
                 icon: Github,
                 title: "Contribute",
-                description: "Help improve Syncopy by contributing code, reporting bugs, or suggesting new features.",
+                description: "Help improve Clippy by contributing code, reporting bugs, or suggesting new features.",
                 buttonText: "View on GitHub",
-                buttonAction: () => window.open('https://github.com/quatadah/syncopy-suite', '_blank'),
+                buttonAction: () => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank'),
                 gradient: "from-blue-500 to-cyan-500",
                 borderColor: "border-blue-400/30",
                 bgColor: "bg-blue-500/10",
@@ -452,9 +452,9 @@ const Landing = () => {
               {
                 icon: Star,
                 title: "Star Us",
-                description: "Show your support by starring our repository. It helps others discover Syncopy.",
+                description: "Show your support by starring our repository. It helps others discover Clippy.",
                 buttonText: "Star Repository",
-                buttonAction: () => window.open('https://github.com/quatadah/syncopy-suite', '_blank'),
+                buttonAction: () => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank'),
                 gradient: "from-emerald-500 to-teal-500",
                 borderColor: "border-emerald-400/30",
                 bgColor: "bg-emerald-500/10",
@@ -463,7 +463,7 @@ const Landing = () => {
               {
                 icon: Heart,
                 title: "Free Forever",
-                description: "Syncopy is completely free and open source. No subscriptions, no hidden costs, no limits.",
+                description: "Clippy is completely free and open source. No subscriptions, no hidden costs, no limits.",
                 buttonText: "Get Started",
                 buttonAction: () => navigate('/dashboard'),
                 gradient: "from-indigo-500 to-purple-500",
@@ -573,7 +573,7 @@ const Landing = () => {
                 size="lg"
                 variant="outline"
                 className="text-lg px-8 py-4 h-auto border-blue-400/30 text-white bg-blue-500/10 hover:bg-blue-500/20 backdrop-blur-sm hover:scale-105 transition-all duration-300 rounded-full"
-                onClick={() => window.open('https://github.com/quatadah/syncopy-suite', '_blank')}
+                onClick={() => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank')}
               >
                 <Github className="w-5 h-5 mr-2" />
                 View on GitHub
@@ -591,13 +591,13 @@ const Landing = () => {
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-xl overflow-hidden">
                   <img 
-                    src={syncopyLogo} 
-                    alt="Syncopy Logo" 
+                    src={clippyLogo} 
+                    alt="Clippy Logo" 
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-                  Syncopy
+                  Clippy
                 </span>
               </div>
               <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
@@ -614,7 +614,7 @@ const Landing = () => {
                 <Button 
                   variant="outline" 
                   className="border-blue-400/30 text-white bg-blue-500/10 hover:bg-blue-500/20 backdrop-blur-sm rounded-full"
-                  onClick={() => window.open('https://github.com/quatadah/syncopy-suite', '_blank')}
+                  onClick={() => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank')}
                 >
                   <Github className="w-4 h-4 mr-2" />
                   GitHub
@@ -635,25 +635,25 @@ const Landing = () => {
             <div>
               <h3 className="font-semibold mb-4 text-white">Open Source</h3>
               <ul className="space-y-3 text-gray-300">
-                <li><a href="https://github.com/quatadah/syncopy-suite" className="hover:text-blue-300 transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
+                <li><a href="https://github.com/quatadah/clippy-clipboard-manager" className="hover:text-blue-300 transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
                   <Github className="w-4 h-4 mr-2" />
                   Repository
                 </a></li>
-                <li><a href="https://github.com/quatadah/syncopy-suite/issues" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Report Bug</a></li>
-                <li><a href="https://github.com/quatadah/syncopy-suite/discussions" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Discussions</a></li>
-                <li><a href="https://github.com/quatadah/syncopy-suite/blob/main/README.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/issues" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Report Bug</a></li>
+                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/discussions" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/README.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Documentation</a></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-gray-700/50 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Syncopy. Open source and free forever.
+              © 2024 Clippy. Open source and free forever.
             </p>
             <div className="flex space-x-6 text-sm text-gray-400 mt-4 md:mt-0">
-              <a href="https://github.com/quatadah/syncopy-suite/blob/main/LICENSE" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">License</a>
-              <a href="https://github.com/quatadah/syncopy-suite/blob/main/PRIVACY.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Privacy</a>
-              <a href="https://github.com/quatadah/syncopy-suite/blob/main/CONTRIBUTING.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Contributing</a>
+              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/LICENSE" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">License</a>
+              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/PRIVACY.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Privacy</a>
+              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/CONTRIBUTING.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Contributing</a>
             </div>
           </div>
         </div>

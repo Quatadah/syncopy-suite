@@ -17,15 +17,15 @@ interface SEOProps {
 }
 
 const defaultSEO: Required<SEOProps> = {
-  title: "Syncopy - Your Clipboard, Everywhere",
+  title: "Clippy - Your Clipboard, Organized",
   description:
-    "The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization and instant search.",
+    "The most powerful clipboard manager for productivity. Never lose important content again with smart organization and instant search.",
   keywords:
     "clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips, open source, free",
-  image: "/syncopy-logo.png",
-  url: "https://syncopy.app",
+  image: "/clippy-logo.png",
+  url: "https://clippy.app",
   type: "website",
-  author: "Syncopy Team",
+  author: "Clippy Team",
   publishedTime: "2024-01-01T00:00:00Z",
   modifiedTime: new Date().toISOString(),
   section: "Productivity Tools",
@@ -67,14 +67,14 @@ export const useSEO = (seoProps: SEOProps = {}) => {
     updateMetaTag("og:image", seo.image, true);
     updateMetaTag("og:url", seo.url, true);
     updateMetaTag("og:type", seo.type, true);
-    updateMetaTag("og:site_name", "Syncopy", true);
+    updateMetaTag("og:site_name", "Clippy", true);
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", seo.title);
     updateMetaTag("twitter:description", seo.description);
     updateMetaTag("twitter:image", seo.image);
-    updateMetaTag("twitter:site", "@syncopy_app");
+    updateMetaTag("twitter:site", "@clippy_app");
 
     // Additional meta tags
     updateMetaTag(
@@ -85,8 +85,8 @@ export const useSEO = (seoProps: SEOProps = {}) => {
     );
     updateMetaTag("theme-color", "#3b82f6");
     updateMetaTag("msapplication-TileColor", "#3b82f6");
-    updateMetaTag("apple-mobile-web-app-title", "Syncopy");
-    updateMetaTag("application-name", "Syncopy");
+    updateMetaTag("apple-mobile-web-app-title", "Clippy");
+    updateMetaTag("application-name", "Clippy");
 
     // Canonical URL
     let canonical = document.querySelector(
@@ -128,7 +128,7 @@ export const useSEO = (seoProps: SEOProps = {}) => {
       },
       publisher: {
         "@type": "Organization",
-        name: "Syncopy",
+        name: "Clippy",
         logo: {
           "@type": "ImageObject",
           url: seo.image,
@@ -149,9 +149,9 @@ export const useSEO = (seoProps: SEOProps = {}) => {
           priceCurrency: "USD",
         },
         featureList: [
-          "Cross-platform clipboard sync",
-          "End-to-end encryption",
-          "Smart search and organization",
+          "Smart clipboard organization",
+          "Secure storage",
+          "Instant search and filtering",
           "Code snippet support",
           "Rich content support",
           "Keyboard shortcuts",

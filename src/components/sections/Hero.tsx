@@ -19,18 +19,18 @@ const Hero = () => {
         {/* Hero Badge */}
         <div className="inline-flex items-center px-4 py-2 bg-surface rounded-full text-sm text-muted-foreground border mb-8 animate-fade-in">
           <Zap className="w-4 h-4 mr-2 text-primary" />
-          Sync your clipboard across all devices
+          Smart clipboard manager for productivity
         </div>
 
         {/* Main Headlines */}
         <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
           Your Clipboard,{" "}
-          <span className="gradient-text">Everywhere</span>
+          <span className="gradient-text">Organized</span>
         </h1>
 
         <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up [animation-delay:0.1s] px-4">
-          Never lose important clips again. Syncopy seamlessly syncs your clipboard 
-          across all devices with powerful organization and instant search.
+          Never lose important clips again. Clippy helps you organize and manage your clipboard 
+          with powerful search, smart categorization, and instant access to your content.
         </p>
 
         {/* CTA Buttons */}
@@ -58,11 +58,11 @@ const Hero = () => {
         <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-muted-foreground animate-fade-in [animation-delay:0.3s] px-4">
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-success" />
-            <span className="text-sm md:text-base">End-to-end encrypted</span>
+            <span className="text-sm md:text-base">Secure & private</span>
           </div>
           <div className="flex items-center space-x-2">
             <Smartphone className="w-5 h-5 text-primary" />
-            <span className="text-sm md:text-base">Works on all devices</span>
+            <span className="text-sm md:text-base">Cross-platform</span>
           </div>
           <div className="flex items-center space-x-2">
             <Clipboard className="w-5 h-5 text-accent" />
@@ -81,7 +81,7 @@ const Hero = () => {
                   <div className="w-3 h-3 bg-warning rounded-full"></div>
                   <div className="w-3 h-3 bg-success rounded-full"></div>
                 </div>
-                <div className="text-sm text-muted-foreground">Syncopy Dashboard</div>
+                <div className="text-sm text-muted-foreground">Clippy Dashboard</div>
               </div>
               
               <div className="space-y-3">

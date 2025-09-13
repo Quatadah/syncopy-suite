@@ -18,13 +18,13 @@ interface SEOHeadProps {
 }
 
 const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'Syncopy - Your Clipboard, Everywhere',
-  description = 'The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization and instant search.',
+  title = 'Clippy - Your Clipboard, Organized',
+  description = 'The most powerful clipboard manager for productivity. Never lose important content again with smart organization and instant search.',
   keywords = 'clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips, open source, free',
-  image = '/syncopy-logo.png',
-  url = 'https://syncopy.app',
+  image = '/clippy-logo.png',
+  url = 'https://clippy.app',
   type = 'website',
-  author = 'Syncopy Team',
+  author = 'Clippy Team',
   publishedTime,
   modifiedTime,
   section,
@@ -61,21 +61,21 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     updateMetaTag('og:image', image, true);
     updateMetaTag('og:url', url, true);
     updateMetaTag('og:type', type, true);
-    updateMetaTag('og:site_name', 'Syncopy', true);
+    updateMetaTag('og:site_name', 'Clippy', true);
 
     // Twitter Card tags
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
     updateMetaTag('twitter:image', image);
-    updateMetaTag('twitter:site', '@syncopy_app');
+    updateMetaTag('twitter:site', '@clippy_app');
 
     // Additional meta tags
     updateMetaTag('robots', `${noindex ? 'noindex' : 'index'},${nofollow ? 'nofollow' : 'follow'}`);
     updateMetaTag('theme-color', '#3b82f6');
     updateMetaTag('msapplication-TileColor', '#3b82f6');
-    updateMetaTag('apple-mobile-web-app-title', 'Syncopy');
-    updateMetaTag('application-name', 'Syncopy');
+    updateMetaTag('apple-mobile-web-app-title', 'Clippy');
+    updateMetaTag('application-name', 'Clippy');
 
     // Canonical URL
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
@@ -115,7 +115,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       },
       publisher: {
         '@type': 'Organization',
-        name: 'Syncopy',
+        name: 'Clippy',
         logo: {
           '@type': 'ImageObject',
           url: image,
@@ -136,9 +136,9 @@ const SEOHead: React.FC<SEOHeadProps> = ({
           priceCurrency: 'USD',
         },
         featureList: [
-          'Cross-platform clipboard sync',
-          'End-to-end encryption',
-          'Smart search and organization',
+          'Smart clipboard organization',
+          'Secure storage',
+          'Instant search and filtering',
           'Code snippet support',
           'Rich content support',
           'Keyboard shortcuts',

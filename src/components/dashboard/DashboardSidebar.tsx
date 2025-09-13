@@ -1,26 +1,26 @@
 import { HomeIcon } from "@/assets";
+import clippyLogo from "@/assets/images/clippy-logo.png";
 import FilterIcon from "@/assets/icons/FilterIcon";
-import syncopyLogo from "@/assets/images/syncopy-logo.png";
 import { Badge } from "@/components/ui/badge";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@heroui/react";
 import {
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Settings,
-    Star,
-    Tag,
-    User,
-    X
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Settings,
+  Star,
+  Tag,
+  User,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -125,7 +125,7 @@ const DashboardSidebar = ({
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
         <div className="relative flex items-center justify-between">
           <Tooltip 
-            content="Syncopy Dashboard"
+            content="Clippy Dashboard"
             placement="right"
             isDisabled={!isCollapsed || isMobile}
           >
@@ -147,15 +147,15 @@ const DashboardSidebar = ({
               )}>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl"></div>
                 <img 
-                  src={syncopyLogo} 
-                  alt="Syncopy Logo" 
+                  src={clippyLogo} 
+                  alt="Clippy Logo" 
                   className="relative w-full h-full object-contain z-10"
                 />
               </div>
               {!(isCollapsed && !isMobile) && (
                 <div className="text-left">
                   <h2 className="text-xl font-bold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
-                    Syncopy
+                    Clippy
                   </h2>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>

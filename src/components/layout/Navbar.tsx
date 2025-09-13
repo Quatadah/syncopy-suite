@@ -1,4 +1,4 @@
-import syncopyLogo from "@/assets/images/syncopy-logo.png";
+import clippyLogo from "@/assets/images/clippy-logo.png";
 import { Button } from "@heroui/react";
 import {
     Download,
@@ -26,13 +26,13 @@ const Navbar = () => {
         <Link to="/" className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-lg overflow-hidden">
             <img 
-              src={syncopyLogo} 
-              alt="Syncopy Logo" 
+              src={clippyLogo} 
+              alt="Clippy Logo" 
               className="w-full h-full object-contain"
             />
           </div>
           <span className="text-xl font-semibold font-bricolage">
-            Syncopy
+            Clippy
           </span>
         </Link>
 

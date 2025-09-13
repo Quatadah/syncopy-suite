@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# Clippy - Smart Clipboard Manager
 
-## Project info
+A powerful, open-source clipboard manager that helps you organize and manage your clipboard content with smart categorization, instant search, and secure storage.
 
-**URL**: https://lovable.dev/projects/286087b8-226b-40ea-ada3-5cc118261ec9
+## Features
 
-## How can I edit this code?
+- **Smart Organization**: Automatically categorize your clipboard items
+- **Instant Search**: Find any clip quickly with powerful search capabilities
+- **Secure Storage**: Your data is stored securely and privately
+- **Cross-Platform**: Works on all major operating systems
+- **Unlimited Clips**: Store as many clipboard items as you need
+- **Rich Content Support**: Handle text, images, and code snippets
+- **Keyboard Shortcuts**: Quick access with customizable shortcuts
+- **Multiple Boards**: Organize clips into different categories
+- **Full History Tracking**: Never lose important content again
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/286087b8-226b-40ea-ada3-5cc118261ec9) and start prompting.
+- Node.js (v18 or higher)
+- npm or yarn
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
+1. Clone the repository:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+git clone https://github.com/your-username/clippy-clipboard-manager.git
+cd clippy-clipboard-manager
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. Install dependencies:
 
-Follow these steps:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Start the development server:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Building for Production
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The built files will be in the `dist` directory.
 
-## What technologies are used for this project?
+## Technologies Used
 
-This project is built with:
+- **Frontend**: React 19, TypeScript, Vite
+- **UI Components**: HeroUI, Radix UI, Tailwind CSS
+- **State Management**: React Query, React Context
+- **Database**: Supabase
+- **Authentication**: Supabase Auth
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contributing
 
-## How can I deploy this project?
+We welcome contributions! Please feel free to submit a Pull Request.
 
-Simply open [Lovable](https://lovable.dev/projects/286087b8-226b-40ea-ada3-5cc118261ec9) and click on Share -> Publish.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Can I connect a custom domain to my Lovable project?
+## License
 
-Yes, you can!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Support
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+If you have any questions or need help, please open an issue on GitHub or contact us at support@clippy.app.
+
+## Roadmap
+
+- [ ] Browser extension support
+- [ ] Mobile app development
+- [ ] Cloud sync capabilities
+- [ ] Advanced search filters
+- [ ] Team collaboration features
+- [ ] API for third-party integrations
+
+---
+
+Made with ❤️ by the Clippy Team

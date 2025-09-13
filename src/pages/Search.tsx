@@ -51,9 +51,9 @@ const Search = memo(() => {
 
   // SEO optimization
   useSEO({
-    title: `Search${searchQuery ? `: "${searchQuery}"` : ''} | Syncopy`,
-    description: `Search through your clipboard history with Syncopy's powerful search. Find any text, code, or content you've copied across all devices.`,
-    url: "https://syncopy.app/search",
+    title: `Search${searchQuery ? `: "${searchQuery}"` : ''} | Clippy`,
+    description: `Search through your clipboard history with Clippy's powerful search. Find any text, code, or content you've copied across all devices.`,
+    url: "https://clippy.app/search",
     noindex: true, // Search page is private
     nofollow: true
   });

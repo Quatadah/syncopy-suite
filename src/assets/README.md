@@ -1,6 +1,6 @@
 # Icon System
 
-This directory contains a comprehensive icon system for the Syncopy Suite application.
+This directory contains a comprehensive icon system for the Clippy Suite application.
 
 ## Structure
 

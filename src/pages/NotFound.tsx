@@ -7,9 +7,9 @@ const NotFound = () => {
 
   // SEO optimization
   useSEO({
-    title: "404 - Page Not Found | Syncopy",
-    description: "The page you're looking for doesn't exist. Return to Syncopy's homepage to continue managing your clipboard.",
-    url: `https://syncopy.app${location.pathname}`,
+    title: "404 - Page Not Found | Clippy",
+    description: "The page you're looking for doesn't exist. Return to Clippy's homepage to continue managing your clipboard.",
+    url: `https://clippy.app${location.pathname}`,
     noindex: true, // 404 pages shouldn't be indexed
     nofollow: true
   });

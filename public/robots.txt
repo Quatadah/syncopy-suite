@@ -1,5 +1,5 @@
-# Robots.txt for Syncopy - Clipboard Manager
-# https://syncopy.app
+# Robots.txt for Clippy - Clipboard Manager
+# https://clippy.app
 
 # Allow all search engines to crawl the site
 User-agent: *
@@ -49,7 +49,7 @@ Allow: /*.svg
 Allow: /*.webp
 
 # Sitemap location
-Sitemap: https://syncopy.app/sitemap.xml
+Sitemap: https://clippy.app/sitemap.xml
 
 # Host directive
-Host: https://syncopy.app
+Host: https://clippy.app

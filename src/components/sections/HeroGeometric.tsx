@@ -206,7 +206,7 @@ export default function HeroGeometric({
             <Button
               size="lg"
               variant="outline"
-              onClick={() => window.open('https://github.com/Quatadah/syncopy-suite', '_blank')}
+              onClick={() => window.open('https://github.com/Quatadah/clippy-clipboard-manager', '_blank')}
               className="border-blue-400/30 hover:bg-blue-500/5 rounded-full shadow-sm text-white"
             >
               <Github className="mr-2 h-4 w-4" />

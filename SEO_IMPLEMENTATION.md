@@ -1,6 +1,6 @@
-# SEO Implementation Guide for Syncopy
+# SEO Implementation Guide for Clippy
 
-This document outlines the comprehensive SEO implementation for the Syncopy clipboard manager application.
+This document outlines the comprehensive SEO implementation for the Clippy clipboard manager application.
 
 ## 🎯 SEO Features Implemented
 
@@ -79,11 +79,11 @@ import { useSEO } from "@/hooks/useSEO";
 
 const MyPage = () => {
   useSEO({
-    title: "Page Title | Syncopy",
+    title: "Page Title | Clippy",
     description: "Page description for SEO",
     keywords: "relevant, keywords, here",
-    url: "https://syncopy.app/page",
-    image: "https://syncopy.app/image.png",
+    url: "https://clippy.app/page",
+    image: "https://clippy.app/image.png",
     type: "website",
     tags: ["tag1", "tag2"],
     noindex: false, // Set to true for private pages

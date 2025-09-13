@@ -1,7 +1,7 @@
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
-import { addToast, Button, Card, CardBody, CardHeader, Divider, Input, Tab, Tabs } from "@heroui/react";
-import { Eye, EyeOff, Github, Loader2, Mail } from "lucide-react";
+import { addToast, Button, Card, CardBody, CardHeader, Input, Tab, Tabs } from "@heroui/react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,9 +15,9 @@ const Auth = () => {
 
   // SEO optimization
   useSEO({
-    title: "Sign In / Sign Up | Syncopy",
-    description: "Sign in to your Syncopy account or create a new one to start syncing your clipboard across all devices. Free and secure.",
-    url: "https://syncopy.app/auth",
+    title: "Sign In / Sign Up | Clippy",
+    description: "Sign in to your Clippy account or create a new one to start syncing your clipboard across all devices. Free and secure.",
+    url: "https://clippy.app/auth",
     noindex: true, // Auth page shouldn't be indexed
     nofollow: true
   });
@@ -321,50 +321,6 @@ const Auth = () => {
               </Button>
             </Tab>
           </Tabs>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Divider />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button
-                variant="ghost"
-                onClick={handleGoogleAuth}
-                disabled={isLoading}
-              >
-                <Mail className="mr-2 h-4 w-4" />
-                Google
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleGithubAuth}
-                disabled={isLoading}
-              >
-                <Github className="mr-2 h-4 w-4" />
-                GitHub
-              </Button>
-            </div>
-
-            <div className="mt-6">
-              <Button
-                variant="ghost"
-                onClick={handleMagicLink}
-                disabled={isLoading}
-                className="w-full"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Send Magic Link
-              </Button>
-            </div>
-          </div>
         </CardBody>
       </Card>
     </div>
