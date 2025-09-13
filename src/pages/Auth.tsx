@@ -1,3 +1,4 @@
+import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { addToast, Button, Card, CardBody, CardHeader, Divider, Input, Tab, Tabs } from "@heroui/react";
 import { Eye, EyeOff, Github, Loader2, Mail } from "lucide-react";
@@ -11,6 +12,15 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
+
+  // SEO optimization
+  useSEO({
+    title: "Sign In / Sign Up | Syncopy",
+    description: "Sign in to your Syncopy account or create a new one to start syncing your clipboard across all devices. Free and secure.",
+    url: "https://syncopy.app/auth",
+    noindex: true, // Auth page shouldn't be indexed
+    nofollow: true
+  });
 
   useEffect(() => {
     // Check if user is already logged in

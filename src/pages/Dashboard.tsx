@@ -5,6 +5,7 @@ import { BoardProvider, useBoard } from "@/contexts/BoardContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { useSEO } from "@/hooks/useSEO";
 import { Skeleton } from "@heroui/react";
 import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,15 @@ const DashboardInner = memo(() => {
   const isMobile = useIsMobile();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // SEO optimization
+  useSEO({
+    title: `Dashboard - ${activeBoard?.name || 'All Items'} | Syncopy`,
+    description: `Manage your clipboard items with Syncopy's powerful dashboard. Organize, search, and sync your clipboard content across all devices.`,
+    url: "https://syncopy.app/dashboard",
+    noindex: true, // Dashboard is private, don't index
+    nofollow: true
+  });
 
   const {
     allItems,

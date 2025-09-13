@@ -1,5 +1,7 @@
+import AccessibilityEnhancer from "@/components/AccessibilityEnhancer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import SEOPerformanceMonitor from "@/components/SEOPerformanceMonitor";
 import { HeroUIProvider } from "@heroui/react";
 import { ToastProvider } from "@heroui/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,6 +22,8 @@ const App = () => (
       <ToastProvider />
       <BoardProvider>
         <AuthProvider>
+          <AccessibilityEnhancer />
+          <SEOPerformanceMonitor />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />

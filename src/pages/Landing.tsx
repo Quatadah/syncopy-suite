@@ -4,6 +4,7 @@ import syncopyLogo from "@/assets/images/syncopy-logo.png";
 import HeroGeometric from "@/components/sections/HeroGeometric";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSEO } from "@/hooks/useSEO";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
@@ -30,6 +31,17 @@ const Landing = () => {
   const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  
+  // SEO optimization
+  useSEO({
+    title: "Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager",
+    description: "The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption. Free and open source.",
+    keywords: "clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips, open source, free, encryption, code snippets, productivity tool",
+    url: "https://syncopy.app/",
+    image: "https://syncopy.app/syncopy-logo.png",
+    type: "website",
+    tags: ["clipboard", "productivity", "sync", "open source", "encryption", "cross-platform"]
+  });
   
   const fadeInUp = {
     initial: { opacity: 0, y: 60 },

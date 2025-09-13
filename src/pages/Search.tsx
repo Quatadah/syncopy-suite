@@ -2,6 +2,7 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggleButton } from "@/components/ui/theme-toggle";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
+import { useSEO } from "@/hooks/useSEO";
 import { cn } from "@/lib/utils";
 import { Button, Checkbox, Input, Select, SelectItem } from "@heroui/react";
 import {
@@ -46,6 +47,15 @@ const Search = memo(() => {
     board: 'all',
     isFavorite: false,
     isPinned: false
+  });
+
+  // SEO optimization
+  useSEO({
+    title: `Search${searchQuery ? `: "${searchQuery}"` : ''} | Syncopy`,
+    description: `Search through your clipboard history with Syncopy's powerful search. Find any text, code, or content you've copied across all devices.`,
+    url: "https://syncopy.app/search",
+    noindex: true, // Search page is private
+    nofollow: true
   });
 
   const { allItems, boards, copyToClipboard, toggleFavorite, togglePin, fetchTags, createBoard } = useClipboardItems();

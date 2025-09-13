@@ -1,8 +1,18 @@
-import { useLocation } from "react-router-dom";
+import { useSEO } from "@/hooks/useSEO";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const NotFound = () => {
   const location = useLocation();
+
+  // SEO optimization
+  useSEO({
+    title: "404 - Page Not Found | Syncopy",
+    description: "The page you're looking for doesn't exist. Return to Syncopy's homepage to continue managing your clipboard.",
+    url: `https://syncopy.app${location.pathname}`,
+    noindex: true, // 404 pages shouldn't be indexed
+    nofollow: true
+  });
 
   useEffect(() => {
     console.error(

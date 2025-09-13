@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
+import { useSEO } from '@/hooks/useSEO';
 import { supabase } from '@/integrations/supabase/client';
 import { addToast } from '@heroui/react';
 import { ArrowLeft, Bell, Download, Shield, Upload, User } from 'lucide-react';
@@ -17,6 +18,15 @@ const Settings = () => {
   const [profile, setProfile] = useState<any>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // SEO optimization
+  useSEO({
+    title: "Settings | Syncopy",
+    description: "Manage your Syncopy account settings, preferences, and privacy options. Customize your clipboard experience.",
+    url: "https://syncopy.app/settings",
+    noindex: true, // Settings page is private
+    nofollow: true
+  });
 
   useEffect(() => {
     fetchProfile();

@@ -3,51 +3,180 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.github.com" />
+
+    <!-- DNS prefetch for better performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+    <!-- Font loading with display swap for better performance -->
     <link
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@200;300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Critical CSS inline for better performance -->
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@200;300;400;500;600;700;800&display=swap");
+
+      /* Critical above-the-fold styles */
+      body {
+        margin: 0;
+        font-family: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "Roboto", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      /* Loading state */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #000;
+        color: #fff;
+      }
     </style>
-    <title>ClipSync - Your Clipboard, Everywhere</title>
+
+    <!-- Primary Meta Tags -->
+    <title>
+      Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager
+    </title>
+    <meta
+      name="title"
+      content="Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager"
+    />
     <meta
       name="description"
-      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization and instant search."
+      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption. Free and open source."
     />
-    <meta name="author" content="ClipSync" />
     <meta
       name="keywords"
-      content="clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips"
+      content="clipboard manager, sync, productivity, cross-platform, clipboard history, copy paste, organize clips, open source, free, encryption, code snippets, productivity tool"
     />
+    <meta name="author" content="Syncopy Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="distribution" content="global" />
+    <meta name="rating" content="general" />
 
-    <meta property="og:title" content="ClipSync - Your Clipboard, Everywhere" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://syncopy.app/" />
+    <meta
+      property="og:title"
+      content="Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager"
+    />
     <meta
       property="og:description"
-      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization and instant search."
+      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption. Free and open source."
     />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://syncopy.app/syncopy-logo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta
-      property="og:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
+      property="og:image:alt"
+      content="Syncopy - Your Clipboard, Everywhere"
     />
+    <meta property="og:site_name" content="Syncopy" />
+    <meta property="og:locale" content="en_US" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:url" content="https://syncopy.app/" />
     <meta
       name="twitter:title"
-      content="ClipSync - Your Clipboard, Everywhere"
+      content="Syncopy - Your Clipboard, Everywhere | Free Open Source Clipboard Manager"
     />
     <meta
       name="twitter:description"
-      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again."
+      content="The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption."
     />
+    <meta name="twitter:image" content="https://syncopy.app/syncopy-logo.png" />
     <meta
-      name="twitter:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
+      name="twitter:image:alt"
+      content="Syncopy - Your Clipboard, Everywhere"
     />
+    <meta name="twitter:site" content="@syncopy_app" />
+    <meta name="twitter:creator" content="@syncopy_app" />
+
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Syncopy" />
+    <meta name="application-name" content="Syncopy" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://syncopy.app/" />
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Syncopy",
+        "description": "The most powerful clipboard manager that syncs across all your devices. Never lose important content again with smart organization, instant search, and end-to-end encryption.",
+        "url": "https://syncopy.app",
+        "image": "https://syncopy.app/syncopy-logo.png",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Web Browser, Windows, macOS, Linux, iOS, Android",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Syncopy Team"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Syncopy",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://syncopy.app/syncopy-logo.png"
+          }
+        },
+        "featureList": [
+          "Cross-platform clipboard sync",
+          "End-to-end encryption",
+          "Smart search and organization",
+          "Code snippet support",
+          "Rich content support",
+          "Keyboard shortcuts",
+          "Multiple boards",
+          "Full history tracking"
+        ],
+        "screenshot": "https://syncopy.app/syncopy-logo.png",
+        "softwareVersion": "1.0.0",
+        "datePublished": "2024-01-01T00:00:00Z",
+        "dateModified": "2024-01-15T00:00:00Z"
+      }
+    </script>
   </head>
 
   <body>
