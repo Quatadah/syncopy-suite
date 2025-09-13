@@ -19,12 +19,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     // Optimize for production
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
+    minify: "esbuild", // Use esbuild instead of terser for better compatibility
+    minifyOptions: {
+      drop: ["console", "debugger"], // Remove console logs and debugger statements
     },
     // Enable source maps for better debugging
     sourcemap: mode === "development",
