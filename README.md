@@ -84,11 +84,5 @@ If you have any questions or need help, please open an issue on GitHub or contac
 
 - [ ] Browser extension support
 - [ ] Mobile app development
-- [ ] Cloud sync capabilities
-- [ ] Advanced search filters
-- [ ] Team collaboration features
-- [ ] API for third-party integrations
 
 ---
-
-Made with ❤️ by the Clippy Team
