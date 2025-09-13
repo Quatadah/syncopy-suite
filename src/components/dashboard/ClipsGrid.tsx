@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@heroui/react";
 import { Search } from "lucide-react";
 import ClipboardItem from "./ClipboardItem";
 
@@ -28,6 +29,7 @@ interface ClipsGridProps {
   fetchTags?: () => Promise<any[]>;
   searchQuery?: string;
   highlightSearchTerm?: (text: string, searchTerm: string) => React.ReactNode;
+  isLoading?: boolean;
 }
 
 const ClipsGrid = ({
@@ -45,7 +47,37 @@ const ClipsGrid = ({
   fetchTags,
   searchQuery,
   highlightSearchTerm,
+  isLoading = false,
 }: ClipsGridProps) => {
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "animate-fade-in p-2",
+          view === "grid"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            : "space-y-2"
+        )}
+      >
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <Skeleton className="w-6 h-6 rounded-lg" />
+              <Skeleton className="w-4 h-4 rounded-full" />
+            </div>
+            <Skeleton className="w-full h-4 rounded-lg" />
+            <Skeleton className="w-3/4 h-3 rounded-lg" />
+            <div className="flex gap-2">
+              <Skeleton className="w-12 h-5 rounded-full" />
+              <Skeleton className="w-16 h-5 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (filteredItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center">

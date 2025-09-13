@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useBoard } from "@/contexts/BoardContext";
 import { cn } from "@/lib/utils";
-import { addToast, Button, Checkbox, Select, SelectItem } from "@heroui/react";
+import { addToast, Button, Checkbox, Select, SelectItem, Skeleton } from "@heroui/react";
 import { Tag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -457,13 +457,47 @@ const DashboardContent = ({
           setSearchQuery={setSearchQuery}
           filteredItems={[]}
           allItems={allItems}
+          isMobile={isMobile}
+          onMobileSidebarToggle={onMobileSidebarToggle}
         />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span>Loading clips...</span>
+        
+        {/* Toolbar Skeleton */}
+        <div className="h-16 flex items-center justify-between px-6 bg-gradient-to-r from-background/95 to-background/80 backdrop-blur-sm border-b border-border/30">
+          <div className="flex items-center gap-3 md:gap-6">
+            <Skeleton className="w-48 h-10 rounded-xl" />
+            <Skeleton className="w-20 h-10 rounded-xl" />
           </div>
+          <Skeleton className="w-32 h-10 rounded-xl" />
         </div>
+
+        {/* Content Skeleton */}
+        <main className="flex-1 overflow-auto">
+          <div className="px-2 md:px-4">
+            {/* Board Header Skeleton */}
+            <div className="mb-6">
+              <Skeleton className="w-64 h-8 rounded-lg mb-2" />
+              <Skeleton className="w-32 h-4 rounded-lg" />
+            </div>
+            
+            {/* Grid Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="w-6 h-6 rounded-lg" />
+                    <Skeleton className="w-4 h-4 rounded-full" />
+                  </div>
+                  <Skeleton className="w-full h-4 rounded-lg" />
+                  <Skeleton className="w-3/4 h-3 rounded-lg" />
+                  <div className="flex gap-2">
+                    <Skeleton className="w-12 h-5 rounded-full" />
+                    <Skeleton className="w-16 h-5 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -675,6 +709,7 @@ const DashboardContent = ({
               fetchTags={fetchTags}
               searchQuery={searchQuery}
               highlightSearchTerm={highlightSearchTerm}
+              isLoading={loading}
             />
           ) : (
             <ClipsGrid
@@ -702,6 +737,7 @@ const DashboardContent = ({
               fetchTags={fetchTags}
               searchQuery={searchQuery}
               highlightSearchTerm={highlightSearchTerm}
+              isLoading={loading}
             />
           )}
 

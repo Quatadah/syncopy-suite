@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Selection,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -55,6 +56,7 @@ interface ClipsTableProps {
   fetchTags?: () => Promise<any[]>;
   searchQuery?: string;
   highlightSearchTerm?: (text: string, searchTerm: string) => React.ReactNode;
+  isLoading?: boolean;
 }
 
 
@@ -72,6 +74,7 @@ const ClipsTable = ({
   fetchTags,
   searchQuery,
   highlightSearchTerm,
+  isLoading = false,
 }: ClipsTableProps) => {
   const [sortDescriptor, setSortDescriptor] = useState<{column: string, direction: "ascending" | "descending"}>({
     column: "created_at",
@@ -269,6 +272,46 @@ const ClipsTable = ({
         return <span className="text-sm">{item[columnKey]}</span>;
     }
   };
+
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <div className="w-full pt-2 overflow-x-auto">
+        <div className="min-h-[400px] bg-gradient-to-br from-background/98 to-background/95 backdrop-blur-sm border border-border/20 rounded-xl p-4 min-w-[600px]">
+          {/* Table Header Skeleton */}
+          <div className="grid grid-cols-5 gap-4 mb-4 pb-4 border-b border-border/30">
+            <Skeleton className="w-32 h-6 rounded-lg" />
+            <Skeleton className="w-16 h-6 rounded-lg" />
+            <Skeleton className="w-20 h-6 rounded-lg" />
+            <Skeleton className="w-24 h-6 rounded-lg" />
+            <Skeleton className="w-16 h-6 rounded-lg" />
+          </div>
+          
+          {/* Table Rows Skeleton */}
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="grid grid-cols-5 gap-4 py-4">
+                <div className="flex items-center space-x-3">
+                  <Skeleton className="w-4 h-4 rounded-lg" />
+                  <div className="space-y-1 flex-1">
+                    <Skeleton className="w-3/4 h-4 rounded-lg" />
+                    <Skeleton className="w-1/2 h-3 rounded-lg" />
+                  </div>
+                </div>
+                <Skeleton className="w-16 h-6 rounded-xl" />
+                <div className="flex gap-2">
+                  <Skeleton className="w-12 h-5 rounded-full" />
+                  <Skeleton className="w-16 h-5 rounded-full" />
+                </div>
+                <Skeleton className="w-20 h-4 rounded-lg" />
+                <Skeleton className="w-8 h-8 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (filteredItems.length === 0) {
     return (
