@@ -432,12 +432,13 @@ const DashboardContent = ({
 
   // Utility function to highlight search terms
   const highlightSearchTerm = (text: string, searchTerm: string) => {
-    if (!searchTerm || searchTerm.startsWith('type:') || searchTerm.startsWith('is:') || searchTerm.startsWith('tag:')) {
+    if (!text || !searchTerm || searchTerm.startsWith('type:') || searchTerm.startsWith('is:') || searchTerm.startsWith('tag:')) {
       return text;
     }
     
+    const safeText = text ?? '';
     const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    const parts = text.split(regex);
+    const parts = safeText.split(regex);
     
     return parts.map((part, index) => 
       regex.test(part) ? (
