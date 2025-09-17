@@ -128,7 +128,9 @@ function ClipboardCard({
   searchQuery,
   highlightSearchTerm,
 }: ClipboardItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const 
+}
+)[isHovered, setIsHovered] = useState(false);
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
