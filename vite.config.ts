@@ -1,5 +1,4 @@
 import react from "@vitejs/plugin-react-swc";
-import { componentTagger } from "lovable-tagger";
 import path from "path";
 import { defineConfig } from "vite";
 
@@ -9,15 +8,18 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8082,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(
-    Boolean
-  ),
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
+    },
     // Optimize for production
     minify: "esbuild", // Use esbuild instead of terser for better compatibility
     minifyOptions: {

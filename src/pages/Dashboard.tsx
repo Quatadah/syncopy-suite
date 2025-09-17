@@ -3,7 +3,6 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import SidebarSkeleton from "@/components/dashboard/SidebarSkeleton";
 import { BoardProvider, useBoard } from "@/contexts/BoardContext";
 import { useWorkspace, WorkspaceProvider } from "@/contexts/WorkspaceContext";
-import { useWorkspace, WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
@@ -16,7 +15,6 @@ const DashboardInner = memo(() => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { activeBoard, setActiveBoard } = useBoard();
-  const { activeWorkspace, setActiveWorkspace, currentWorkspaceId } = useWorkspace();
   const { activeWorkspace, setActiveWorkspace, currentWorkspaceId } = useWorkspace();
   const isMobile = useIsMobile();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -35,13 +33,10 @@ const DashboardInner = memo(() => {
     allItems,
     boards,
     workspaces,
-    workspaces,
     loading,
     boardsLoading,
     workspacesLoading,
-    workspacesLoading,
     createBoard,
-    createWorkspace,
     createWorkspace,
     createItem,
     fetchTags,
@@ -125,10 +120,8 @@ const DashboardInner = memo(() => {
         setActiveBoard={setActiveBoard}
         createBoard={createBoard}
         createWorkspace={createWorkspace}
-        createWorkspace={createWorkspace}
         items={allItems}
         boards={boards}
-        workspaces={workspaces}
         workspaces={workspaces}
         fetchTags={fetchTags}
         isCollapsed={isMobile ? false : isSidebarCollapsed}
@@ -160,15 +153,7 @@ const DashboardInner = memo(() => {
 });
 
 const Dashboard = memo(() => {
-  return (
-    <WorkspaceProvider>
-      <BoardProvider>
-        <DashboardInner />
-      </BoardProvider>
-    </WorkspaceProvider>
-      </BoardProvider>
-    </WorkspaceProvider>
-  );
+  return <DashboardInner />;
 });
 
 export default Dashboard;
