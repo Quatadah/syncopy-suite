@@ -12,6 +12,7 @@ export interface ClipboardItem {
   is_pinned: boolean;
   is_favorite: boolean;
   board_id?: string;
+  workspace_id?: string;
   created_at: string;
   updated_at: string;
 }
