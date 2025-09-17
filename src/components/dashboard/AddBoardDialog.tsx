@@ -53,13 +53,6 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
       });
       return;
     }
-      toast({
-        title: "Name required",
-        description: "Please enter a board name",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsLoading(true);
     try {
@@ -157,3 +150,7 @@ const AddBoardDialog = ({ trigger, createBoard }: AddBoardDialogProps) => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+};
+
+export default AddBoardDialog;
