@@ -8,9 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import { Tooltip } from "@heroui/react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ChevronDown,
   ChevronLeft,
@@ -25,13 +26,16 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddBoardDialog from "./AddBoardDialog";
+import WorkspaceSelector from "./WorkspaceSelector";
 
 interface DashboardSidebarProps {
   activeBoard: string;
   setActiveBoard: (board: string) => void;
   createBoard: (boardData: any) => Promise<any>;
+  createWorkspace: (workspaceData: any) => Promise<any>;
   items: any[];
   boards: any[];
+  workspaces: any[];
   fetchTags: () => Promise<any[]>;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
@@ -44,8 +48,10 @@ const DashboardSidebar = ({
   activeBoard, 
   setActiveBoard, 
   createBoard, 
+  createWorkspace,
   items, 
   boards, 
+  workspaces,
   fetchTags, 
   isCollapsed, 
   onToggleCollapse,
@@ -55,6 +61,7 @@ const DashboardSidebar = ({
 }: DashboardSidebarProps) => {
   const [tags, setTags] = useState<Array<{name: string, count: number}>>([]);
   const { user, signOut } = useAuth();
+  const { activeWorkspace, setActiveWorkspace } = useWorkspace();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,6 +88,16 @@ const DashboardSidebar = ({
       loadTags();
     }
   }, [items]);
+
+  // Set default workspace when workspaces are loaded
+  useEffect(() => {
+    if (workspaces.length > 0 && !activeWorkspace) {
+      const defaultWorkspace = workspaces.find(w => w.is_default) || workspaces[0];
+      if (defaultWorkspace) {
+        setActiveWorkspace(defaultWorkspace.id);
+      }
+    }
+  }, [workspaces, activeWorkspace, setActiveWorkspace]);
 
   const defaultBoards = [
     { 
@@ -111,6 +128,7 @@ const DashboardSidebar = ({
   };
 
   return (
+    <TooltipProvider>
       <div className={cn(
         "bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border/50 flex flex-col h-full shadow-xl backdrop-blur-sm transition-all duration-300 ease-in-out",
         isMobile ? "fixed left-0 top-0 z-50 w-80 transform" : "relative",
@@ -124,74 +142,79 @@ const DashboardSidebar = ({
       )}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
         <div className="relative flex items-center justify-between">
-          <Tooltip 
-            content="Clippy Dashboard"
-            placement="right"
-            isDisabled={!isCollapsed || isMobile}
-          >
-            <button 
-              onClick={() => {
-                navigate('/dashboard');
-                if (isMobile && onMobileClose) {
-                  onMobileClose();
-                }
-              }}
-              className={cn(
-                "group flex items-center hover:scale-105 transition-all duration-300 ease-out",
-                (isCollapsed && !isMobile) ? "space-x-0 justify-center" : "space-x-3"
-              )}
-            >
-              <div className={cn(
-                "relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 p-2 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/20 transition-all duration-300",
-                (isCollapsed && !isMobile) ? "w-10 h-10" : "w-14 h-14"
-              )}>
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl"></div>
-                <img 
-                  src={clippyLogo} 
-                  alt="Clippy Logo" 
-                  className="relative w-full h-full object-contain z-10"
-                />
-              </div>
-              {!(isCollapsed && !isMobile) && (
-                <div className="text-left">
-                  <h2 className="text-xl font-bold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
-                    Clippy
-                  </h2>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>
-                    <p className="text-xs text-sidebar-foreground/70 font-medium">Free plan</p>
-                  </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => {
+                  navigate('/dashboard');
+                  if (isMobile && onMobileClose) {
+                    onMobileClose();
+                  }
+                }}
+                className={cn(
+                  "group flex items-center hover:scale-105 transition-all duration-300 ease-out",
+                  (isCollapsed && !isMobile) ? "space-x-0 justify-center" : "space-x-3"
+                )}
+              >
+                <div className={cn(
+                  "relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 p-2 shadow-lg group-hover:shadow-xl group-hover:shadow-primary/20 transition-all duration-300",
+                  (isCollapsed && !isMobile) ? "w-10 h-10" : "w-14 h-14"
+                )}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl"></div>
+                  <img 
+                    src={clippyLogo} 
+                    alt="Clippy Logo" 
+                    className="relative w-full h-full object-contain z-10"
+                  />
                 </div>
-              )}
-            </button>
+                {!(isCollapsed && !isMobile) && (
+                  <div className="text-left">
+                    <h2 className="text-xl font-bold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
+                      Clippy
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+                      <p className="text-xs text-sidebar-foreground/70 font-medium">Free plan</p>
+                    </div>
+                  </div>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              Clippy Dashboard
+            </TooltipContent>
           </Tooltip>
           
           {/* Toggle Button - Only show on desktop */}
           {!isMobile && (
             <>
               {!isCollapsed ? (
-                <Tooltip 
-                  content="Collapse sidebar"
-                  placement="right"
-                >
-                  <button
-                    onClick={onToggleCollapse}
-                    className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
-                  >
-                    <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
-                  </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={onToggleCollapse}
+                      className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
+                    >
+                      <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    Collapse sidebar
+                  </TooltipContent>
                 </Tooltip>
               ) : (
-                <Tooltip 
-                  content="Expand sidebar"
-                  placement="right"
-                >
-                  <button
-                    onClick={onToggleCollapse}
-                    className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
-                  >
-                    <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
-                  </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={onToggleCollapse}
+                      className="p-2 rounded-lg bg-sidebar-accent/20 hover:bg-sidebar-accent/30 transition-all duration-200 hover:scale-105"
+                    >
+                      <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    Expand sidebar
+                  </TooltipContent>
                 </Tooltip>
               )}
             </>
@@ -208,6 +231,15 @@ const DashboardSidebar = ({
           )}
         </div>
       </div>
+
+      {/* Workspace Selector */}
+      <WorkspaceSelector
+        workspaces={workspaces}
+        activeWorkspace={activeWorkspace}
+        onWorkspaceChange={setActiveWorkspace}
+        onCreateWorkspace={createWorkspace}
+        isCollapsed={isCollapsed && !isMobile}
+      />
 
       {/* Navigation */}
       <div className={cn(
@@ -293,13 +325,14 @@ const DashboardSidebar = ({
                 </button>
               );
 
-              return isCollapsed ? (
-                <Tooltip 
-                  key={board.id}
-                  content={`${board.name} (${board.count})`}
-                  placement="right"
-                >
-                  {buttonContent}
+              return isCollapsed && !isMobile ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {buttonContent}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {board.name} ({board.count})
+                  </TooltipContent>
                 </Tooltip>
               ) : buttonContent;
             })}
@@ -387,13 +420,14 @@ const DashboardSidebar = ({
                 </button>
               );
 
-              return isCollapsed ? (
-                <Tooltip 
-                  key={board.id}
-                  content={`${board.name} (${getItemCountForBoard(board.id)})`}
-                  placement="right"
-                >
-                  {buttonContent}
+              return isCollapsed && !isMobile ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {buttonContent}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {board.name} ({getItemCountForBoard(board.id)})
+                  </TooltipContent>
                 </Tooltip>
               ) : buttonContent;
             })}
@@ -449,13 +483,14 @@ const DashboardSidebar = ({
                 </button>
               );
 
-              return isCollapsed ? (
-                <Tooltip 
-                  key={tag.name}
-                  content={`#${tag.name} (${tag.count})`}
-                  placement="right"
-                >
-                  {buttonContent}
+              return isCollapsed && !isMobile ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    {buttonContent}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    #{tag.name} ({tag.count})
+                  </TooltipContent>
                 </Tooltip>
               ) : buttonContent;
             })}
@@ -552,6 +587,7 @@ const DashboardSidebar = ({
         </div>
       </div>
       </div>
+    </TooltipProvider>
   );
 };
 
