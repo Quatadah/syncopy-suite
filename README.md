@@ -26,8 +26,8 @@ A powerful, open-source clipboard manager that helps you organize and manage you
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/clippy-clipboard-manager.git
-cd clippy-clipboard-manager
+git clone https://github.com/Quatadah/syncopy-suite
+cd syncopy-suite
 ```
 
 2. Install dependencies:

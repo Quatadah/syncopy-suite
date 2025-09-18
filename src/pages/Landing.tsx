@@ -247,7 +247,7 @@ const Landing = () => {
             <div className="hidden md:flex items-center space-x-6">
               <a href="#features" className="text-gray-300 hover:text-blue-300 transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Features</a>
               <a href="#community" className="text-gray-300 hover:text-blue-300 transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Community</a>
-              <a href="https://github.com/quatadah/clippy-clipboard-manager" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-300 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-white/5">
+              <a href="https://github.com/Quatadah/syncopy-suite" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-300 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-white/5">
                 <Github className="w-4 h-4 mr-2" />
                 GitHub
               </a>
@@ -255,7 +255,7 @@ const Landing = () => {
                 onClick={() => navigate('/dashboard')}
                 className="from-blue-600 to-cyan-600 shadow-blue-500/10 hover:from-blue-700 rounded-full border-none bg-gradient-to-r shadow-md hover:to-cyan-700"
               >
-                Get Started Free
+                Get Started
               </Button>
             </div>
           </div>
@@ -443,7 +443,7 @@ const Landing = () => {
                 title: "Contribute",
                 description: "Help improve Clippy by contributing code, reporting bugs, or suggesting new features.",
                 buttonText: "View on GitHub",
-                buttonAction: () => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank'),
+                buttonAction: () => window.open('https://github.com/Quatadah/syncopy-suite', '_blank'),
                 gradient: "from-blue-500 to-cyan-500",
                 borderColor: "border-blue-400/30",
                 bgColor: "bg-blue-500/10",
@@ -454,7 +454,7 @@ const Landing = () => {
                 title: "Star Us",
                 description: "Show your support by starring our repository. It helps others discover Clippy.",
                 buttonText: "Star Repository",
-                buttonAction: () => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank'),
+                buttonAction: () => window.open('https://github.com/Quatadah/syncopy-suite', '_blank'),
                 gradient: "from-emerald-500 to-teal-500",
                 borderColor: "border-emerald-400/30",
                 bgColor: "bg-emerald-500/10",
@@ -565,7 +565,7 @@ const Landing = () => {
                 onClick={() => navigate('/dashboard')}
                 className="from-blue-600 to-cyan-600 shadow-blue-500/10 hover:from-blue-700 rounded-full border-none bg-gradient-to-r shadow-md hover:to-cyan-700 text-lg px-8 py-4 h-auto group hover:scale-105 transition-all duration-300"
               >
-                Get Started Free
+                Get Started
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
               
@@ -573,7 +573,7 @@ const Landing = () => {
                 size="lg"
                 variant="outline"
                 className="text-lg px-8 py-4 h-auto border-blue-400/30 text-white bg-blue-500/10 hover:bg-blue-500/20 backdrop-blur-sm hover:scale-105 transition-all duration-300 rounded-full"
-                onClick={() => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank')}
+                onClick={() => window.open('https://github.com/Quatadah/syncopy-suite', '_blank')}
               >
                 <Github className="w-5 h-5 mr-2" />
                 View on GitHub
@@ -609,12 +609,12 @@ const Landing = () => {
                   onClick={() => navigate('/dashboard')}
                   className="from-blue-600 to-cyan-600 shadow-blue-500/10 hover:from-blue-700 rounded-full border-none bg-gradient-to-r shadow-md hover:to-cyan-700"
                 >
-                  Get Started Free
+                  Get Started
                 </Button>
                 <Button 
                   variant="outline" 
                   className="border-blue-400/30 text-white bg-blue-500/10 hover:bg-blue-500/20 backdrop-blur-sm rounded-full"
-                  onClick={() => window.open('https://github.com/quatadah/clippy-clipboard-manager', '_blank')}
+                  onClick={() => window.open('https://github.com/Quatadah/syncopy-suite', '_blank')}
                 >
                   <Github className="w-4 h-4 mr-2" />
                   GitHub
@@ -635,13 +635,13 @@ const Landing = () => {
             <div>
               <h3 className="font-semibold mb-4 text-white">Open Source</h3>
               <ul className="space-y-3 text-gray-300">
-                <li><a href="https://github.com/quatadah/clippy-clipboard-manager" className="hover:text-blue-300 transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
+                <li><a href="https://github.com/Quatadah/syncopy-suite" className="hover:text-blue-300 transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
                   <Github className="w-4 h-4 mr-2" />
                   Repository
                 </a></li>
-                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/issues" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Report Bug</a></li>
-                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/discussions" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Discussions</a></li>
-                <li><a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/README.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+                <li><a href="https://github.com/Quatadah/syncopy-suite/issues" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Report Bug</a></li>
+                <li><a href="https://github.com/Quatadah/syncopy-suite/discussions" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+                <li><a href="https://github.com/Quatadah/syncopy-suite/blob/main/README.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Documentation</a></li>
               </ul>
             </div>
           </div>
@@ -651,9 +651,9 @@ const Landing = () => {
               © 2024 Clippy. Open source and free forever.
             </p>
             <div className="flex space-x-6 text-sm text-gray-400 mt-4 md:mt-0">
-              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/LICENSE" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">License</a>
-              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/PRIVACY.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Privacy</a>
-              <a href="https://github.com/quatadah/clippy-clipboard-manager/blob/main/CONTRIBUTING.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Contributing</a>
+              <a href="https://github.com/Quatadah/syncopy-suite/blob/main/LICENSE" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">License</a>
+              <a href="https://github.com/Quatadah/syncopy-suite/blob/main/PRIVACY.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Privacy</a>
+              <a href="https://github.com/Quatadah/syncopy-suite/blob/main/CONTRIBUTING.md" className="hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">Contributing</a>
             </div>
           </div>
         </div>
