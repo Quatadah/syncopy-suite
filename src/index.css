@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@200;300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@200;300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -422,5 +422,209 @@
   50% {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* HeroUI Input Fix - Remove unwanted white borders */
+@layer components {
+  /* Fix for HeroUI Input components - remove internal white borders */
+  .heroui-input input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .heroui-input input:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Target the input wrapper to remove internal borders */
+  [data-slot="input-wrapper"] {
+    border: 1px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+  }
+
+  [data-slot="input-wrapper"]:focus-within {
+    border: 1px solid hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+  }
+
+  /* Remove any internal white borders from the input element itself */
+  [data-slot="input-wrapper"] input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Ensure proper focus states without white borders */
+  [data-slot="input-wrapper"] input:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Fix for any remaining white border issues */
+  .heroui-input-wrapper input,
+  .heroui-input-wrapper input:focus,
+  .heroui-input-wrapper input:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Additional targeting for HeroUI Input components */
+  [data-heroui="input"] input,
+  [data-heroui="input"] input:focus,
+  [data-heroui="input"] input:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Target any input inside HeroUI components */
+  .heroui-input input,
+  .heroui-input input:focus,
+  .heroui-input input:active,
+  .heroui-input input:hover {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Ensure the wrapper handles all styling */
+  [data-slot="input-wrapper"]:has(input) {
+    border: 1px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+    border-radius: 8px !important;
+  }
+
+  [data-slot="input-wrapper"]:has(input):focus-within {
+    border: 1px solid hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+  }
+
+  /* HeroUI Textarea Fix - Remove unwanted white borders */
+  /* Target all possible textarea selectors from HeroUI */
+  textarea[data-slot="input"],
+  textarea[data-slot="textarea"],
+  [data-slot="input"] textarea,
+  [data-slot="textarea"] textarea,
+  .heroui-textarea textarea,
+  [data-heroui="textarea"] textarea {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  textarea[data-slot="input"]:focus,
+  textarea[data-slot="textarea"]:focus,
+  [data-slot="input"] textarea:focus,
+  [data-slot="textarea"] textarea:focus,
+  .heroui-textarea textarea:focus,
+  [data-heroui="textarea"] textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Target the textarea wrapper - HeroUI uses same wrapper for both input and textarea */
+  [data-slot="input-wrapper"]:has(textarea),
+  [data-slot="textarea-wrapper"] {
+    border: 1px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+  }
+
+  [data-slot="input-wrapper"]:has(textarea):focus-within,
+  [data-slot="textarea-wrapper"]:focus-within {
+    border: 1px solid hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+  }
+
+  /* More specific targeting for textarea elements */
+  [data-slot="input-wrapper"] textarea,
+  [data-slot="textarea-wrapper"] textarea {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  [data-slot="input-wrapper"] textarea:focus,
+  [data-slot="textarea-wrapper"] textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Universal textarea targeting within HeroUI components */
+  [class*="heroui"] textarea,
+  [class*="heroui"] textarea:focus,
+  [class*="heroui"] textarea:active,
+  [class*="heroui"] textarea:hover {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Target any textarea that might be inside HeroUI components */
+  .heroui-textarea-wrapper textarea,
+  .heroui-textarea-wrapper textarea:focus,
+  .heroui-textarea-wrapper textarea:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure the wrapper handles all styling for textareas */
+  [data-slot="input-wrapper"]:has(textarea) {
+    border: 1px solid hsl(var(--border)) !important;
+    background: hsl(var(--background)) !important;
+    border-radius: 8px !important;
+  }
+
+  [data-slot="input-wrapper"]:has(textarea):focus-within {
+    border: 1px solid hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+  }
+
+  /* More aggressive targeting for HeroUI textareas */
+  /* Target any textarea element that might have white borders */
+  textarea {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Specific targeting for HeroUI textarea components */
+  [data-slot="input"] textarea,
+  [data-slot="textarea"] textarea,
+  [data-slot="input-wrapper"] textarea,
+  [data-slot="textarea-wrapper"] textarea {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  [data-slot="input"] textarea:focus,
+  [data-slot="textarea"] textarea:focus,
+  [data-slot="input-wrapper"] textarea:focus,
+  [data-slot="textarea-wrapper"] textarea:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
   }
 }

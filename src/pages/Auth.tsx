@@ -1,7 +1,7 @@
 import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { addToast, Button, Card, CardBody, CardHeader, Input, Tab, Tabs } from "@heroui/react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -33,46 +33,6 @@ const Auth = () => {
     checkUser();
   }, [navigate]);
 
-  const handleMagicLink = async () => {
-    if (!email) {
-      addToast({
-        title: "Email required",
-        description: "Please enter your email address",
-        color: "danger",
-        variant: "solid",
-        timeout: 5000,
-      })
-      return;
-    }
-
-    setIsLoading(true);
-    const { error: authError } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-
-    setIsLoading(false);
-
-    if (authError) {
-      addToast({
-        title: "Error",
-        description: authError.message,
-        color: "danger",
-        variant: "solid",
-        timeout: 5000,
-      })
-    } else {
-      addToast({
-        title: "Check your email",
-        description: "We sent you a magic link to sign in",
-        color: "success",
-        variant: "solid",
-        timeout: 5000,
-      })
-    }
-  };
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -122,12 +82,12 @@ const Auth = () => {
   const handleSignIn = async () => {
     if (!email || !password) {
       addToast({
-        title: "Missing fields",
-        description: "Please enter your email and password",
+        title: "Missing credentials",
+        description: "Please enter your email and password to sign in",
         color: "danger",
         variant: "solid",
         timeout: 5000,
-      })
+      });
       return;
     }
 
@@ -140,13 +100,21 @@ const Auth = () => {
     setIsLoading(false);
 
     if (authError) {
+      // Enhanced error messages for better user experience
+      let errorMessage = authError.message;
+      if (authError.message.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (authError.message.includes("Email not confirmed")) {
+        errorMessage = "Please check your email and click the confirmation link before signing in.";
+      }
+      
       addToast({
-        title: "Error",
-        description: authError.message,
+        title: "Sign in failed",
+        description: errorMessage,
         color: "danger",
         variant: "solid",
         timeout: 5000,
-      })
+      });
     } else {
       addToast({
         title: "Welcome back!",
@@ -154,175 +122,168 @@ const Auth = () => {
         color: "success",
         variant: "solid",
         timeout: 5000,
-      })
+      });
       navigate('/dashboard');
     }
   };
 
-  const handleGoogleAuth = async () => {
-    setIsLoading(true);
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-
-    setIsLoading(false);
-
-    if (authError) {
-      addToast({
-        title: "Error",
-        description: authError.message,
-        color: "danger",
-        variant: "solid",
-        timeout: 5000,
-      })
-    }
-  };
-
-  const handleGithubAuth = async () => {
-    setIsLoading(true);
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-
-    setIsLoading(false);
-
-    if (authError) {
-      addToast({
-        title: "Error",
-        description: authError.message,
-        color: "danger",
-        variant: "solid",
-        timeout: 5000,
-      })
-    }
-  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center flex flex-col items-center">
-          <h2 className="text-2xl font-bold">Welcome to Clipboard</h2>
-          <p className="text-sm text-muted-foreground">
-            Sign in to access your clipboard across all devices
-          </p>
-        </CardHeader>
-        <CardBody className="w-full">
-          <Tabs defaultSelectedKey="signin" className="w-full" classNames={{
-            tabList: "w-full",
-            tab: "flex-1 flex items-center justify-center",
-            tabContent: "flex items-center justify-center",
-            cursor: "w-full",
-            panel: "w-full"
-          }}>
-            <Tab key="signin" title="Sign In" className="space-y-4 w-full">
-              <div className="space-y-2">
-                <Input
-                  id="email"
-                  type="email"
-                  label="Email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="relative">
-                  <Input
-                    id="password"
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo/Brand Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-4">
+            <img 
+              src="/src/assets/images/clippy-logo.png" 
+              alt="Clippy Logo" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to Clippy</h1>
+          <p className="text-muted-foreground">Sync your clipboard across all devices</p>
+        </div>
+
+        <Card className="shadow-large border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader className="text-center flex flex-col items-center space-y-1 pb-4">
+            <h2 className="text-2xl font-bold text-card-foreground">Get Started</h2>
+            <p className="text-sm text-muted-foreground">
+              Sign in or create your account
+            </p>
+          </CardHeader>
+          <CardBody className="w-full">
+            <Tabs defaultSelectedKey="signin" className="w-full p-0" classNames={{
+              tabList: "w-full",
+              tab: "flex-1 flex items-center justify-center",
+              tabContent: "flex items-center justify-center",
+              cursor: "w-full",
+              panel: "w-full"
+            }}>
+              <Tab key="signin" title="Sign In" className="space-y-4 w-full">
+                {/* Email/Password Form */}
+                <div className="space-y-4">
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      label="Email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      startContent={<Mail className="w-4 h-4 text-muted-foreground" />}
+                    />
+                  
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        startContent={<Lock className="w-4 h-4 text-muted-foreground" />}
+                        endContent={
+                          <Button
+                            type="button"
+                            variant="light"
+                            size="sm"
+                            className="min-w-0 w-8 h-8 p-0 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        }
+                      />
+                    </div>
+
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={handleSignIn}
+                    disabled={isLoading}
+                    className="w-full h-11 bg-primary hover:bg-primary-dark text-primary-foreground font-medium"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign In
                   </Button>
                 </div>
-              </div>
-              <Button
-                onClick={handleSignIn}
-                disabled={isLoading}
-                className="w-full bg-gradient-hero text-white"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
-              </Button>
-            </Tab>
-            <Tab key="signup" title="Sign Up" className="space-y-4 w-full">
-              <div className="space-y-2">
-                <Input
-                  id="fullName"
-                  label="Full Name (Optional)"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Input
-                  id="email"
-                  label="Email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="relative">
-                  <Input
-                    id="password"
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+              </Tab>
+
+              <Tab key="signup" title="Sign Up" className="space-y-4 w-full">
+                {/* Registration Form */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      id="signup-name"
+                      label="Full Name (Optional)"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      startContent={<User className="w-4 h-4 text-muted-foreground" />}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Input
+                      id="signup-email"
+                      label="Email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      startContent={<Mail className="w-4 h-4 text-muted-foreground" />}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a password (min. 6 characters)"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        startContent={<Lock className="w-4 h-4 text-muted-foreground" />}
+                        endContent={
+                          <Button
+                            type="button"
+                            variant="light"
+                            size="sm"
+                            className="min-w-0 w-8 h-8 p-0 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        }
+                      />
+                    </div>
+                  </div>
+
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={handleSignUp}
+                    disabled={isLoading}
+                    className="w-full h-11 bg-primary hover:bg-primary-dark text-primary-foreground font-medium"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Account
                   </Button>
                 </div>
-              </div>
-              <Button
-                onClick={handleSignUp}
-                disabled={isLoading}
-                className="w-full bg-gradient-hero text-white"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign Up
-              </Button>
-            </Tab>
-          </Tabs>
-        </CardBody>
-      </Card>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  By creating an account, you agree to our Terms of Service and Privacy Policy.
+                </p>
+              </Tab>
+            </Tabs>
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
 };
