@@ -1,11 +1,10 @@
 import { HomeIcon } from "@/assets";
-import clippyLogo from "@/assets/images/clippy-logo.png";
 import FilterIcon from "@/assets/icons/FilterIcon";
+import clippyLogo from "@/assets/images/clippy-logo.png";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
@@ -465,7 +464,7 @@ const DashboardSidebar = ({
 
       {/* User Profile */}
       <div className={cn(
-        "relative bg-gradient-to-r from-sidebar-accent/5 to-transparent p-4",
+        "relative bg-gradient-to-r from-sidebar-accent/5 to-transparent px-4",
         (isCollapsed && !isMobile) ? "px-2" : "px-4"
       )}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
@@ -527,7 +526,7 @@ const DashboardSidebar = ({
                   </div>
                 </div>
                 <div className="space-y-1 pt-2">
-                  <DropdownMenuItem 
+                  <div
                     onClick={() => navigate('/settings')}
                     className="flex items-center space-x-3 p-3 rounded-xl text-left transition-all duration-200 hover:bg-gradient-to-r hover:from-sidebar-accent/20 hover:to-sidebar-accent/5 hover:shadow-sm cursor-pointer group"
                   >
@@ -535,8 +534,8 @@ const DashboardSidebar = ({
                       <Settings className="w-4 h-4 text-sidebar-foreground group-hover:text-primary" />
                     </div>
                     <span className="text-sm font-medium text-sidebar-foreground group-hover:text-primary">Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  </div>
+                  <div 
                     onClick={signOut}
                     className="flex items-center space-x-3 p-3 rounded-xl text-left transition-all duration-200 hover:bg-destructive/10 hover:shadow-sm cursor-pointer group"
                   >
@@ -544,7 +543,7 @@ const DashboardSidebar = ({
                       <User className="w-4 h-4 text-destructive" />
                     </div>
                     <span className="text-sm font-medium text-destructive">Sign Out</span>
-                  </DropdownMenuItem>
+                  </div>
                 </div>
               </div>
             </DropdownMenuContent>
