@@ -1,25 +1,21 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import {
+  addToast,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure,
+} from "@heroui/react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Calendar,
   CheckSquare,
@@ -131,9 +127,33 @@ function ClipboardCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isStarred, setIsStarred] = useState(item.isFavorite);
   const [isPinned, setIsPinned] = useState(item.isPinned);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showTextPreview, setShowTextPreview] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const {
+    isOpen: showDeleteDialog,
+    onOpen: setShowDeleteDialog,
+    onOpenChange: onDeleteDialogChange,
+  } = useDisclosure();
+  const {
+    isOpen: showTextPreview,
+    onOpen: setShowTextPreview,
+    onOpenChange: onTextPreviewChange,
+  } = useDisclosure();
+  const {
+    isOpen: showEditDialog,
+    onOpen: setShowEditDialog,
+    onOpenChange: onEditDialogChange,
+  } = useDisclosure();
+  const [isLoading, setIsLoading] = useState(false);
+  const [justCopied, setJustCopied] = useState(false);
+
+  // Use layout prop with fallback to view for compatibility
+  const currentLayout = layout || view;
+  const isListLayout = currentLayout === "list";
+
+  // Helper function to render highlighted text
+  const renderHighlightedText = (text: string) => {
+    if (highlightSearchTerm && searchQuery) {
+      return highlightSearchTerm(text, searchQuery);
+    }
     return text;
   };
 
@@ -186,14 +206,18 @@ function ClipboardCard({
         setJustCopied(true);
       }
     } catch (error) {
-      toast({
+      addToast({
         title: "Copy failed",
         description: "Unable to copy content to clipboard",
-        variant: "destructive",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
+      });
+    }
   };
 
   const handleDelete = () => {
-    setShowDeleteDialog(true);
+    setShowDeleteDialog();
   };
 
   const handleShare = (e: React.MouseEvent) => {
@@ -216,15 +240,25 @@ function ClipboardCard({
     
     try {
       await toggleFavorite(item.id, currentFavoriteState);
-      toast({
+      addToast({
         title: newFavoriteState ? "Added to favorites" : "Removed from favorites",
         description: newFavoriteState
           ? "Item added to your favorites"
           : "Item removed from your favorites",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      });
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
       // Revert the optimistic update on error
       setIsStarred(currentFavoriteState);
-      toast({
-        variant: "destructive",
+      addToast({
+        title: "Error updating favorite",
+        description: "Failed to update favorite status",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -243,15 +277,25 @@ function ClipboardCard({
     
     try {
       await togglePin(item.id, currentPinState);
-      toast({
+      addToast({
         title: newPinState ? "Pinned item" : "Unpinned item",
         description: newPinState
           ? "Item has been pinned to the top"
           : "Item has been unpinned",
+        color: "success",
+        variant: "solid",
+        timeout: 5000,
+      });
+    } catch (error) {
+      console.error("Error toggling pin:", error);
       // Revert the optimistic update on error
       setIsPinned(currentPinState);
-      toast({
-        variant: "destructive",
+      addToast({
+        title: "Error updating pin",
+        description: "Failed to update pin status",
+        color: "danger",
+        variant: "solid",
+        timeout: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -266,7 +310,7 @@ function ClipboardCard({
       } else if (deleteItem) {
         await deleteItem(item.id);
       }
-      setShowDeleteDialog(false);
+      onDeleteDialogChange();
     } catch (error) {
       console.error("Error deleting item:", error);
     } finally {
@@ -452,43 +496,57 @@ function ClipboardCard({
               />
             </div>
           </motion.div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <Dropdown>
+            <DropdownTrigger>
               <Button
                 size="sm"
-                variant="ghost"
+                variant="light"
+                isIconOnly
+                className="h-10 w-10 p-0 hover:bg-background/90 cursor-pointer relative z-30 rounded-lg transition-all duration-400 hover:shadow-sm hover:scale-105"
               >
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground/70" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setShowTextPreview(true)}
-                <Eye className="w-4 h-4 mr-2" />
-                <Eye className="w-4 h-4 mr-2" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setShowEditDialog(true)}
-                <Edit className="w-4 h-4 mr-2" />
-                <Edit className="w-4 h-4 mr-2" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleCopy}
-                <Copy className="w-4 h-4 mr-2" />
-                <Copy className="w-4 h-4 mr-2" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handlePin}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Clipboard item actions">
+              <DropdownItem
+                key="view"
+                startContent={<Eye className="w-4 h-4" />}
+                onPress={setShowTextPreview}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                <Trash2 className="w-4 h-4 mr-2" />
+                View Text
+              </DropdownItem>
+              <DropdownItem
+                key="edit"
+                startContent={<Edit className="w-4 h-4" />}
+                onPress={setShowEditDialog}
+              >
+                Edit
+              </DropdownItem>
+              <DropdownItem
+                key="copy"
+                startContent={<Copy className="w-4 h-4" />}
+                onPress={handleCopy}
+              >
+                Copy
+              </DropdownItem>
+              <DropdownItem
+                key="pin"
+                startContent={<Pin className="w-4 h-4" />}
+                onPress={handlePin}
+              >
+                {item.isPinned ? "Unpin" : "Pin"}
+              </DropdownItem>
+              <DropdownItem
+                key="delete"
+                className="text-danger"
+                color="danger"
+                startContent={<Trash2 className="w-4 h-4" />}
+                onPress={handleDelete}
+              >
                 Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </motion.div>
 
 
@@ -588,28 +646,52 @@ function ClipboardCard({
       </Card>
 
       {/* Delete confirmation modal */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Clipboard Item</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{item.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              disabled={isLoading}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isLoading ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Modal isOpen={showDeleteDialog} onOpenChange={onDeleteDialogChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Delete Clipboard Item
+              </ModalHeader>
+              <ModalBody>
+                <p>
+                  Are you sure you want to delete "{item.title}"? This action
+                  cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  variant="light"
+                  onPress={onClose}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={confirmDelete}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Deleting..." : "Delete"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Text preview modal */}
+      <TextPreviewModal
+        isOpen={showTextPreview}
+        onOpenChange={onTextPreviewChange}
+        content={item.content}
+        title={item.title}
+        type={item.type}
+        onCopy={copyToClipboard}
+      />
+
+      {/* Edit item modal */}
       <EditClipboardItemDialog
         item={{
           id: item.id,
@@ -622,11 +704,9 @@ function ClipboardCard({
           created_at: item.createdAt,
           updated_at: item.createdAt, // fallback to createdAt if updatedAt not available
           board_id: undefined, // not available in this interface
-          workspace_id: undefined, // not available in this interface
-          workspace_id: undefined, // not available in this interface
-        onOpenChange={setShowTextPreview}
+        }}
         isOpen={showEditDialog}
-        onClose={() => setShowEditDialog(false)}
+        onClose={() => onEditDialogChange()}
         updateItem={updateItem}
         fetchTags={fetchTags}
       />

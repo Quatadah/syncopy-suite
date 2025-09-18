@@ -2,11 +2,11 @@ import AccessibilityEnhancer from "@/components/AccessibilityEnhancer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import SEOPerformanceMonitor from "@/components/SEOPerformanceMonitor";
-import { Toaster } from "@/components/ui/toaster";
+import { HeroUIProvider } from "@heroui/react";
+import { ToastProvider } from "@heroui/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { BoardProvider } from "./contexts/BoardContext";
-import { WorkspaceProvider } from "./contexts/WorkspaceContext";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Landing from "./pages/Landing";
@@ -18,7 +18,8 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <WorkspaceProvider>
+    <HeroUIProvider>
+      <ToastProvider />
       <BoardProvider>
         <AuthProvider>
           <AccessibilityEnhancer />
@@ -55,10 +56,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-          <Toaster />
         </AuthProvider>
       </BoardProvider>
-    </WorkspaceProvider>
+    </HeroUIProvider>
   </QueryClientProvider>
 );
 

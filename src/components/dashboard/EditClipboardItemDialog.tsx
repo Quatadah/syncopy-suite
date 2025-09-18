@@ -1,24 +1,5 @@
 import { ClipboardItem, useClipboardItems } from "@/hooks/useClipboardItems";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea } from "@heroui/react";
 import { useEffect, useState } from "react";
 
 interface EditClipboardItemDialogProps {
@@ -66,14 +47,7 @@ const EditClipboardItemDialog = ({ item, trigger, isOpen, onClose, updateItem: p
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) {
-      toast({
-        title: "Content required",
-        description: "Please enter some content",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!content.trim()) return;
 
     setIsLoading(true);
     try {
@@ -112,131 +86,152 @@ const EditClipboardItemDialog = ({ item, trigger, isOpen, onClose, updateItem: p
     }
   };
 
+  const typeOptions = [
+    { key: "text", label: "Text" },
+    { key: "link", label: "Link" },
+    { key: "image", label: "Image" },
+    { key: "code", label: "Code" },
+  ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Clipboard Item</DialogTitle>
-          <DialogDescription>
-            Make changes to your clipboard item.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title (optional)</Label>
-            <Input
-              id="title"
-              placeholder="Enter item title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              placeholder="Enter item content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-[100px]"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={(value) => setType(value as "text" | "link" | "image" | "code")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select item type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="text">Text</SelectItem>
-                <SelectItem value="link">Link</SelectItem>
-                <SelectItem value="image">Image</SelectItem>
-                <SelectItem value="code">Code</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Tags</Label>
-            
-            {/* Current tags */}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-full"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
+    <>
+      {trigger && (
+        <div onMouseDown={() => {}}>{trigger}</div>
+      )}
+      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h2 className="text-xl font-semibold">Edit Clipboard Item</h2>
+            <p className="text-sm text-default-500">
+              Make changes to your clipboard item.
+            </p>
+          </ModalHeader>
+          <ModalBody>
+            <form id="edit-item-form" onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  id="title"
+                  label="Title (optional)"
+                  placeholder="Enter item title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
-            )}
 
-            {/* Add new tag */}
+              <div className="space-y-2">
+                <Textarea
+                  id="content"
+                  label="Content"
+                  placeholder="Enter item content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  minRows={4}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Select
+                  label="Type"
+                  placeholder="Select item type"
+                  selectedKeys={[type]}
+                  onSelectionChange={(keys) => {
+                    const selectedType = Array.from(keys)[0] as "text" | "link" | "image" | "code";
+                    setType(selectedType);
+                  }}
+                >
+                  {typeOptions.map((option) => (
+                    <SelectItem key={option.key}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tags</label>
+                
+                {/* Current tags */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-full"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new tag */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add new tag"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                  />
+                  <Button type="button" size="sm" onPress={addTag} disabled={!newTag.trim()}>
+                    Add
+                  </Button>
+                </div>
+
+                {/* Available tags to add */}
+                {availableTags.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Available tags:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {availableTags
+                        .filter(tag => !tags.includes(tag.name))
+                        .map((tag) => (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => addExistingTag(tag.name)}
+                            className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-colors"
+                          >
+                            + {tag.name}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </form>
+          </ModalBody>
+          <ModalFooter className="gap-2">
             <div className="flex gap-2">
-              <Input
-                placeholder="Add new tag"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-              />
-              <Button type="button" size="sm" onClick={addTag} disabled={!newTag.trim()}>
-                Add
+              <Button variant="light" onPress={onClose}>
+                Cancel
+              </Button>
+              <Button 
+                color="primary"
+                type="submit" 
+                form="edit-item-form"
+                isDisabled={isLoading || !content.trim()}
+                className="bg-gradient-hero text-white"
+              >
+                {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </div>
-
-            {/* Available tags to add */}
-            {availableTags.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Available tags:</p>
-                <div className="flex flex-wrap gap-1">
-                  {availableTags
-                    .filter(tag => !tags.includes(tag.name))
-                    .map((tag) => (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => addExistingTag(tag.name)}
-                        className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded hover:bg-muted/80 transition-colors"
-                      >
-                        + {tag.name}
-                      </button>
-                    ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </form>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={isLoading || !content.trim()}
-          >
-            {isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

@@ -2,12 +2,11 @@ import DashboardContent from "@/components/dashboard/DashboardContent";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import SidebarSkeleton from "@/components/dashboard/SidebarSkeleton";
 import { BoardProvider, useBoard } from "@/contexts/BoardContext";
-import { useWorkspace, WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useClipboardItems } from "@/hooks/useClipboardItems";
 import { useSEO } from "@/hooks/useSEO";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@heroui/react";
 import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,14 +14,13 @@ const DashboardInner = memo(() => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { activeBoard, setActiveBoard } = useBoard();
-  const { activeWorkspace, setActiveWorkspace, currentWorkspaceId } = useWorkspace();
   const isMobile = useIsMobile();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // SEO optimization
   useSEO({
-    title: `Dashboard - ${activeBoard?.name || 'All Items'} | Clippy`,
+    title: `Dashboard - ${activeBoard || 'All Items'} | Clippy`,
     description: `Manage your clipboard items with Clippy's powerful dashboard. Organize, search, and sync your clipboard content across all devices.`,
     url: "https://clippy.app/dashboard",
     noindex: true, // Dashboard is private, don't index
@@ -32,12 +30,9 @@ const DashboardInner = memo(() => {
   const {
     allItems,
     boards,
-    workspaces,
     loading,
     boardsLoading,
-    workspacesLoading,
     createBoard,
-    createWorkspace,
     createItem,
     fetchTags,
     fetchAllItems,
@@ -47,7 +42,7 @@ const DashboardInner = memo(() => {
     toggleFavorite,
     togglePin,
     updateItem,
-  } = useClipboardItems(undefined, currentWorkspaceId || undefined);
+  } = useClipboardItems();
 
 
   if (!user) {
@@ -55,7 +50,7 @@ const DashboardInner = memo(() => {
     return null;
   }
 
-  if (boardsLoading || workspacesLoading) {
+  if (boardsLoading) {
     return (
       <div className="h-screen flex bg-background">
         <SidebarSkeleton isMobile={isMobile} />
@@ -65,19 +60,19 @@ const DashboardInner = memo(() => {
           {/* Header Skeleton */}
           <div className="h-16 flex items-center justify-between px-6">
             <div className="flex items-center space-x-4 flex-1">
-              {isMobile && <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />}
-              <div className="flex-1 max-w-2xl h-10 bg-muted rounded-xl animate-pulse" />
+              {isMobile && <Skeleton className="w-8 h-8 rounded-lg" />}
+              <Skeleton className="flex-1 max-w-2xl h-10 rounded-xl" />
             </div>
-            <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
+            <Skeleton className="w-8 h-8 rounded-lg" />
           </div>
 
           {/* Toolbar Skeleton */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-border/30">
             <div className="flex items-center gap-3 md:gap-6">
-              <div className="w-48 h-10 bg-muted rounded-xl animate-pulse" />
-              <div className="w-20 h-10 bg-muted rounded-xl animate-pulse" />
+              <Skeleton className="w-48 h-10 rounded-xl" />
+              <Skeleton className="w-20 h-10 rounded-xl" />
             </div>
-            <div className="w-32 h-10 bg-muted rounded-xl animate-pulse" />
+            <Skeleton className="w-32 h-10 rounded-xl" />
           </div>
 
           {/* Content Skeleton */}
@@ -86,14 +81,14 @@ const DashboardInner = memo(() => {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="bg-card/50 border border-border/50 rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-6 h-6 bg-muted rounded-lg animate-pulse" />
-                    <div className="w-4 h-4 bg-muted rounded-full animate-pulse" />
+                    <Skeleton className="w-6 h-6 rounded-lg" />
+                    <Skeleton className="w-4 h-4 rounded-full" />
                   </div>
-                  <div className="w-full h-4 bg-muted rounded-lg animate-pulse" />
-                  <div className="w-3/4 h-3 bg-muted rounded-lg animate-pulse" />
+                  <Skeleton className="w-full h-4 rounded-lg" />
+                  <Skeleton className="w-3/4 h-3 rounded-lg" />
                   <div className="flex gap-2">
-                    <div className="w-12 h-5 bg-muted rounded-full animate-pulse" />
-                    <div className="w-16 h-5 bg-muted rounded-full animate-pulse" />
+                    <Skeleton className="w-12 h-5 rounded-full" />
+                    <Skeleton className="w-16 h-5 rounded-full" />
                   </div>
                 </div>
               ))}
@@ -119,10 +114,8 @@ const DashboardInner = memo(() => {
         activeBoard={activeBoard}
         setActiveBoard={setActiveBoard}
         createBoard={createBoard}
-        createWorkspace={createWorkspace}
         items={allItems}
         boards={boards}
-        workspaces={workspaces}
         fetchTags={fetchTags}
         isCollapsed={isMobile ? false : isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -153,7 +146,11 @@ const DashboardInner = memo(() => {
 });
 
 const Dashboard = memo(() => {
-  return <DashboardInner />;
+  return (
+    <BoardProvider>
+      <DashboardInner />
+    </BoardProvider>
+  );
 });
 
 export default Dashboard;
